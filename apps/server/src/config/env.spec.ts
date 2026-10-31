@@ -14,6 +14,9 @@ describe('environment schema (UT-001-05)', () => {
     expect(parseEnv(valid)).toMatchObject({
       NODE_ENV: 'development',
       PORT: 3001,
+      LOG_LEVEL: 'info',
+      LOG_SERVICE_NAME: 'redova-api',
+      LOG_AUTO_LOGGING: true,
       HIBP_ENABLED: true,
       RATE_LIMIT_ENABLED: true,
     });
@@ -21,6 +24,7 @@ describe('environment schema (UT-001-05)', () => {
 
   it('parses boolean flags', () => {
     expect(parseEnv({ ...valid, HIBP_ENABLED: 'false' }).HIBP_ENABLED).toBe(false);
+    expect(parseEnv({ ...valid, LOG_AUTO_LOGGING: 'false' }).LOG_AUTO_LOGGING).toBe(false);
   });
 
   it.each([
@@ -28,6 +32,9 @@ describe('environment schema (UT-001-05)', () => {
     ['short secret', { BETTER_AUTH_SECRET: 'short' }, 'BETTER_AUTH_SECRET'],
     ['invalid URL', { WEB_ORIGIN: 'not a url' }, 'WEB_ORIGIN'],
     ['invalid flag', { HIBP_ENABLED: 'yes' }, 'HIBP_ENABLED'],
+    ['invalid log level', { LOG_LEVEL: 'verbose' }, 'LOG_LEVEL'],
+    ['empty log service', { LOG_SERVICE_NAME: '  ' }, 'LOG_SERVICE_NAME'],
+    ['invalid HTTP logging flag', { LOG_AUTO_LOGGING: 'yes' }, 'LOG_AUTO_LOGGING'],
   ])('rejects a %s and names the variable', (_label, override, variable) => {
     expect(() => parseEnv({ ...valid, ...override })).toThrow(InvalidEnvironmentError);
     try {

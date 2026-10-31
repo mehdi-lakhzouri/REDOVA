@@ -137,6 +137,138 @@ describe('UM-001 foundation (integration)', () => {
     expect(event.targetType).toBe('USER');
   });
 
+  it('persists optional profile fields and protects server-owned timestamps on profile updates', async () => {
+    const email = 'profile@redova.io';
+    const password = 'correct-horse-battery';
+    const signup = await http
+      .post('/api/auth/sign-up/email')
+      .set('origin', WEB_ORIGIN)
+      .send({ name: 'Profile User', email, password, firstName: 'Ada', lastName: 'Lovelace' })
+      .expect(200);
+    expect(signup.body.user).toMatchObject({ firstName: 'Ada', lastName: 'Lovelace' });
+    const created = await t.prisma.user.findUniqueOrThrow({ where: { email } });
+    expect(created).toMatchObject({
+      name: 'Profile User',
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      image: null,
+      lastLoginAt: null,
+      onboardingCompletedAt: null,
+      lastActiveAt: null,
+    });
+
+    // Test fixture: verification delivery is implemented in UM-003. Tracking values are server writes.
+    const trackedAt = new Date('2026-01-01T12:00:00.000Z');
+    await t.prisma.user.update({
+      where: { id: created.id },
+      data: {
+        emailVerified: true,
+        lastLoginAt: trackedAt,
+        onboardingCompletedAt: trackedAt,
+        lastActiveAt: trackedAt,
+      },
+    });
+    const signin = await http
+      .post('/api/auth/sign-in/email')
+      .set('origin', WEB_ORIGIN)
+      .send({ email, password })
+      .expect(200);
+    const cookies = signin.headers['set-cookie'] as unknown as string[];
+    const cookie = cookies.map((value) => value.split(';')[0]).join('; ');
+
+    await http
+      .post('/api/auth/update-user')
+      .set('origin', WEB_ORIGIN)
+      .set('cookie', cookie)
+      .send({ firstName: 'Grace', lastName: 'Hopper' })
+      .expect(200);
+
+    for (const field of ['lastLoginAt', 'onboardingCompletedAt', 'lastActiveAt']) {
+      await http
+        .post('/api/auth/update-user')
+        .set('origin', WEB_ORIGIN)
+        .set('cookie', cookie)
+        .send({ [field]: '2099-01-01T00:00:00.000Z' })
+        .expect(400);
+    }
+    const stored = await t.prisma.user.findUniqueOrThrow({ where: { id: created.id } });
+    expect(stored).toMatchObject({
+      name: 'Profile User',
+      firstName: 'Grace',
+      lastName: 'Hopper',
+      lastLoginAt: trackedAt,
+      onboardingCompletedAt: trackedAt,
+      lastActiveAt: trackedAt,
+    });
+    const session = await http.get('/api/auth/get-session').set('cookie', cookie).expect(200);
+    expect(session.body.user).toMatchObject({
+      firstName: 'Grace',
+      lastName: 'Hopper',
+      lastLoginAt: trackedAt.toISOString(),
+      onboardingCompletedAt: trackedAt.toISOString(),
+      lastActiveAt: trackedAt.toISOString(),
+    });
+  });
+
+  it('rejects client-supplied tracking timestamps during sign-up', async () => {
+    for (const field of ['lastLoginAt', 'onboardingCompletedAt', 'lastActiveAt']) {
+      const email = `${field.toLowerCase()}@redova.io`;
+      await http
+        .post('/api/auth/sign-up/email')
+        .set('origin', WEB_ORIGIN)
+        .send({
+          name: 'Forged tracking',
+          email,
+          password: 'correct-horse-battery',
+          [field]: '2099-01-01T00:00:00.000Z',
+        })
+        .expect(400);
+      expect(await t.prisma.user.findUnique({ where: { email } })).toBeNull();
+    }
+  });
+
+  it('creates organizations and memberships with server-owned SaaS defaults through Better Auth', async () => {
+    const email = 'tenant-owner@redova.io';
+    const password = 'correct-horse-battery';
+    const { user } = await t.auth.api.signUpEmail({
+      body: { name: 'Tenant Owner', email, password },
+    });
+    await t.prisma.user.update({ where: { id: user.id }, data: { emailVerified: true } });
+    const { headers } = await t.auth.api.signInEmail({
+      body: { email, password },
+      returnHeaders: true,
+    });
+    const cookie = headers
+      .getSetCookie()
+      .map((value) => value.split(';')[0])
+      .join('; ');
+    const response = await http
+      .post('/api/auth/organization/create')
+      .set('origin', WEB_ORIGIN)
+      .set('cookie', cookie)
+      .send({ name: 'SaaS tenant', slug: 'saas-tenant' })
+      .expect(200);
+    const organization = await t.prisma.organization.findUniqueOrThrow({
+      where: { id: response.body.id as string },
+    });
+    const member = await t.prisma.member.findUniqueOrThrow({
+      where: { organizationId_userId: { organizationId: organization.id, userId: user.id } },
+    });
+    expect(organization).toMatchObject({
+      status: 'ACTIVE',
+      suspendedAt: null,
+      suspensionReason: null,
+      archivedAt: null,
+      updatedAt: expect.any(Date),
+    });
+    expect(member).toMatchObject({
+      role: 'ORG_OWNER',
+      status: 'ACTIVE',
+      suspendedAt: null,
+      lastActiveAt: null,
+    });
+  });
+
   it('IT-001-12 sets the security headers (AC-001-16)', async () => {
     const res = await http.get('/api/v1/health');
     expect(res.headers['x-content-type-options']).toBe('nosniff');

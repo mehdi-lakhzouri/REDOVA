@@ -9,6 +9,8 @@ export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(3001),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+  LOG_SERVICE_NAME: z.string().trim().min(1).max(100).default('redova-api'),
+  LOG_AUTO_LOGGING: booleanFlag.default(true),
   DATABASE_URL: z.url(),
   REDIS_URL: z.url(),
   BETTER_AUTH_SECRET: z.string().min(32, 'must be at least 32 characters'),

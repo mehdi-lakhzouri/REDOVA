@@ -6,6 +6,7 @@ import { Logger } from 'nestjs-pino';
 import { cleanupOpenApiDoc } from 'nestjs-zod';
 import { requestContextMiddleware } from './common/request-context';
 import type { Env } from './config/env';
+import { HttpLoggingService } from './logging/http-logging.service';
 
 export const API_PREFIX = 'api/v1';
 const DOCS_PATHS = ['/api/v1/docs', '/api/auth/reference'];
@@ -17,6 +18,7 @@ export const configureApp = (app: INestApplication, env: Env): void => {
 
   // Must run first so every request — including the Better Auth handler — has a request context.
   app.use(requestContextMiddleware);
+  app.get(HttpLoggingService).configure(app, env);
 
   // API responses are JSON only (README §17.5). Docs UIs (non-production only) load their own scripts.
   const apiHelmet = helmet({

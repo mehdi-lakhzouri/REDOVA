@@ -20,7 +20,6 @@ const render = (exception: unknown) => {
     switchToHttp: () => ({ getResponse: () => ({ status }) }),
   } as unknown as ArgumentsHost;
   const filter = new ApiExceptionFilter();
-  vi.spyOn(filter['logger'], 'error').mockImplementation(() => undefined);
   filter.catch(exception, host);
   return { status: status.mock.calls[0][0], body: json.mock.calls[0][0] };
 };

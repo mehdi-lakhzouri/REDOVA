@@ -4,18 +4,17 @@ import { createAuth } from '@redova/auth';
 import type { PrismaClient } from '@redova/db';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import type { Redis } from 'ioredis';
-import { LoggerModule } from 'nestjs-pino';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AuditModule } from './audit/audit.module';
 import { AuditService } from './audit/audit.service';
 import { ApiExceptionFilter } from './common/api-exception.filter';
 import { EnvelopeInterceptor } from './common/envelope.interceptor';
-import { buildPinoHttpOptions } from './common/logger';
 import type { Env } from './config/env';
 import { ENV, PRISMA, REDIS } from './config/tokens';
 import { createDevEnqueueEmail } from './email/dev-enqueue-email';
 import { HealthController } from './health/health.controller';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
+import { LoggingModule } from './logging/logging.module';
 
 const authLogger = new Logger('BetterAuth');
 
@@ -30,7 +29,7 @@ export class AppModule {
       module: AppModule,
       imports: [
         InfrastructureModule.forRoot(env),
-        LoggerModule.forRoot({ pinoHttp: buildPinoHttpOptions(env) }),
+        LoggingModule.forRoot(env),
         AuditModule,
         AuthModule.forRootAsync({
           useFactory: (config: Env, prisma: PrismaClient, redis: Redis, audit: AuditService) => ({

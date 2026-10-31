@@ -4,7 +4,6 @@ import {
   type ExceptionFilter,
   ForbiddenException,
   HttpException,
-  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -57,15 +56,15 @@ const fromCode = (code: ErrorCode): MappedError => ({
  */
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(ApiExceptionFilter.name);
-
   catch(exception: unknown, host: ArgumentsHost): void {
     const response = host.switchToHttp().getResponse<Response>();
     const requestId = getRequestContext()?.requestId ?? '';
     const mapped = this.map(exception);
 
     if (mapped.status >= 500) {
-      this.logger.error({ err: exception, requestId }, 'Unhandled error');
+      // pino-http writes the original error and duration once, when the response finishes.
+      // This also covers failures in guards/pipes that an interceptor might not see.
+      response.err = exception instanceof Error ? exception : new Error('Non-Error exception');
     }
 
     const body: ErrorEnvelope = {
