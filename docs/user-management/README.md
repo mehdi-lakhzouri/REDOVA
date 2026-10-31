@@ -1422,8 +1422,8 @@ flowchart LR
 | --- | --- | --- | --- |
 | `NODE_ENV` | all | `development` | |
 | `PORT` | server | `3001` | |
-| `DATABASE_URL` | server, worker | `postgresql://redova:redova@localhost:5432/redova` | |
-| `REDIS_URL` | server, worker | `redis://localhost:6379` | Password required outside dev. |
+| `DATABASE_URL` | server, worker | `postgresql://redova:redova@localhost:5433/redova` | |
+| `REDIS_URL` | server, worker | `redis://localhost:6380` | Password required outside dev. |
 | `BETTER_AUTH_SECRET` | server | 32+ random bytes (base64) | Never committed. Rotating it invalidates 2FA secrets → rotation procedure = future. |
 | `BETTER_AUTH_URL` | server, worker | `http://localhost:3001` | Public server origin in this phase. |
 | `WEB_ORIGIN` | server, worker | `http://localhost:3000` | The only trusted origin: `Origin` checks, `callbackURL` / `redirectTo` validation, links to future frontend pages in emails. |
@@ -1457,6 +1457,8 @@ Per-account sign-in throttle (custom): 10 failed attempts per normalized email p
 
 | Service | Image | Ports | Profile |
 | --- | --- | --- | --- |
-| `postgres` | `postgres:17` | 5432 | default |
-| `redis` | `redis:7` | 6379 | default |
+| `postgres` | `postgres:17` | 5433 (host) → 5432 | default |
+| `redis` | `redis:7` | 6380 (host) → 6379 | default |
 | `mailpit` | `axllent/mailpit` | 1025 (SMTP), 8025 (UI/API) | `test` (also usable in dev) |
+
+Host ports 5433/6380 avoid clashes with other local PostgreSQL/Redis instances; all ports are bound to `127.0.0.1` only. Override them with `POSTGRES_PORT`, `REDIS_PORT`, `MAILPIT_SMTP_PORT`, `MAILPIT_UI_PORT`.
