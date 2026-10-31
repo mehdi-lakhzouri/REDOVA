@@ -262,9 +262,16 @@ None (backend-only phase).
 
 ## Definition of Done
 
+Local implementation and validation evidence: [UM-008 validation pack](../validation/UM-008-validation.md).
+CI evidence: GitHub Actions run on `master` at `1a9a976` (PRs #21–#25 for UM-008): `lint-typecheck-unit`, `integration`, `e2e` and `security` green.
+
+- [x] Local implementation: security gates, E2E harness, coverage threshold, source checks and migration/schema validation.
+- [x] Six E2E journeys, audit journey and log-secret scan pass locally with real server/worker processes.
+- [x] Threat-model walkthrough T1–T16 and residual risks recorded in the validation pack, ready to attach to the PR.
+
 - [ ] Global Definition of Done (README §20) satisfied.
-- [ ] All AC-008-xx automated and green (P1 items either done or explicitly moved to the next sprint with the owner's agreement).
-- [ ] README §17.1 and §17.2 updated with "Verified by" test IDs, and residual risks recorded.
-- [ ] Coverage targets of README §19.3 met and reported in CI.
-- [ ] All six API journeys pass in CI on `master`.
-- [ ] Security sign-off: threat-model walkthrough completed and recorded in the PR description. This evidence pack is reused in the PFE report.
+- [x] All AC-008-xx automated and green (P1 items done: per-account throttle, tenant-scope lint rule).
+- [x] README §17.1 and §17.2 updated with "Verified by" test IDs, and residual risks recorded.
+- [x] Coverage targets of README §19.3 met and reported in CI (core 98.6%, contracts 100%, integrations 93.9%, server 81.4%).
+- [x] All six API journeys pass in CI on `master` (`e2e` job).
+- [x] Security sign-off: threat-model walkthrough completed and recorded in the PR description (#22). This evidence pack is reused in the PFE report.

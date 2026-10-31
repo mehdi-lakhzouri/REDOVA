@@ -4,7 +4,7 @@
 | --- | --- |
 | Module | User Management (Identity, Authentication, Organizations, RBAC) |
 | Phase | **Backend only.** The frontend (`apps/web`) is deferred to a later phase. |
-| Status | Design approved for implementation — Sprint 01 |
+| Status | Backend implemented and merged on `master` (UM-001…UM-008, avatar extension); CI green. Remaining release gates: `e2e`/`security` as required checks, manual checks, Sprint 01 review and `v0.1.0`. |
 | Better Auth version | `better-auth@1.7.14` (verified against installed source, not assumed) |
 | NestJS integration | `@thallesp/nestjs-better-auth@2.8.0` |
 | Sprint backlog | [SPRINT-01.md](SPRINT-01.md) |
