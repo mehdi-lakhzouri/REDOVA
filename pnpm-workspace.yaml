@@ -18,3 +18,7 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - bullmq@6.5.3
+
+# Security patches for transitive dependencies (pnpm audit gate, UM-008).
+overrides:
+  multer: ^2.5.0

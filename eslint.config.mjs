@@ -5,6 +5,7 @@ import eslint from '@eslint/js';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import tenantScope from './scripts/eslint-tenant-scope.mjs';
 
 const forbid = (...packages) => ({
   'no-restricted-imports': [
@@ -23,6 +24,12 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   prettier,
+  {
+    files: ['packages/auth/src/**/*.ts', 'packages/db/src/**/*.ts'],
+    ignores: ['**/*.spec.ts', '**/*.int-spec.ts'],
+    plugins: { redova: tenantScope },
+    rules: { 'redova/tenant-scope': 'error' },
+  },
   {
     languageOptions: { globals: { ...globals.node } },
     rules: {

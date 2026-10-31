@@ -3,6 +3,7 @@ import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import tenantScope from '../../scripts/eslint-tenant-scope.mjs';
 
 export default tseslint.config(
   {
@@ -11,6 +12,12 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   eslintPluginPrettierRecommended,
+  {
+    files: ['src/**/*.ts'],
+    ignores: ['src/**/*.spec.ts'],
+    plugins: { redova: tenantScope },
+    rules: { 'redova/tenant-scope': 'error' },
+  },
   {
     languageOptions: {
       globals: {
@@ -29,8 +36,11 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
-      "prettier/prettier": ["error", { endOfLine: "auto" }],
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'prettier/prettier': ['error', { endOfLine: 'auto' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
   {

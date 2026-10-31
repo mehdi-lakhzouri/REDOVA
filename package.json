@@ -19,13 +19,17 @@
     "infra:up": "docker compose -f docker/docker-compose.yml --profile test up -d --wait",
     "infra:down": "docker compose -f docker/docker-compose.yml --profile test down",
     "infra:e2e": "docker compose -f docker/docker-compose.yml --profile e2e up -d --wait redis-e2e mailpit-e2e",
+    "security:secrets": "node scripts/check-secrets.mjs",
+    "security:secrets:self-test": "node scripts/check-secrets.mjs --self-test",
+    "security:audit": "pnpm audit --prod --audit-level=high",
     "prepare": "simple-git-hooks",
     "db:schema:check": "pnpm --filter @redova/auth auth:generate && git diff --exit-code --ignore-cr-at-eol -- packages/db/prisma/schema.prisma",
     "db:migrate": "pnpm --filter @redova/db db:migrate",
     "db:migrate:dev": "pnpm --filter @redova/db db:migrate:dev",
     "db:generate": "pnpm --filter @redova/db db:generate",
     "db:studio": "pnpm --filter @redova/db db:studio",
-    "check:workflows": "node scripts/check-workflows.mjs"
+    "check:workflows": "node scripts/check-workflows.mjs",
+    "test:tooling": "node --test scripts/*.test.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",

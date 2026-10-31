@@ -24,6 +24,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm check:workflows
+      - run: pnpm test:tooling
       - run: pnpm turbo run build lint typecheck test
       - name: Coverage reports (core, contracts, integrations)
         if: always()
@@ -134,6 +136,37 @@ jobs:
           name: e2e-process-logs
           path: apps/server/.e2e-logs/*.log
           include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: warn
+
+  security:
+    name: security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Production dependency audit (high and critical are blocking)
+        run: pnpm security:audit
+      - name: Secret scan of full Git history and current source
+        if: ${{ !cancelled() }}
+        run: pnpm security:secrets
+      - name: Prove that a planted credential is rejected
+        if: ${{ !cancelled() }}
+        run: pnpm security:secrets:self-test
+      - name: Redacted secret scanning reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: test-results/security/*.json
           retention-days: 7
           if-no-files-found: warn
 
