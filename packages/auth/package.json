@@ -15,7 +15,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "auth:generate": "auth generate --config src/auth.cli.ts --output ../db/prisma/schema.prisma --yes",
-    "test:integration": "vitest run -c vitest.integration.config.ts"
+    "test:integration": "vitest run -c vitest.integration.config.mts"
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "1.7.14",
