@@ -6,3 +6,4 @@ export {
   AuditTargetType,
   TenantSubscriptionStatus,
 } from './generated/prisma/enums';
+export * from './tenant-scope';

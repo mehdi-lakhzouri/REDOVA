@@ -20,6 +20,7 @@
   "dependencies": {
     "@better-auth/prisma-adapter": "1.7.14",
     "@redova/contracts": "workspace:*",
+    "@redova/core": "workspace:*",
     "@redova/db": "workspace:*",
     "better-auth": "1.7.14",
     "ioredis": "^5.11.1"

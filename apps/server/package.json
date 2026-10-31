@@ -20,6 +20,7 @@
     "@nestjs/swagger": "^11.4.7",
     "@redova/auth": "workspace:*",
     "@redova/contracts": "workspace:*",
+    "@redova/core": "workspace:*",
     "@redova/db": "workspace:*",
     "@thallesp/nestjs-better-auth": "2.8.0",
     "dotenv": "^17.4.2",

@@ -32,7 +32,7 @@ Guarantee tenant isolation (BO-2) and least privilege across the platform. Provi
   - `@Tenant()` parameter decorator returning `TenantContext`.
   - `MfaRequiredGuard` (`user.twoFactorEnabled`) → `403 MFA_ENROLLMENT_REQUIRED`.
   - `FreshSessionGuard` (session age < `freshAge`) → `403 REAUTHENTICATION_REQUIRED`.
-  - `EmailVerifiedGuard` (defense in depth) → `403 EMAIL_NOT_VERIFIED`.
+  - `EmailVerifiedGuard` (defense in depth) → `403 EMAIL_NOT_VERIFIED` — implemented as `requireSession()`, which every REDOVA guard calls (global guard ordering relative to the library AuthGuard is not guaranteed).
   - `OriginGuard` for non-GET REDOVA requests → `403 ORIGIN_NOT_ALLOWED`.
   - Composite decorators: `@PlatformAdmin()` = `@Roles(["PLATFORM_ADMIN"])` (native from `@thallesp/nestjs-better-auth`) + `MfaRequiredGuard`; `@PlatformAdminMutation()` = `@PlatformAdmin()` + `FreshSessionGuard` + `OriginGuard`.
 - Audit `authz.access_denied` for 403 decisions of REDOVA guards.
@@ -49,31 +49,31 @@ Guarantee tenant isolation (BO-2) and least privilege across the platform. Provi
 
 ### `packages/core`
 
-- [ ] `org-roles.ts`: `ORG_ROLE_RANK` (`ORG_OWNER` 100, `ORG_ADMIN` 80, the others 10). `isValidOrgRole(value)`: exactly one known role, no comma.
-- [ ] `canAssignOrgRole({ actorRole, targetRole })`: owner → any role; admin → only rank < 80; others → none.
-- [ ] `canManageMember({ actorRole, actorMemberId, targetMemberId, targetRole, newRole? })`: implements R1, R3, R4 and R5 (self-promotion forbidden, self-demotion allowed). The last-owner rule (R2) is left to Better Auth (native).
+- [x] `org-roles.ts`: `ORG_ROLE_RANK` (`ORG_OWNER` 100, `ORG_ADMIN` 80, the others 10). `isValidOrgRole(value)`: exactly one known role, no comma.
+- [x] `canAssignOrgRole({ actorRole, targetRole })`: owner → any role; admin → only rank < 80; others → none.
+- [x] `canManageMember({ actorRole, actorMemberId, targetMemberId, targetRole, newRole? })`: implements R1, R3, R4 and R5 (self-promotion forbidden, self-demotion allowed). The last-owner rule (R2) is left to Better Auth (native).
 
 ### `packages/auth`
 
-- [ ] `organizationHooks.beforeCreateInvitation({ invitation, inviter, organization })`: load the inviter's `member` row for `organization.id`; reject invalid roles (`ORG_ROLE_INVALID`) and `!canAssignOrgRole` (`ORG_ROLE_ESCALATION_FORBIDDEN`).
-- [ ] `hooks.before` matcher `/organization/update-member-role`: require `body.organizationId` (`400 ORGANIZATION_ID_REQUIRED`); `getSessionFromCtx(ctx)` → actor; load actor member and target member (`body.memberId`) **within `body.organizationId`** (a target from another organization → let the native check fail, do not leak); validate `body.role`; apply `canManageMember` with `newRole`.
-- [ ] `hooks.before` matcher `/organization/remove-member`: same, with `body.memberIdOrEmail` resolved within the organization, without `newRole`.
-- [ ] `hasOrgPermission(role, permissions)` using `roles[role].authorize(permissions)` from the shared access control (single source of truth with Better Auth).
+- [x] `organizationHooks.beforeCreateInvitation({ invitation, inviter, organization })`: load the inviter's `member` row for `organization.id`; reject invalid roles (`ORG_ROLE_INVALID`) and `!canAssignOrgRole` (`ORG_ROLE_ESCALATION_FORBIDDEN`).
+- [x] `hooks.before` matcher `/organization/update-member-role`: require `body.organizationId` (`400 ORGANIZATION_ID_REQUIRED`); `getSessionFromCtx(ctx)` → actor; load actor member and target member (`body.memberId`) **within `body.organizationId`** (a target from another organization → let the native check fail, do not leak); validate `body.role`; apply `canManageMember` with `newRole`.
+- [x] `hooks.before` matcher `/organization/remove-member`: same, with `body.memberIdOrEmail` resolved within the organization, without `newRole`.
+- [x] `hasOrgPermission(role, permissions)` using `roles[role].authorize(permissions)` from the shared access control (single source of truth with Better Auth).
 
 ### `apps/server`
 
-- [ ] `TenantContext` type `{ userId, organizationId, memberId, role }` in `packages/contracts`.
-- [ ] `OrgPermissionGuard`: read `:organizationId` from route params only; query `member` by `(organizationId, userId)`; none → `NotFound(ORGANIZATION_NOT_FOUND)`; `!hasOrgPermission` → `Forbidden(FORBIDDEN_PERMISSION)` + audit `authz.access_denied` (`organizationId`, `metadata: { required, role }`); else set `request.tenant`.
-- [ ] `@RequireOrgPermission(permissions)` decorator (metadata + `UseGuards(OrgPermissionGuard)`), `@Tenant()` param decorator.
-- [ ] `MfaRequiredGuard`, `FreshSessionGuard` (reads `session.createdAt` + the auth config's `freshAge`), `EmailVerifiedGuard` (registered globally after the auth guard), `OriginGuard` (non-GET/HEAD/OPTIONS on `/api/v1/*`: `Origin` must equal `WEB_ORIGIN`; absent `Origin` + `Sec-Fetch-Site: same-origin` accepted; otherwise 403). All 403s audited as `authz.access_denied`.
-- [ ] `@PlatformAdmin()` and `@PlatformAdminMutation()` composite decorators.
-- [ ] `tenantScoped()` helper in `packages/db` + "Tenant data rules" section in the server contributing guide (README §10.3).
-- [ ] Test-only module `AuthzTestModule` (loaded only when `NODE_ENV=test`) exposing:
+- [x] `TenantContext` type `{ userId, organizationId, memberId, role }` in `packages/contracts`.
+- [x] `OrgPermissionGuard`: read `:organizationId` from route params only; query `member` by `(organizationId, userId)`; none → `NotFound(ORGANIZATION_NOT_FOUND)`; `!hasOrgPermission` → `Forbidden(FORBIDDEN_PERMISSION)` + audit `authz.access_denied` (`organizationId`, `metadata: { required, role }`); else set `request.tenant`.
+- [x] `@RequireOrgPermission(permissions)` decorator (metadata + `UseGuards(OrgPermissionGuard)`), `@Tenant()` param decorator.
+- [x] `MfaRequiredGuard`, `FreshSessionGuard` (reads `session.createdAt` + the auth config's `freshAge`), `EmailVerifiedGuard` (registered globally after the auth guard), `OriginGuard` (non-GET/HEAD/OPTIONS on `/api/v1/*`: `Origin` must equal `WEB_ORIGIN`; absent `Origin` + `Sec-Fetch-Site: same-origin` accepted; otherwise 403). All 403s audited as `authz.access_denied`.
+- [x] `@PlatformAdmin()` and `@PlatformAdminMutation()` composite decorators.
+- [x] `tenantScoped()` helper in `packages/db` + "Tenant data rules" section in the server contributing guide (README §10.3).
+- [x] Test-only module `AuthzTestModule` (loaded only when `NODE_ENV=test`) exposing:
   - `GET /api/v1/organizations/:organizationId/__test/members-only` (`@RequireOrgPermission({ member: ["read"] })`),
   - `GET /api/v1/organizations/:organizationId/__test/audit` (`{ auditLog: ["read"] }`),
   - `GET /api/v1/organizations/:organizationId/__test/items` (cursor list) and `…/__test/items/:itemId`, backed by a test-only tenant-owned table, used to exercise the contract kit,
   - `GET|POST /api/v1/__test/admin` (`@PlatformAdmin()` / `@PlatformAdminMutation()`).
-- [ ] `test/tenant-isolation.kit.ts`: `describeTenantIsolation({ name, createResourceIn(orgId), getOne(orgId, id), list(orgId, cursor?) })` generating tests TENANT-ISO-01…04 (README §10.3).
+- [x] `test/tenant-isolation.kit.ts`: `describeTenantIsolation({ name, createResourceIn(orgId), getOne(orgId, id), list(orgId, cursor?) })` generating tests TENANT-ISO-01…04 (README §10.3).
 
 ## Affected monorepo packages/apps
 
@@ -249,8 +249,8 @@ None (backend-only phase).
 
 ## Definition of Done
 
-- [ ] Global Definition of Done (README §20) satisfied.
-- [ ] All AC-006-xx automated and green; `packages/core` coverage ≥ 95% with 100% of escalation branches.
-- [ ] README §9 and the matrix fixture are asserted against the same source, so they cannot drift.
-- [ ] `describeTenantIsolation` documented with a usage example for future modules (in the server contributing guide).
-- [ ] Test-only controllers and tables cannot be loaded outside `NODE_ENV=test` (asserted by a test).
+- [ ] Global Definition of Done (README §20) satisfied — coverage reporting (§19.3) is added to CI in UM-008.
+- [x] All AC-006-xx automated and green; `packages/core` coverage ≥ 95% with 100% of escalation branches.
+- [x] README §9 and the matrix fixture are asserted against the same source, so they cannot drift (the test parses the README tables).
+- [x] `describeTenantIsolation` documented with a usage example for future modules (`apps/server/test/support/tenant-isolation.kit.ts` and `apps/server/README.md`).
+- [x] Test-only controllers and tables cannot be loaded outside `NODE_ENV=test` (they live in `test/`, and a test asserts the production build contains none).

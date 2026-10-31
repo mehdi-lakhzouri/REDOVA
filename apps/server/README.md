@@ -140,3 +140,43 @@ local Docker services and a built server; they use the isolated test database an
 References: [nestjs-pino](https://github.com/iamolegga/nestjs-pino),
 [pino-http](https://github.com/pinojs/pino-http),
 [Pino redaction](https://github.com/pinojs/pino/blob/main/docs/redaction.md).
+
+## Authorization (UM-006)
+
+Every REDOVA route is authenticated by the global Better Auth guard. Add one decorator from
+`src/authz` per route:
+
+| Decorator | Use for | Checks |
+| --- | --- | --- |
+| `@RequireOrgPermission({ resource: ['action'] })` | Tenant-scoped routes under `organizations/:organizationId/…` | trusted `Origin` on mutations, `ACTIVE` membership read from the database (non-member → 404), permission from the shared RBAC matrix (missing → 403, audited) |
+| `@Tenant()` (parameter) | Reading the resolved tenant | `{ userId, organizationId, memberId, role }` — never read the tenant from body or query |
+| `@PlatformAdmin()` | Admin reads | `PLATFORM_ADMIN` + MFA enrolled |
+| `@PlatformAdminMutation()` | Admin writes | the above + session younger than 1 h + trusted `Origin` |
+
+```typescript
+@Controller('organizations/:organizationId/agents')
+export class AgentsController {
+  @Get(':agentId')
+  @RequireOrgPermission({ agent: ['read'] })
+  get(@Tenant() tenant: TenantContext, @Param('agentId') agentId: string) {
+    // Always scope by tenant: findFirst({ where: tenantScoped(tenant.organizationId, { id: agentId }) })
+    return this.agents.get(tenant, agentId);
+  }
+}
+```
+
+Every tenant-scoped module must also run the cross-tenant contract kit in its integration tests:
+
+```typescript
+describeTenantIsolation({
+  name: 'agents',
+  setup: async () => ({ t, a: { organizationId: orgA.id, cookie: ownerA }, b: { organizationId: orgB.id, cookie: ownerB } }),
+  create: async (t, side) => createAgentVia(t, side),
+  listPath: (orgId) => `/api/v1/organizations/${orgId}/agents`,
+  itemPath: (orgId, id) => `/api/v1/organizations/${orgId}/agents/${id}`,
+});
+```
+
+Organization role changes, removals and invitations go through Better Auth's native endpoints; the
+role-rank rules (an `ORG_ADMIN` cannot grant or manage `ORG_ADMIN`/`ORG_OWNER`, nobody raises their own
+role, one role per membership) are enforced by hooks in `packages/auth/src/org-escalation-hooks.ts`.
