@@ -207,13 +207,13 @@ The full decision log is in [README Appendix B](README.md#appendix-b--decision-l
 
 - [ ] Sprint goal and commitment (§1, §3.2) accepted by the project owner/supervisor
 - [ ] Decisions SD-1, D-09, D-11, D-12, D-13, D-18 answered or defaults accepted
-- [ ] GitHub repository created; `main` protection configured per [GIT-STRATEGY §8](../GIT-STRATEGY.md#8-main-branch-protection-github-settings); one issue per ticket (UM-001 … UM-008)
+- [ ] GitHub repository created; `master` protection configured per [GIT-STRATEGY §8](../GIT-STRATEGY.md#8-master-branch-protection-github-settings); one issue per ticket (UM-001 … UM-008)
 - [ ] Docker Desktop, Node ≥ 22.12, pnpm installed; Google App Password created for dev email (needed in UM-003)
 - [ ] `backend/` and `frontend/` folders archived before the monorepo migration
 
 ### During the sprint
 
-- [ ] Day-1 spike outcome recorded in UM-001 (go / adjust)
+- [x] Day-1 spike outcome recorded in UM-001 (go / adjust)
 - [ ] Mid-sprint checkpoint held on day 5; stretch kept or dropped explicitly
 - [ ] Every change delivered through a PR following GIT-STRATEGY (branch name, Conventional Commits, template filled, no AI attribution)
 - [ ] Each merged PR keeps `pnpm turbo run lint typecheck test` green
@@ -236,6 +236,6 @@ The full decision log is in [README Appendix B](README.md#appendix-b--decision-l
 
 - [ ] Demo performed: health endpoint, `/api/v1/docs`, `/api/auth/reference`, sign-up → sign-in → sessions via API, audit rows, audit trigger
 - [ ] README and tickets updated with anything learned (hook behavior, config changes)
-- [ ] `v0.1.0` tagged on `main`; GitHub release notes generated
+- [ ] `v0.1.0` tagged on `master`; GitHub release notes generated
 - [ ] Velocity recorded; §3.3 forecast updated; Sprint 02 backlog ordered
 - [ ] Retrospective action item recorded

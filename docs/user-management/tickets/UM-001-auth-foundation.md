@@ -44,15 +44,15 @@ Remove the main technical risks of the module (ESM/CJS interop, Prisma 7, plugin
 
 ### 0. Spike (timebox: 1 day)
 
-- [ ] Minimal NestJS 11 app in CommonJS importing `better-auth@1.7.14` (ESM-only) on Node ≥ 22.12 via `require(esm)`; mount through `@thallesp/nestjs-better-auth`; call `GET /api/auth/ok`.
-- [ ] Prisma 7 with `prisma.config.ts`, `@prisma/adapter-pg`, explicit generator `output`, used by `@better-auth/prisma-adapter`.
-- [ ] Record the outcome (works as-is / needs ESM build / other) in the "Spike result" section below before continuing.
+- [x] Minimal NestJS 11 app in CommonJS importing `better-auth@1.7.14` (ESM-only) on Node ≥ 22.12 via `require(esm)`; mount through `@thallesp/nestjs-better-auth`; call `GET /api/auth/ok`.
+- [x] Prisma 7 with `prisma.config.ts`, `@prisma/adapter-pg`, explicit generator `output`, used by `@better-auth/prisma-adapter`.
+- [x] Record the outcome (works as-is / needs ESM build / other) in the "Spike result" section below before continuing.
 
 ### 1. Monorepo migration
 
-- [ ] Archive `backend/` and `frontend/` (zip outside the repo). Remove the nested `.git` folders (`backend/.git` has no commits; `frontend/.git` holds only the "Initial commit from Create Next App"). Run `git init` at the repo root, with `main` as the default branch.
-- [ ] Move `backend/` → `apps/server` (package `@redova/server`) and `frontend/` → `apps/web` (package `@redova/web`, unchanged). Delete the per-project `pnpm-lock.yaml` / `pnpm-workspace.yaml`.
-- [ ] Root `package.json` (`packageManager` pinned, `engines.node >= 22.12`), `pnpm-workspace.yaml` (`apps/*`, `packages/*`), `turbo.json` tasks: `build`, `dev`, `lint`, `typecheck`, `test`, `test:integration`, `test:e2e`.
+- [x] Remove the nested `.git` folders and run `git init` at the repo root, with `master` as the default branch. (Done by the repository owner before the migration; the GitHub remote `origin` already exists.)
+- [x] Move `backend/` → `apps/server` (package `@redova/server`) and `frontend/` → `apps/web` (package `@redova/web`, unchanged). Delete the per-project `pnpm-lock.yaml` / `pnpm-workspace.yaml`.
+- [x] Root `package.json` (`packageManager` pinned, `engines.node >= 22.12`), `pnpm-workspace.yaml` (`apps/*`, `packages/*`, explicit `allowBuilds`), `turbo.json` tasks: `build`, `dev`, `lint`, `typecheck`, `test`, `test:integration`, `test:e2e`.
 - [ ] Root `tsconfig.base.json`, shared ESLint flat config; import-boundary rules enforcing README §3.3.
 - [ ] Root `.gitignore` covering `.env` and `.env.*` (except `.env.example`), `node_modules`, `.turbo`, `.next`, `dist`, `coverage`.
 - [ ] Server default port `3001`.
@@ -62,8 +62,8 @@ Remove the main technical risks of the module (ESM/CJS interop, Prisma 7, plugin
 - [ ] `.github/pull_request_template.md` with the exact template from GIT-STRATEGY §5.4.
 - [ ] `commitlint.config.mjs` (`@commitlint/config-conventional`, scope enum, header length, `trailer-exists: never Co-authored-by:`).
 - [ ] `simple-git-hooks` `commit-msg` hook running commitlint **and** the case-insensitive forbidden-attribution pattern (GIT-STRATEGY §4.5).
-- [ ] CI job `git-hygiene`: branch-name regex, commitlint over `origin/main..HEAD`, forbidden-pattern scan of commit messages, PR title and PR body, PR title as Conventional Commit.
-- [ ] Document the GitHub `main` protection settings (GIT-STRATEGY §8) in the root README and apply them once the remote exists.
+- [ ] CI job `git-hygiene`: branch-name regex, commitlint over `origin/master..HEAD`, forbidden-pattern scan of commit messages, PR title and PR body, PR title as Conventional Commit.
+- [ ] Document the GitHub `master` protection settings (GIT-STRATEGY §8) in the root README and apply them once the remote exists.
 
 ### 3. Local infrastructure
 
@@ -82,7 +82,7 @@ Remove the main technical risks of the module (ESM/CJS interop, Prisma 7, plugin
 ### 5. `packages/db`
 
 - [ ] Prisma 7 setup: `prisma.config.ts`, `schema.prisma` (generator with explicit `output`), client singleton using `@prisma/adapter-pg`.
-- [ ] Generate Better Auth models with the Better Auth CLI `generate` command, pinned to `1.7.14`, from the `packages/auth` config. Commit the result.
+- [ ] Generate Better Auth models with the Better Auth CLI — package **`auth@1.7.14`** (`pnpm exec auth generate --config <auth config> --output <schema.prisma> --yes`) — from the `packages/auth` config. Bootstrap order: `prisma generate` (empty client) → `auth generate` → `prisma migrate dev`. Commit the result.
 - [ ] REDOVA additions (marked `// REDOVA:`): `member @@unique([organizationId, userId])`, `user @@index([createdAt, id])`, `invitation @@index([organizationId, status])`.
 - [ ] `AuditEvent` model + enums (README §12.3) with `@default(uuid(7))`, indexes `(organizationId, id)`, `(actorUserId, id)`, `(action, id)`.
 - [ ] SQL migration: trigger function + trigger `audit_event_immutable` raising on `UPDATE` / `DELETE`.
@@ -295,7 +295,7 @@ None (backend-only phase). `apps/web` is moved into the monorepo unchanged and m
 ## Definition of Done
 
 - [ ] Global Definition of Done (README §20) satisfied.
-- [ ] Spike result recorded below.
+- [x] Spike result recorded below.
 - [ ] All AC-001-xx covered by the listed automated tests, green in CI.
 - [ ] `README.md` Appendix C matches the real env variables and compose services.
 - [ ] A new developer can go from clone to a running health endpoint by following the root README in under 15 minutes.
@@ -303,4 +303,19 @@ None (backend-only phase). `apps/web` is moved into the monorepo unchanged and m
 
 ## Spike result
 
-_To be filled in on day 1: approach that worked, versions, anything that changes this ticket or the README._
+**Outcome: GO — works as-is with a CommonJS NestJS build.** Spike run on 2026-10-31 in a throw-away project (not merged), Node 24.18, pnpm 12.4.2.
+
+| Check | Result |
+| --- | --- |
+| `require("better-auth")` (ESM-only) from CommonJS | Works on Node 24 (`require(esm)`). No ESM build of the server needed. |
+| TypeScript 5.9.3, `module: nodenext`, CJS package importing `better-auth` and `better-auth/plugins` | Compiles without errors. |
+| `@thallesp/nestjs-better-auth@2.8.0` + NestJS 11.1.6 (`bodyParser: false`) | `GET /api/auth/ok` → `{ ok: true }`; `@AllowAnonymous()` route → 200; protected route → 401 without session, 200 with the session cookie from sign-up. |
+| Prisma 7.10.1 + `@prisma/adapter-pg` + `@better-auth/prisma-adapter@1.7.14` | Sign-up persisted the user with `role = "user"` default (admin plugin). Generator `prisma-client` with `moduleFormat = "cjs"` and explicit `output`; datasource URL lives in `prisma.config.ts`. |
+| Better Auth CLI | The CLI for 1.7.x is the package **`auth`** (`auth@1.7.14`); `@better-auth/cli` is frozen at 1.4.x. `auth generate` produced the 8 expected models (`user`, `session`, `account`, `verification`, `organization`, `member`, `invitation`, `twoFactor`). |
+
+Consequences for this ticket:
+
+1. Keep the server in **CommonJS** (default NestJS build); keep **NestJS 11** and **TypeScript 5.9.3** (latest majors NestJS 12 / TypeScript 7 / Prisma 8 RC are out of scope for Sprint 01).
+2. Schema bootstrap order: `prisma generate` with an empty schema first (the auth config imports the generated client), then `auth generate`, then `prisma migrate dev`.
+3. pnpm 12 blocks install scripts unless allowed: `allowBuilds` in `pnpm-workspace.yaml` (`prisma` and `@prisma/engines` → `true`, `@nestjs/core` → `false`).
+4. Import plugins from their dedicated paths (`better-auth/plugins/two-factor`, …) as recommended by the Better Auth skills committed in `.agents/`.

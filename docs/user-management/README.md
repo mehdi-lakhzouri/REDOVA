@@ -719,7 +719,7 @@ flowchart TB
 
 Rules:
 
-- **Never hand-edit Better Auth–generated columns.** Regenerate with the Better Auth CLI pinned to the installed version, then review the diff before migrating.
+- **Never hand-edit Better Auth–generated columns.** Regenerate with the Better Auth CLI — package `auth`, pinned to the installed version (`auth@1.7.14`; the older `@better-auth/cli` package stops at 1.4.x) — then review the diff before migrating.
 - REDOVA may add to generated models only: **indexes** and **composite unique constraints** (listed in §12), marked with a `// REDOVA:` comment.
 - The rate-limit table is **not** generated because rate limiting uses Redis (`customStorage`).
 

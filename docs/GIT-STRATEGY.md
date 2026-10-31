@@ -3,19 +3,19 @@
 | Item | Value |
 | --- | --- |
 | Applies to | The whole REDOVA monorepo (all apps, packages and docs) |
-| Model | GitHub Flow (trunk-based): `main` is the only long-lived branch; one short-lived branch per change |
+| Model | GitHub Flow (trunk-based): `master` is the only long-lived branch; one short-lived branch per change |
 | Commit convention | Conventional Commits 1.0.0 |
 | Default merge method | **Squash and merge** |
-| Enforcement | Commit-msg hook + CI `git-hygiene` job + `main` branch protection (set up in [UM-001](user-management/tickets/UM-001-auth-foundation.md)) |
+| Enforcement | Commit-msg hook + CI `git-hygiene` job + `master` branch protection (set up in [UM-001](user-management/tickets/UM-001-auth-foundation.md)) |
 
 ---
 
 ## 1. Principles
 
-1. **`main` is always green and releasable.** Nothing reaches `main` without a pull request and passing CI.
+1. **`master` is always green and releasable.** Nothing reaches `master` without a pull request and passing CI.
 2. **Small, short-lived branches.** A branch lives hours to a few days, not weeks. Large tickets are delivered as several PRs.
-3. **One PR = one logical change = one commit on `main`** (by default, through squash and merge).
-4. **History is linear.** No merge commits on `main`. `git log --oneline main` reads like a changelog.
+3. **One PR = one logical change = one commit on `master`** (by default, through squash and merge).
+4. **History is linear.** No merge commits on `master`. `git log --oneline master` reads like a changelog.
 5. **Every change is traceable.** Branch, commits and PR all reference the ticket (`UM-xxx`) and its GitHub issue.
 6. **No AI attribution in history.** Commits and PRs must **never** contain `Co-authored-by:` trailers or "Generated with/by Claude" (or any other AI tool) attribution. See §4.5.
 7. **No secrets in Git, ever** (§11).
@@ -25,32 +25,33 @@
 ## 2. Branching model
 
 ```mermaid
+%%{init: { 'gitGraph': { 'mainBranchName': 'master' } } }%%
 gitGraph
     commit id: "chore(repo): init monorepo"
     branch feat/um-001-prisma-schema
     checkout feat/um-001-prisma-schema
     commit id: "wip schema"
     commit id: "wip audit trigger"
-    checkout main
+    checkout master
     merge feat/um-001-prisma-schema id: "feat(db): add better auth schema and audit_event (#3)" type: HIGHLIGHT
     branch feat/um-002-auth-audit-hooks
     checkout feat/um-002-auth-audit-hooks
     commit id: "wip hooks"
-    checkout main
+    checkout master
     merge feat/um-002-auth-audit-hooks id: "feat(auth): audit sign-in and session events (#4)" type: HIGHLIGHT
     commit id: "v0.1.0" tag: "v0.1.0"
 ```
 
-*(The diagram shows each branch landing on `main` as a **single squashed commit**. Git graphs draw it as a merge, but `main` stays linear, see §6.)*
+*(The diagram shows each branch landing on `master` as a **single squashed commit**. Git graphs draw it as a merge, but `master` stays linear, see §6.)*
 
 | Branch | Lifetime | Created from | Merged into | Notes |
 | --- | --- | --- | --- | --- |
-| `main` | permanent | — | — | Protected (§8). Tagged at each sprint end. |
-| `<type>/um-<nnn>-<description>` | short (≤ 3 days ideally) | `main` | `main` via PR | All feature, fix, test, docs and chore work. |
-| `spike/um-<nnn>-<description>` | timeboxed | `main` | **never merged** | Throw-away experiments. Findings are written into the ticket, then the branch is deleted. |
-| `hotfix/um-<nnn>-<description>` | hours | latest release tag or `main` | `main` via PR | Urgent fix of a released version (§10). |
+| `master` | permanent | — | — | Protected (§8). Tagged at each sprint end. |
+| `<type>/um-<nnn>-<description>` | short (≤ 3 days ideally) | `master` | `master` via PR | All feature, fix, test, docs and chore work. |
+| `spike/um-<nnn>-<description>` | timeboxed | `master` | **never merged** | Throw-away experiments. Findings are written into the ticket, then the branch is deleted. |
+| `hotfix/um-<nnn>-<description>` | hours | latest release tag or `master` | `master` via PR | Urgent fix of a released version (§10). |
 
-There is **no `develop` branch and no GitFlow.** With one developer and continuous integration on `main`, a second integration branch would add merges and drift without any benefit.
+There is **no `develop` branch and no GitFlow.** With one developer and continuous integration on `master`, a second integration branch would add merges and drift without any benefit.
 
 ---
 
@@ -101,7 +102,7 @@ Validation regex (used by the CI `git-hygiene` job):
 
 ### 3.4 Splitting a ticket into branches
 
-Tickets of 5 SP or more are delivered as **several PRs**, one per coherent slice, each leaving `main` green. Example for UM-001:
+Tickets of 5 SP or more are delivered as **several PRs**, one per coherent slice, each leaving `master` green. Example for UM-001:
 
 1. `spike/um-001-esm-prisma7` (not merged; results go into the ticket)
 2. `chore/um-001-monorepo-migration`
@@ -181,7 +182,7 @@ The following must **never** appear in a commit message, a PR title or a PR desc
 Notes:
 
 - **GitHub adds `Co-authored-by:` trailers automatically** on squash merges when the branch contains commits from more than one author identity. Always commit with the same identity (`git config user.name` / `user.email`) so that squash commits stay clean.
-- If a forbidden trailer slips into a commit on your branch, remove it with `git commit --amend` (last commit) or `git rebase -i origin/main` (older commits) **before** merging. Never rewrite `main`.
+- If a forbidden trailer slips into a commit on your branch, remove it with `git commit --amend` (last commit) or `git rebase -i origin/master` (older commits) **before** merging. Never rewrite `master`.
 
 Detection pattern (case-insensitive) used by the hook and CI:
 
@@ -206,7 +207,7 @@ The PR title becomes the squash commit subject, so it **must** follow the commit
 feat(auth): enable organization plugin with redova roles
 ```
 
-GitHub appends ` (#<PR number>)` on squash, which links `main`'s history back to the PR.
+GitHub appends ` (#<PR number>)` on squash, which links `master`'s history back to the PR.
 
 ### 5.3 Size
 
@@ -263,7 +264,7 @@ Filling rules:
 
 ### 5.5 Review (solo development)
 
-GitHub does not allow authors to approve their own PRs, so `main` requires **0 approvals**. Status checks and the self-review are mandatory instead:
+GitHub does not allow authors to approve their own PRs, so `master` requires **0 approvals**. Status checks and the self-review are mandatory instead:
 
 1. Read the full diff in the GitHub UI (not only in the editor).
 2. Re-check the ticket's acceptance criteria and the security checklist (README §17.2) for the touched area.
@@ -283,10 +284,10 @@ GitHub does not allow authors to approve their own PRs, so `main` requires **0 a
 
 | Strategy | Where | Use when | Never when |
 | --- | --- | --- | --- |
-| **Squash and merge** *(default)* | PR → `main` | Almost always: the branch contains WIP, fixup or review-response commits, or the PR is one logical change. | — |
-| **Rebase and merge** | PR → `main` | The PR contains **2–5 curated commits**, **each** a self-contained, conventional, CI-passing step, and keeping them separate helps `git bisect`/`git revert` (e.g. `refactor(db): extract repository` then `feat(server): add admin users endpoint`). | Any commit is WIP, fails tests on its own, or has a non-conventional message. |
-| **Rebase** (local) | Your feature branch onto `origin/main` | Updating your **own** branch with the latest `main`, or cleaning commits before a rebase-and-merge (`git rebase -i`). Push with `--force-with-lease`. | The branch is shared with another person, or the commits are already on `main`. |
-| **Merge commit** | Into a **shared** feature branch only | Bringing `main` into a branch that **someone else also pushes to** (rewriting their history would break their clone). | Into `main`: merge commits are **disabled** there (linear history, §8). |
+| **Squash and merge** *(default)* | PR → `master` | Almost always: the branch contains WIP, fixup or review-response commits, or the PR is one logical change. | — |
+| **Rebase and merge** | PR → `master` | The PR contains **2–5 curated commits**, **each** a self-contained, conventional, CI-passing step, and keeping them separate helps `git bisect`/`git revert` (e.g. `refactor(db): extract repository` then `feat(server): add admin users endpoint`). | Any commit is WIP, fails tests on its own, or has a non-conventional message. |
+| **Rebase** (local) | Your feature branch onto `origin/master` | Updating your **own** branch with the latest `master`, or cleaning commits before a rebase-and-merge (`git rebase -i`). Push with `--force-with-lease`. | The branch is shared with another person, or the commits are already on `master`. |
+| **Merge commit** | Into a **shared** feature branch only | Bringing `master` into a branch that **someone else also pushes to** (rewriting their history would break their clone). | Into `master`: merge commits are **disabled** there (linear history, §8). |
 
 ### 6.2 Decision flow for merging a PR
 
@@ -311,20 +312,20 @@ flowchart TD
 
 ```bash
 git fetch origin
-git rebase origin/main                 # resolve conflicts, then: git rebase --continue
+git rebase origin/master                 # resolve conflicts, then: git rebase --continue
 pnpm turbo run lint typecheck test     # re-verify after the rebase
 git push --force-with-lease            # never plain --force
 ```
 
 - Rebase at least daily on long-running work, and always before marking the PR ready.
-- If a rebase gets messy (repeated conflicts in the same files), abort it (`git rebase --abort`), squash locally first (`git reset --soft origin/main && git commit`), then rebase.
-- If the branch is shared: `git merge origin/main` instead (§6.1, merge commit row).
+- If a rebase gets messy (repeated conflicts in the same files), abort it (`git rebase --abort`), squash locally first (`git reset --soft origin/master && git commit`), then rebase.
+- If the branch is shared: `git merge origin/master` instead (§6.1, merge commit row).
 
 ### 6.5 Conflict resolution rules
 
-- Resolve conflicts in **your** branch, never on `main`.
-- For `pnpm-lock.yaml`: take `main`'s version, then run `pnpm install` to regenerate it. Never hand-merge the lockfile.
-- For Prisma migrations: never edit a migration that is already on `main`. If two branches created migrations, rebase and **regenerate** yours on top of `main`'s.
+- Resolve conflicts in **your** branch, never on `master`.
+- For `pnpm-lock.yaml`: take `master`'s version, then run `pnpm install` to regenerate it. Never hand-merge the lockfile.
+- For Prisma migrations: never edit a migration that is already on `master`. If two branches created migrations, rebase and **regenerate** yours on top of `master`'s.
 - Re-run the full test suite after any conflict resolution.
 
 ---
@@ -332,8 +333,8 @@ git push --force-with-lease            # never plain --force
 ## 7. Working cycle (cheat sheet)
 
 ```bash
-# 1. Start from an up-to-date main
-git switch main && git pull --ff-only
+# 1. Start from an up-to-date master
+git switch master && git pull --ff-only
 
 # 2. Create the branch
 git switch -c feat/um-006-org-escalation-hooks
@@ -344,28 +345,28 @@ git commit -m "feat(auth): add role-rank policy for invitations" -m "Refs: UM-00
 
 # 4. Push and open a draft PR (template pre-filled)
 git push -u origin feat/um-006-org-escalation-hooks
-gh pr create --draft --base main \
+gh pr create --draft --base master \
   --title "feat(auth): enforce organization role-rank rules" \
   --body-file .github/pull_request_template.md   # then fill in the sections on GitHub
 
 # 5. Keep it current
-git fetch origin && git rebase origin/main && git push --force-with-lease
+git fetch origin && git rebase origin/master && git push --force-with-lease
 
 # 6. Ready → CI green → checklist → squash and merge (GitHub UI), branch auto-deleted
-git switch main && git pull --ff-only
+git switch master && git pull --ff-only
 ```
 
 ---
 
-## 8. `main` branch protection (GitHub settings)
+## 8. `master` branch protection (GitHub settings)
 
 | Setting | Value |
 | --- | --- |
 | Require a pull request before merging | **On** (required approvals: 0, solo; see §5.5) |
 | Require conversation resolution | On |
 | Require status checks to pass | On: `lint-typecheck-unit`, `integration`, `security`, `git-hygiene`; plus `e2e` once UM-008 adds it |
-| Require branches to be up to date before merging | On (forces a rebase on the latest `main`) |
-| Require linear history | **On** (disables merge commits into `main`) |
+| Require branches to be up to date before merging | On (forces a rebase on the latest `master`) |
+| Require linear history | **On** (disables merge commits into `master`) |
 | Allowed merge methods | Squash merging (default), rebase merging. Merge commits **disabled**. |
 | Squash merge default message | "Pull request title" (body edited per §6.3) |
 | Allow force pushes / deletions | **Off** |
@@ -377,7 +378,7 @@ git switch main && git pull --ff-only
 ## 9. Releases and tags
 
 - Semantic Versioning, `0.y.z` until the first production release.
-- **One minor version per sprint**, tagged on `main` at sprint review: Sprint 01 → `v0.1.0`, Sprint 02 → `v0.2.0`, …
+- **One minor version per sprint**, tagged on `master` at sprint review: Sprint 01 → `v0.1.0`, Sprint 02 → `v0.2.0`, …
 - Annotated tags only:
 
   ```bash
@@ -385,18 +386,18 @@ git switch main && git pull --ff-only
   git push origin v0.1.0
   ```
 
-- A GitHub Release is created from each tag with auto-generated notes. These are readable because every commit on `main` follows Conventional Commits.
+- A GitHub Release is created from each tag with auto-generated notes. These are readable because every commit on `master` follows Conventional Commits.
 - Tags are never moved or deleted after being pushed.
 
 ---
 
 ## 10. Hotfixes
 
-1. Branch `hotfix/um-<nnn>-<description>` from the release tag (or `main` if `main` is releasable).
+1. Branch `hotfix/um-<nnn>-<description>` from the release tag (or `master` if `master` is releasable).
 2. Fix + regression test; PR with the normal template; title `fix(<scope>): …`.
-3. Squash and merge into `main`; tag a patch version (`v0.1.1`).
+3. Squash and merge into `master`; tag a patch version (`v0.1.1`).
 
-There is no separate release branch to back-merge into, because everything is released from `main`.
+There is no separate release branch to back-merge into, because everything is released from `master`.
 
 ---
 
@@ -405,7 +406,7 @@ There is no separate release branch to back-merge into, because everything is re
 - `.env` and `.env.*` are git-ignored at every level. Only `.env.example` files (with placeholder values) are committed.
 - Gmail App Passwords, provider API keys, `BETTER_AUTH_SECRET`, database and Redis passwords are **never** committed, pasted into PR descriptions, or put in commit messages.
 - **gitleaks** runs in CI on every PR (the `security` job) and can be run locally (`gitleaks protect --staged`).
-- **If a secret is pushed:** (1) **rotate it immediately**: revoke the App Password or API key and generate a new secret. This is the only effective fix, because the secret must be considered public from the moment it was pushed. (2) Remove it from the branch before merge (amend/rebase). (3) If it reached `main`, still rotate. Rewriting `main`'s history is not allowed, and it would not un-leak the secret anyway.
+- **If a secret is pushed:** (1) **rotate it immediately**: revoke the App Password or API key and generate a new secret. This is the only effective fix, because the secret must be considered public from the moment it was pushed. (2) Remove it from the branch before merge (amend/rebase). (3) If it reached `master`, still rotate. Rewriting `master`'s history is not allowed, and it would not un-leak the secret anyway.
 
 ---
 
@@ -415,7 +416,7 @@ There is no separate release branch to back-merge into, because everything is re
 | --- | --- | --- |
 | `commit-msg` hook | Local (`simple-git-hooks` + `@commitlint/cli` with `@commitlint/config-conventional`) | Conventional format, allowed types and scopes, subject length, forbidden content (§4.5) |
 | `.github/pull_request_template.md` | GitHub | Pre-fills the PR description (§5.4) |
-| CI job `git-hygiene` | Every PR | (1) branch name matches §3.1; (2) every commit in `origin/main..HEAD` passes commitlint; (3) commits, PR title and PR body contain no forbidden content (§4.5); (4) PR title is a valid Conventional Commit |
+| CI job `git-hygiene` | Every PR | (1) branch name matches §3.1; (2) every commit in `origin/master..HEAD` passes commitlint; (3) commits, PR title and PR body contain no forbidden content (§4.5); (4) PR title is a valid Conventional Commit |
 | Branch protection | GitHub settings | §8 |
 | gitleaks | CI `security` job | No secrets in the diff |
 
