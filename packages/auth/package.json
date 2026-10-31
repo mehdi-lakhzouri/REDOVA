@@ -1,0 +1,31 @@
+{
+  "name": "@redova/auth",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Better Auth configuration, plugins and access control for REDOVA",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "auth:generate": "auth generate --config src/auth.cli.ts --output ../db/prisma/schema.prisma --yes",
+    "test:integration": "vitest run -c vitest.integration.config.ts"
+  },
+  "dependencies": {
+    "@better-auth/prisma-adapter": "1.7.14",
+    "@redova/contracts": "workspace:*",
+    "@redova/db": "workspace:*",
+    "better-auth": "1.7.14",
+    "ioredis": "^5.11.1"
+  },
+  "devDependencies": {
+    "auth": "1.7.14",
+    "dotenv": "^17.4.2"
+  }
+}

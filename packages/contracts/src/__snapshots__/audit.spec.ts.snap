@@ -1,0 +1,38 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`audit catalog (UT-001-07) > contains exactly the actions of README §17.4 1`] = `
+[
+  "auth.sign_up.completed",
+  "auth.email.verified",
+  "auth.session.created",
+  "auth.sign_in.failed",
+  "auth.sign_in.throttled",
+  "auth.sign_out",
+  "auth.session.revoked",
+  "auth.password.reset_requested",
+  "auth.password.reset_completed",
+  "auth.password.changed",
+  "auth.mfa.enabled",
+  "auth.mfa.disabled",
+  "auth.mfa.backup_codes_regenerated",
+  "auth.mfa.challenge_failed",
+  "auth.mfa.backup_code_used",
+  "org.created",
+  "org.updated",
+  "org.invitation.created",
+  "org.invitation.canceled",
+  "org.invitation.accepted",
+  "org.invitation.rejected",
+  "org.member.role_changed",
+  "org.member.removed",
+  "org.member.left",
+  "authz.access_denied",
+  "admin.user.banned",
+  "admin.user.unbanned",
+  "admin.user.role_changed",
+  "admin.user.session_revoked",
+  "admin.user.sessions_revoked",
+  "admin.bootstrap.promoted",
+  "admin.user.mfa_reset",
+]
+`;
