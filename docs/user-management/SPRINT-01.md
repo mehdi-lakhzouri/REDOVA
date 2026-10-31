@@ -213,7 +213,7 @@ The full decision log is in [README Appendix B](README.md#appendix-b--decision-l
 
 ### During the sprint
 
-- [ ] Day-1 spike outcome recorded in UM-001 (go / adjust)
+- [x] Day-1 spike outcome recorded in UM-001 (go / adjust)
 - [ ] Mid-sprint checkpoint held on day 5; stretch kept or dropped explicitly
 - [ ] Every change delivered through a PR following GIT-STRATEGY (branch name, Conventional Commits, template filled, no AI attribution)
 - [ ] Each merged PR keeps `pnpm turbo run lint typecheck test` green
