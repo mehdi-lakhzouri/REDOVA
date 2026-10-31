@@ -84,5 +84,9 @@ export const globalRoles = {
   USER: globalAc.newRole({ user: [], session: [] }),
 };
 
-export type OrgPermissions = { [K in keyof typeof orgStatements]?: (typeof orgStatements)[K][number][] };
-export type GlobalPermissions = { [K in keyof typeof globalStatements]?: (typeof globalStatements)[K][number][] };
+export type OrgPermissions = {
+  [K in keyof typeof orgStatements]?: (typeof orgStatements)[K][number][];
+};
+export type GlobalPermissions = {
+  [K in keyof typeof globalStatements]?: (typeof globalStatements)[K][number][];
+};

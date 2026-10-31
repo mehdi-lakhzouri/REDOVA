@@ -743,6 +743,11 @@ erDiagram
         boolean emailVerified
         string name
         string image
+        string firstName
+        string lastName
+        datetime lastLoginAt
+        datetime onboardingCompletedAt
+        datetime lastActiveAt
         string role
         boolean banned
         string banReason
@@ -859,7 +864,30 @@ erDiagram
 | --- | --- | --- |
 | `member` | `@@unique([organizationId, userId])` | Defense in depth against duplicate memberships under concurrent invitation acceptance. |
 | `user` | `@@index([createdAt, id])` | Keyset/cursor pagination for admin user list. |
+| `user` | `firstName?`, `lastName?` | Optional profile fields accepted by Better Auth sign-up and profile updates; `name` remains the display name. |
+| `user` | `lastLoginAt?`, `onboardingCompletedAt?`, `lastActiveAt?` | Optional server-owned timestamps (`input: false`). No automatic tracking is wired yet; application lifecycle handlers must populate them. |
 | `invitation` | `@@index([organizationId, status])` | Pending invitations list. |
+
+The dedicated `20261031131000_saas_tenant_foundation` migration adds the SaaS data foundation:
+
+| Model/table | Fields and semantics |
+| --- | --- |
+| `organization` | Server-owned `status` (`ACTIVE`, `SUSPENDED`, `ARCHIVED`), `suspendedAt?`, `suspensionReason?`, `archivedAt?`, `updatedAt`. |
+| `member` | Server-owned `status` (`ACTIVE`, `SUSPENDED`, `REVOKED`), `suspendedAt?`, `lastActiveAt?`. |
+| `OrganizationSettings` / `organization_settings` | One row per organization: `requireMfa` (default false), `sessionMaxAgeSeconds?`, `auditRetentionDays?`, creation/update timestamps. NULL durations inherit platform policy. |
+| `TenantSubscription` / `tenant_subscription` | One current subscription per organization: nonempty `planId`, `status` (`INCOMPLETE`, `TRIALING`, `ACTIVE`, `PAST_DUE`, `CANCELED`), `trialEndsAt?`, `currentPeriodEnd?`, timestamps. `planId` is a catalog identifier; no billing provider or plan catalog is configured yet. |
+| `TenantQuota` / `tenant_quota` | One row per organization: `maxMembers?`, `maxAgents?`, `maxAssessments?`, `maxStorageBytes?` (BigInt), timestamps. NULL means no configured ceiling; zero permits no allocation. |
+
+Foreign keys and primary keys prevent orphan or duplicate tenant configurations. SQL CHECK constraints
+validate status strings, positive policy durations and nonnegative quotas. Existing organizations receive
+neutral settings and quota rows; new organizations must be provisioned by the future SaaS service.
+No subscription is fabricated during migration. Storage-byte limits need string conversion before JSON
+serialization because Prisma returns BigInt.
+
+These fields are metadata only at this stage: suspension checks, MFA/session policy enforcement, billing,
+quota consumption and retention processing are not wired. UM-006/UM-008 still own authorization and
+tenant-isolation enforcement. Future tenant-owned resources must have a mandatory `organizationId`
+foreign key and server-controlled `createdByUserId`, with tenant-scoped queries and relationship checks.
 
 ### 12.3 `audit_event` (REDOVA)
 
@@ -1104,6 +1132,7 @@ The worker refuses to start in production when `EMAIL_TRANSPORT=smtp` and `SMTP_
 - Structured JSON logs via `nestjs-pino`, with a `requestId` (`x-request-id`, generated when absent) propagated to audit events and to the API envelope `meta.requestId`.
 - Redacted paths: `req.headers.cookie`, `req.headers.authorization`, `res.headers["set-cookie"]`, `*.password`, `*.currentPassword`, `*.newPassword`, `*.token`, `*.code`, `*.secret`, `*.backupCodes`, `*.totpURI`, query `token`.
 - Request bodies of `/api/auth/*` are **never** logged.
+- Implementation and dev/production settings: [`apps/server/README.md`](../../apps/server/README.md#logging).
 
 ### 17.4 Security audit events
 
@@ -1433,9 +1462,13 @@ flowchart LR
 | `EMAIL_API_KEY` | worker | — | Production provider. |
 | `EMAIL_FROM` | worker | `REDOVA <you@gmail.com>` | |
 | `HIBP_ENABLED` | server | `true` | `false` only in unit tests. |
+| `RATE_LIMIT_ENABLED` | server | `true` | Disabled by the integration tests except where rate limiting is under test. |
+| `TEST_DATABASE_URL` | tests | — | Optional. Defaults to `DATABASE_URL` with the `_test` suffix (`redova_test`), created and migrated automatically. |
 | `LOG_LEVEL` | all | `info` | |
 
 All variables are validated at boot with a Zod schema. The app fails fast with a list of missing or invalid variables.
+
+In local development every app and package reads the **repository-root `.env`** (template: `.env.example`). CI and production inject the variables directly; Turborepo passes `DATABASE_URL`, `TEST_DATABASE_URL`, `REDIS_URL`, `NODE_ENV` and `CI` through to tasks (`globalPassThroughEnv`).
 
 ### C.2 Rate-limit rules (`rateLimit.customRules`, per IP)
 

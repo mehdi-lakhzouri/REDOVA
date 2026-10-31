@@ -3,7 +3,9 @@ import { createPrismaClient } from '@redova/db';
 import { createAuth } from './create-auth';
 
 export const auth = createAuth({
-  prisma: createPrismaClient(process.env.DATABASE_URL ?? 'postgresql://placeholder@localhost:5432/placeholder'),
+  prisma: createPrismaClient(
+    process.env.DATABASE_URL ?? 'postgresql://placeholder@localhost:5432/placeholder',
+  ),
   enqueueEmail: async () => undefined,
   recordAudit: async () => undefined,
   secret: 'better-auth-cli-schema-generation-only-0000',

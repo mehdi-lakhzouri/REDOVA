@@ -1,98 +1,142 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# @redova/server
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS REST API. See the [root README](../../README.md) and the [User Management docs](../../docs/user-management/README.md).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Logging
 
-## Description
+Pino is configured once through `LoggingModule.forRoot(env)` in `AppModule`. Nest's own logs and
+application `Logger` calls use the same configuration. No additional logger package or feature-module
+registration is needed.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+| File in `src/logging/`    | Responsibility                                                          |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `logging.module.ts`       | Nest module registration and exported HTTP logging service              |
+| `pino.config.ts`          | Environment, levels, timestamps, development transport and HTTP policy  |
+| `http-logging.service.ts` | Early HTTP logging and context, including Better Auth's Express handler |
+| `log-serializers.ts`      | Allowlisted HTTP/error fields and URL sanitization                      |
+| `log-redaction.ts`        | Central list of sensitive structured fields                             |
 
-## Project setup
+### Environment
 
-```bash
-$ pnpm install
+Configuration is validated at startup in `src/config/env.ts`. Local development loads the root `.env`;
+production should inject variables directly. Turborepo forwards the logging variables to server tasks.
+
+| Variable           | Default       | Behavior                                                                                             |
+| ------------------ | ------------- | ---------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`         | `development` | `development`: readable `pino-pretty`; `production`: JSON; `test`: automatic HTTP logs disabled      |
+| `LOG_LEVEL`        | `info`        | `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `silent`                                         |
+| `LOG_SERVICE_NAME` | `redova-api`  | Service identity attached to every entry                                                             |
+| `LOG_AUTO_LOGGING` | `true`        | Set `false` to suppress HTTP access logs while keeping server failures and explicit application logs |
+
+Development:
+
+```dotenv
+NODE_ENV=development
+LOG_LEVEL=debug
+LOG_SERVICE_NAME=redova-api
+LOG_AUTO_LOGGING=true
 ```
 
-## Compile and run the project
-
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm --filter @redova/server dev
 ```
 
-## Run tests
+Production:
 
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+```dotenv
+NODE_ENV=production
+LOG_LEVEL=info
+LOG_SERVICE_NAME=redova-api
+LOG_AUTO_LOGGING=true
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+pnpm turbo run build --filter=@redova/server
+pnpm --filter @redova/server start
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Production entries are JSON lines on stdout, with an ISO 8601 UTC timestamp, numeric `level`, textual
+`severity`, `service` and `environment`. `pino-pretty` is used only in development; production does not
+require development dependencies. Startup failures use a synchronous JSON fallback on stderr and exit
+with code 1. Invalid environment configuration names the invalid variables on stderr before Nest starts.
 
-## Resources
+Collect stdout/stderr with the container platform or a log collector; configure retention, rotation
+and access there. The API does not create local log files or call a remote logging service per request.
 
-Check out a few resources that may come in handy when working with NestJS:
+### Request context and HTTP levels
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+The `x-request-id` header accepts 1–128 letters, digits, underscores, dots, colons or hyphens. An absent
+or invalid value is replaced with a UUID. The same identifier appears in the response header, the
+REDOVA API envelope's `meta.requestId`, request logs and security audit events. Better Auth retains its
+native response format and receives the response header and logging context.
 
-## Support
+HTTP logging is mounted before Helmet and Better Auth's early Express handler. `nestjs-pino` uses
+`useExisting: true` to bind the existing request logger for Nest controllers. Both paths share one root
+Pino instance/transport; each HTTP request produces at most one completion entry.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- Successful HTTP requests: `info`.
+- Successful `/api/v1/health` probes: `debug`, hidden at the default `info` threshold.
+- Client errors (`4xx`, including `401`, `404` and `429`): `warn`, without a server error stack.
+- Server errors (`5xx`) and transport failures: `error`, with duration and status.
+- Unexpected API exceptions: the exception filter attaches the original error to `res.err`; Pino writes
+  its type, message and stack on completion. The client receives the existing masked error envelope.
+- Application startup failures: `fatal`.
 
-## Stay in touch
+`LOG_LEVEL=silent` suppresses all Pino logs, including failures. Security audit events remain separate
+database records written by `AuditService`.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Logging from a service
 
-## License
+Use Nest's standard logger, a stable message, and a small object of useful metadata:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```typescript
+import { Injectable, Logger } from '@nestjs/common';
+
+@Injectable()
+export class ReportService {
+  private readonly logger = new Logger(ReportService.name);
+
+  recordCompletion(reportId: string): void {
+    this.logger.log({ event: 'report.completed', reportId }, 'Report completed');
+  }
+```
+
+Nest's `log()` maps to Pino's `info()`, and `verbose()` maps to `trace()`. The class context and current
+request identifier are added automatically. For structured errors use
+`this.logger.error({ err: error, reportId }, 'Report generation failed')`.
+
+For metadata that must follow all later logs in a controller request, inject `PinoLogger` from
+`nestjs-pino` and call `logger.assign({ operation: 'report.generate' })`. `assignResponse: true` also
+adds these fields to the HTTP completion entry. Use `assign()` inside an active request context.
+Do not import the bare `LoggerModule` in feature modules: it is already global.
+
+### Sensitive data
+
+HTTP logs allow only method and sanitized URL path for requests, and status code for responses.
+Headers, bodies, query strings and URL fragments are omitted. Reset tokens in
+`/api/auth/reset-password/:token` are masked. The error serializer omits arbitrary properties such as
+HTTP-client request configuration, response payloads or ORM metadata.
+
+Structured credential fields are also masked at the root and through three nested object/array
+containers; see `log-redaction.ts`. This is defense in depth, not recursive payload sanitization.
+Never log entire DTOs, users, configuration objects, email jobs or auth payloads. Never interpolate
+passwords, tokens or personal data into messages or error text: field redaction does not sanitize
+free-text messages/stacks or arbitrary deeply nested objects. The temporary email sink logs only the
+template, omitting recipient addresses, action URLs and deduplication keys in every environment.
+
+### Verification
+
+```bash
+pnpm --filter @redova/server test
+pnpm --filter @redova/server typecheck
+pnpm --filter @redova/server lint
+pnpm --filter @redova/server test:integration
+```
+
+Unit/HTTP tests capture real JSON output and cover redaction, request context isolation, early auth
+handlers, error stacks, duplicate prevention and health-check severity. Integration tests require the
+local Docker services and a built server; they use the isolated test database and Redis db 14.
+
+References: [nestjs-pino](https://github.com/iamolegga/nestjs-pino),
+[pino-http](https://github.com/pinojs/pino-http),
+[Pino redaction](https://github.com/pinojs/pino/blob/main/docs/redaction.md).

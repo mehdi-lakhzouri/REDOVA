@@ -12,7 +12,8 @@ export const loadTestEnv = (): void => {
 export const getTestDatabaseUrl = (): string => {
   if (process.env.TEST_DATABASE_URL) return process.env.TEST_DATABASE_URL;
   const base = process.env.DATABASE_URL;
-  if (!base) throw new Error('DATABASE_URL (or TEST_DATABASE_URL) must be set for integration tests');
+  if (!base)
+    throw new Error('DATABASE_URL (or TEST_DATABASE_URL) must be set for integration tests');
   const url = new URL(base);
   url.pathname = `${url.pathname.replace(/^\//, '')}_test`;
   return url.toString();
@@ -30,7 +31,14 @@ export const prepareTestDatabase = async (): Promise<string> => {
   await client.connect();
   try {
     const exists = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [dbName]);
-    if (exists.rowCount === 0) await client.query(`CREATE DATABASE "${dbName.replace(/"/g, '')}"`);
+    if (exists.rowCount === 0) {
+      await client
+        .query(`CREATE DATABASE "${dbName.replace(/"/g, '')}"`)
+        // 42P04 = database already exists (another test run created it concurrently).
+        .catch((error: { code?: string }) => {
+          if (error.code !== '42P04' && error.code !== '23505') throw error;
+        });
+    }
   } finally {
     await client.end();
   }

@@ -88,6 +88,16 @@ export const createAuth = (options: CreateAuthOptions) => {
     baseURL: options.baseURL,
     trustedOrigins: [options.webOrigin],
     disabledPaths: DISABLED_PATHS,
+    user: {
+      additionalFields: {
+        firstName: { type: 'string', required: false },
+        lastName: { type: 'string', required: false },
+        // Tracking timestamps are owned by the server, never supplied by API clients.
+        lastLoginAt: { type: 'date', required: false, input: false },
+        onboardingCompletedAt: { type: 'date', required: false, input: false },
+        lastActiveAt: { type: 'date', required: false, input: false },
+      },
+    },
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
@@ -106,7 +116,11 @@ export const createAuth = (options: CreateAuthOptions) => {
           template: 'verify-email',
           to: user.email,
           dedupeKey: url,
-          variables: { name: user.name, verifyUrl: url, expiresInHours: EMAIL_VERIFICATION_EXPIRES_IN_SECONDS / 3600 },
+          variables: {
+            name: user.name,
+            verifyUrl: url,
+            expiresInHours: EMAIL_VERIFICATION_EXPIRES_IN_SECONDS / 3600,
+          },
         });
       },
     },
@@ -180,6 +194,30 @@ export const createAuth = (options: CreateAuthOptions) => {
         cancelPendingInvitationsOnReInvite: true,
         requireEmailVerificationOnInvitation: true,
         disableOrganizationDeletion: true,
+        schema: {
+          organization: {
+            additionalFields: {
+              status: { type: 'string', required: true, defaultValue: 'ACTIVE', input: false },
+              suspendedAt: { type: 'date', required: false, input: false },
+              suspensionReason: { type: 'string', required: false, input: false },
+              archivedAt: { type: 'date', required: false, input: false },
+              updatedAt: {
+                type: 'date',
+                required: true,
+                defaultValue: () => new Date(),
+                onUpdate: () => new Date(),
+                input: false,
+              },
+            },
+          },
+          member: {
+            additionalFields: {
+              status: { type: 'string', required: true, defaultValue: 'ACTIVE', input: false },
+              suspendedAt: { type: 'date', required: false, input: false },
+              lastActiveAt: { type: 'date', required: false, input: false },
+            },
+          },
+        },
       }),
       twoFactor({ issuer: 'REDOVA', trustDeviceMaxAge: 7 * DAY }),
       haveIBeenPwned({

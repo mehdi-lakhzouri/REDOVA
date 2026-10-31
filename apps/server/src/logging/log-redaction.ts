@@ -1,0 +1,46 @@
+const SENSITIVE_FIELDS = [
+  'password',
+  'passwordHash',
+  'currentPassword',
+  'newPassword',
+  'token',
+  'accessToken',
+  'refreshToken',
+  'idToken',
+  'sessionToken',
+  'session_token',
+  'verificationToken',
+  'resetToken',
+  'access_token',
+  'refresh_token',
+  'id_token',
+  'code',
+  'secret',
+  'clientSecret',
+  'client_secret',
+  'apiKey',
+  'api_key',
+  'authorization',
+  'cookie',
+  'set-cookie',
+  'backupCodes',
+  'totpURI',
+  'totpSecret',
+  'twoFactorSecret',
+  'verifyUrl',
+  'resetUrl',
+  'acceptUrl',
+  'dedupeKey',
+  'DATABASE_URL',
+  'REDIS_URL',
+  'BETTER_AUTH_SECRET',
+  'SMTP_PASS',
+  'EMAIL_API_KEY',
+];
+
+/** Defense in depth for structured fields, from the root through three nested containers/arrays. */
+export const REDACTED_PATHS = SENSITIVE_FIELDS.flatMap((field) =>
+  ['', '*.', '*.*.', '*.*.*.'].map((prefix) => `${prefix}["${field}"]`),
+);
+
+export const LOG_REDACTION = { paths: REDACTED_PATHS, censor: '[Redacted]' };

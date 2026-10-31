@@ -34,6 +34,59 @@ enum AuditTargetType {
   INVITATION
 }
 
+enum TenantSubscriptionStatus {
+  INCOMPLETE
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+/// Optional security policies for one tenant. NULL durations inherit the platform policy.
+
+model OrganizationSettings {
+  organizationId       String       @id
+  organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  requireMfa           Boolean      @default(false)
+  sessionMaxAgeSeconds Int?
+  auditRetentionDays   Int?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @default(now()) @updatedAt
+
+  @@map("organization_settings")
+}
+
+/// Current subscription metadata; billing and entitlement enforcement are implemented separately.
+
+model TenantSubscription {
+  organizationId   String                   @id
+  organization     Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  planId           String
+  status           TenantSubscriptionStatus @default(INCOMPLETE)
+  trialEndsAt      DateTime?
+  currentPeriodEnd DateTime?
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @default(now()) @updatedAt
+
+  @@index([status])
+  @@map("tenant_subscription")
+}
+
+/// Tenant ceilings: NULL means no configured limit, zero forbids allocation. Enforced by future services.
+
+model TenantQuota {
+  organizationId  String       @id
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  maxMembers      Int?
+  maxAgents       Int?
+  maxAssessments  Int?
+  maxStorageBytes BigInt?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @default(now()) @updatedAt
+
+  @@map("tenant_quota")
+}
+
 /// Append-only security audit trail. UPDATE/DELETE are blocked by the `audit_event_immutable` trigger.
 
 model AuditEvent {
@@ -77,6 +130,12 @@ model User {
   members          Member[]
   invitations      Invitation[]
   twofactors       TwoFactor[]
+
+  firstName             String?
+  lastName              String?
+  lastLoginAt           DateTime?
+  onboardingCompletedAt DateTime?
+  lastActiveAt          DateTime?
 
   // REDOVA: keyset pagination for the admin user list (README §12.2)
   @@index([createdAt, id])
@@ -144,6 +203,16 @@ model Organization {
   members     Member[]
   invitations Invitation[]
 
+  status           String                @default("ACTIVE")
+  suspendedAt      DateTime?
+  suspensionReason String?
+  archivedAt       DateTime?
+  updatedAt        DateTime              @default(now()) @updatedAt
+  settings         OrganizationSettings?
+  subscription     TenantSubscription?
+  quota            TenantQuota?
+
+  @@index([status])
   @@unique([slug])
   @@map("organization")
 }
@@ -157,10 +226,15 @@ model Member {
   role           String       @default("member")
   createdAt      DateTime
 
+  status       String    @default("ACTIVE")
+  suspendedAt  DateTime?
+  lastActiveAt DateTime?
+
   // REDOVA: one membership per user and organization (README §12.2)
   @@unique([organizationId, userId])
   @@index([organizationId])
   @@index([userId])
+  @@index([organizationId, status])
   @@map("member")
 }
 
