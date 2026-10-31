@@ -41,20 +41,20 @@ Complete self-service onboarding through the API (BO-1) and make the organizatio
 
 ### `packages/auth`
 
-- [ ] Verify the organization plugin config from UM-001 (`creatorRole`, `allowUserToCreateOrganization` = verified only, `organizationLimit: 3`, `invitationExpiresIn: 604800`, `cancelPendingInvitationsOnReInvite`, `requireEmailVerificationOnInvitation`, `disableOrganizationDeletion`).
-- [ ] `sendInvitationEmail({ invitation, inviter, organization })` → enqueue `organization-invitation` with `acceptUrl = ${WEB_ORIGIN}/invitations/${invitation.id}` and `dedupeKey = invitation.id`.
-- [ ] `organizationHooks.beforeCreateOrganization`: validate the slug format `^[a-z0-9](?:[a-z0-9-]{1,46}[a-z0-9])$`; reject reserved slugs (`admin`, `api`, `settings`, `new`, `orgs`, `invitations`); validate `name` 2–64 characters.
-- [ ] `organizationHooks.beforeUpdateOrganization`: reject any `slug` change (`ORG_SLUG_IMMUTABLE`); validate `name` 2–64 and `logo` as an `https:` URL ≤ 2048 characters.
-- [ ] Audit wiring: `afterCreateOrganization` → `org.created`; `afterUpdateOrganization` → `org.updated` (metadata: changed field names only); `afterCreateInvitation` / `afterCancelInvitation` / `afterAcceptInvitation` / `afterRejectInvitation` → `org.invitation.*`; `afterUpdateMemberRole` → `org.member.role_changed` (metadata `{ previousRole, newRole }`); `afterRemoveMember` → `org.member.removed`; `hooks.after` on `/organization/leave` → `org.member.left`. The actor is the session user (from `getSessionFromCtx` where the hook data does not include the actor).
-- [ ] Document in README §17.4 any difference found in hook firing (e.g. `leave` does not call `afterRemoveMember`, as the source suggests).
+- [x] Verify the organization plugin config from UM-001 (`creatorRole`, `allowUserToCreateOrganization` = verified only, `organizationLimit: 3`, `invitationExpiresIn: 604800`, `cancelPendingInvitationsOnReInvite`, `requireEmailVerificationOnInvitation`, `disableOrganizationDeletion`).
+- [x] `sendInvitationEmail({ invitation, inviter, organization })` → enqueue `organization-invitation` with `acceptUrl = ${WEB_ORIGIN}/invitations/${invitation.id}` and `dedupeKey = invitation.id`.
+- [x] `organizationHooks.beforeCreateOrganization`: validate the slug format `^[a-z0-9](?:[a-z0-9-]{1,46}[a-z0-9])$`; reject reserved slugs (`admin`, `api`, `settings`, `new`, `orgs`, `invitations`); validate `name` 2–64 characters.
+- [x] `organizationHooks.beforeUpdateOrganization`: reject any `slug` change (`ORG_SLUG_IMMUTABLE`); validate `name` 2–64 and `logo` as an `https:` URL ≤ 2048 characters.
+- [x] Audit wiring: `afterCreateOrganization` → `org.created`; `afterUpdateOrganization` → `org.updated` (metadata: changed field names only); `afterCreateInvitation` / `afterCancelInvitation` / `afterAcceptInvitation` / `afterRejectInvitation` → `org.invitation.*`; `afterUpdateMemberRole` → `org.member.role_changed` (metadata `{ previousRole, newRole }`); `afterRemoveMember` → `org.member.removed`; `hooks.after` on `/organization/leave` → `org.member.left`. The actor is the session user (from `getSessionFromCtx` where the hook data does not include the actor).
+- [x] Document in README §17.4 any difference found in hook firing (e.g. `leave` does not call `afterRemoveMember`, as the source suggests).
 
 ### `packages/integrations`
 
-- [ ] Template `organization-invitation` (HTML, text, subject) per README §16.2, with role label mapping (`SECURITY_ENGINEER` → "Security Engineer", …).
+- [x] Template `organization-invitation` (HTML, text, subject) per README §16.2, with role label mapping (`SECURITY_ENGINEER` → "Security Engineer", …).
 
 ### Test support
 
-- [ ] Factories: `createOrganization(owner, { slug })`, `addMemberViaInvitation(org, inviter, user, role)`.
+- [x] Factories: `createOrganization(owner, { slug })`, `addMemberViaInvitation(org, inviter, user, role)`.
 
 ## Affected monorepo packages/apps
 
@@ -171,7 +171,7 @@ None (backend-only phase). The invitation email links to the future frontend pag
 - **When** she calls `organization/set-active` with B
 - **Then** `session.activeOrganizationId` becomes B and `get-active-member` returns her B membership with role `VIEWER`.
 - **When** she calls `set-active` with an organization C she does not belong to
-- **Then** the request is rejected and the active organization stays B.
+- **Then** the request is rejected with `403 USER_IS_NOT_A_MEMBER_OF_THE_ORGANIZATION` and the active organization is cleared (native fail-closed behavior; no access to C is granted).
 
 ### AC-005-15 — Members are visible to members only
 
@@ -217,10 +217,17 @@ None (backend-only phase). The invitation email links to the future frontend pag
 | **E2E-JOURNEY-02** | Owner invites → invitee (new) signs up → verifies → reads the invitation id from the invitation email → accepts → `get-active-member` shows `AI_DEVELOPER` | AC-005-04, 06 |
 | **E2E-JOURNEY-06** | User in two organizations: `set-active` switches; a REDOVA tenant-scoped call (UM-006 test endpoint, or the org audit endpoint once UM-008 lands) uses the **path** organization regardless of the active one | AC-005-14 |
 
+## Implementation notes
+
+- Field rules live in `packages/core` (`validateOrgCreation`, `validateOrgUpdate`) and are enforced by `organizationHooks`; new hook codes: `ORG_SLUG_INVALID`, `ORG_SLUG_RESERVED`, `ORG_NAME_INVALID`, `ORG_LOGO_INVALID`, `ORG_SLUG_IMMUTABLE`. Sending the current slug back is not a change.
+- The invitation email `dedupeKey` is `{invitation.id}:{expiresAt}`: a `resend` keeps the id but extends `expiresAt`, so it must not be deduplicated.
+- AC-005-14 was adjusted to the native fail-closed behavior of `set-active` (the active organization is cleared on a rejected switch).
+- Server integration tests assert the enqueued `organization-invitation` job; rendering is covered by `packages/integrations` snapshots and delivery by the worker suite. E2E-JOURNEY-01, 02 and 06 are delivered with the API end-to-end harness in UM-008.
+
 ## Definition of Done
 
 - [ ] Global Definition of Done (README §20) satisfied.
 - [ ] All AC-005-xx automated and green, including E2E-JOURNEY-01, 02 and 06.
-- [ ] UM-006 escalation tests still green (no rule duplicated or bypassed).
-- [ ] Hook-firing behavior verified (IT-005-15). README §17.4 updated if needed.
+- [x] UM-006 escalation tests still green (no rule duplicated or bypassed).
+- [x] Hook-firing behavior verified (IT-005-15). README §17.4 updated if needed.
 - [ ] Invitation email checked in Gmail (dev) and Mailpit (screenshots).

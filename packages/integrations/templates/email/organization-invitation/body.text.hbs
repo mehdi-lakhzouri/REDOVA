@@ -1,0 +1,9 @@
+{{#> base}}
+Hello,
+
+{{truncate inviterName}} invited you to join {{truncate organizationName}} on REDOVA as {{roleLabel}}.
+
+{{> button url=acceptUrl label="View invitation"}}
+This invitation expires on {{formatDate expiresAt}}. Sign in (or create an account) with this email address to accept it.
+If you did not expect this invitation, you can ignore this email.
+{{/base}}

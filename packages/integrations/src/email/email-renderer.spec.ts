@@ -51,6 +51,18 @@ const samples: EmailJob[] = [
       secureAccountUrl: 'https://app.redova.io/account/security',
     },
   },
+  {
+    template: 'organization-invitation',
+    to: 'alice@acme.io',
+    dedupeKey: 'k5',
+    variables: {
+      inviterName: 'Olivia',
+      organizationName: 'Acme Security',
+      roleLabel: 'AI Developer',
+      acceptUrl: 'https://app.redova.io/invitations/inv_123',
+      expiresAt: occurredAt,
+    },
+  },
 ];
 
 describe('email templates (UT-003-01)', () => {
@@ -109,6 +121,20 @@ describe('template safety (UT-003-02, UT-003-03)', () => {
     } as EmailJob);
     expect(truncated.html).not.toContain(long);
     expect(truncated.html).toContain(`${'x'.repeat(63)}…`);
+  });
+
+  it('escapes the organization and inviter names in invitations (UT-005-02)', () => {
+    const message = renderer.render({
+      ...samples[4],
+      variables: {
+        ...samples[4].variables,
+        inviterName: '<b>Eve</b>',
+        organizationName: '<script>x</script>',
+      },
+    } as EmailJob);
+    expect(message.html).not.toContain('<script>');
+    expect(message.html).not.toContain('<b>Eve</b>');
+    expect(message.html).toContain('&lt;script&gt;');
   });
 
   it('removes CR/LF from subjects', () => {

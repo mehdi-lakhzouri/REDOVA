@@ -1,0 +1,7 @@
+{{#> base title="You are invited"}}
+<p>Hello,</p>
+<p><strong>{{truncate inviterName}}</strong> invited you to join <strong>{{truncate organizationName}}</strong> on REDOVA as <strong>{{roleLabel}}</strong>.</p>
+{{> button url=acceptUrl label="View invitation"}}
+<p>This invitation expires on {{formatDate expiresAt}}. Sign in (or create an account) with this email address to accept it.</p>
+<p>If you did not expect this invitation, you can ignore this email.</p>
+{{/base}}
