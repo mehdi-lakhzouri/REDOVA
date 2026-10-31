@@ -277,6 +277,9 @@ importers:
       rxjs:
         specifier: ^7.8.1
         version: 7.8.2
+      sharp:
+        specifier: ^0.35.5
+        version: 0.35.5(@types/node@24.19.2)
       zod:
         specifier: ^4.6.7
         version: 4.6.7
@@ -311,6 +314,9 @@ importers:
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
+      '@types/multer':
+        specifier: ^2.3.0
+        version: 2.3.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.19.2
@@ -2585,6 +2591,9 @@ packages:
 
   '@types/methods@1.1.4':
     resolution: {integrity: sha512-ymXWVrDiCxTBE3+RIrrP533E70eA+9qu7zdWoHuOmGujkYtzf4HQF96b8nwHLqhuf4ykX61IGRIB38CC6/sImQ==}
+
+  '@types/multer@2.3.0':
+    resolution: {integrity: sha512-i7STIm9V4K2MPH4ZYMtrZAwNxs3kglk2LgleaTuB9pUXgADBcQYQuYMd7+6xgTIxfoggIkFA/DkkvycdZpIARA==}
 
   '@types/node@20.19.43':
     resolution: {integrity: sha512-6oYBAi5ikg4Pl+kGsoYtawUMBT2zZMCvPNF7pVLnHZfd1zf38DRiWn/gT01RYCdUqkv7Fhr+C9ot4/tb+2sVvA==}
@@ -7557,8 +7566,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@img/colour@1.1.0':
-    optional: true
+  '@img/colour@1.1.0': {}
 
   '@img/sharp-darwin-arm64@0.35.5':
     optionalDependencies:
@@ -8887,6 +8895,10 @@ snapshots:
   '@types/lodash@4.17.27': {}
 
   '@types/methods@1.1.4': {}
+
+  '@types/multer@2.3.0':
+    dependencies:
+      '@types/express': 5.0.6
 
   '@types/node@20.19.43':
     dependencies:
@@ -12855,7 +12867,6 @@ snapshots:
       '@img/sharp-win32-ia32': 0.35.5
       '@img/sharp-win32-x64': 0.35.5
       '@types/node': 24.19.2
-    optional: true
 
   shebang-command@2.0.0:
     dependencies:

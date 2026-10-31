@@ -18,6 +18,8 @@ export const envSchema = z.object({
   WEB_ORIGIN: z.url(),
   HIBP_ENABLED: booleanFlag.default(true),
   RATE_LIMIT_ENABLED: booleanFlag.default(true),
+  AVATAR_STORAGE: z.enum(['local']).default('local'),
+  AVATAR_LOCAL_DIR: z.string().min(1).default(resolve(__dirname, '../../.data/avatars')),
 });
 
 export type Env = z.infer<typeof envSchema>;

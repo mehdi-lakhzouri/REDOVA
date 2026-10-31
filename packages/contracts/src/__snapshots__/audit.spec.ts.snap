@@ -34,5 +34,7 @@ exports[`audit catalog (UT-001-07) > contains exactly the actions of README §17
   "admin.user.sessions_revoked",
   "admin.bootstrap.promoted",
   "admin.user.mfa_reset",
+  "profile.avatar.updated",
+  "profile.avatar.deleted",
 ]
 `;

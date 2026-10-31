@@ -13,7 +13,7 @@ import { emailJobSchema } from './email-jobs';
 describe('audit catalog (UT-001-07)', () => {
   it('contains exactly the actions of README §17.4', () => {
     expect(AuditAction.options).toMatchSnapshot();
-    expect(AuditAction.options).toHaveLength(32);
+    expect(AuditAction.options).toHaveLength(34);
   });
 
   it('rejects unknown actions', () => {

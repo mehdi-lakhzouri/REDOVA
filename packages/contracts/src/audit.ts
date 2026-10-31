@@ -35,6 +35,8 @@ export const AuditAction = z.enum([
   'admin.user.sessions_revoked',
   'admin.bootstrap.promoted',
   'admin.user.mfa_reset',
+  'profile.avatar.updated',
+  'profile.avatar.deleted',
 ]);
 export type AuditAction = z.infer<typeof AuditAction>;
 
@@ -72,6 +74,8 @@ export type RecordAuditEvent = (input: AuditEventInput) => Promise<void>;
  */
 export const AUDIT_METADATA_KEYS = {
   'auth.sign_up.completed': [],
+  'profile.avatar.updated': [],
+  'profile.avatar.deleted': [],
   'auth.email.verified': [],
   'auth.session.created': [],
   'auth.sign_in.failed': ['reason', 'emailHash'],

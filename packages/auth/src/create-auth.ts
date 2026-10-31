@@ -2,7 +2,7 @@ import { prismaAdapter } from '@better-auth/prisma-adapter';
 import type { AuditEventInput, EnqueueEmail, RecordAuditEvent } from '@redova/contracts';
 import type { PrismaClient } from '@redova/db';
 import { betterAuth } from 'better-auth';
-import { createAuthMiddleware } from 'better-auth/api';
+import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { admin } from 'better-auth/plugins/admin';
 import { haveIBeenPwned } from 'better-auth/plugins/haveibeenpwned';
 import { openAPI } from 'better-auth/plugins/open-api';
@@ -258,6 +258,16 @@ export const createAuth = (options: CreateAuthOptions) => {
     hooks: {
       // Escalation rules run first so a rejected mutation is never audited as performed.
       before: createAuthMiddleware(async (ctx) => {
+        if (
+          (ctx.path === '/update-user' || ctx.path === '/sign-up/email') &&
+          ctx.body &&
+          Object.prototype.hasOwnProperty.call(ctx.body, 'image')
+        ) {
+          throw new APIError('BAD_REQUEST', {
+            code: 'AVATAR_MANAGED_BY_SERVER',
+            message: 'Use the authenticated avatar upload endpoint to manage your image.',
+          });
+        }
         await throttle?.before(ctx);
         await escalation.before(ctx);
         await mfaHooks.before(ctx);
