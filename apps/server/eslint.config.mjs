@@ -34,6 +34,12 @@ export default tseslint.config(
     },
   },
   {
+    // Structured logger only, so redaction always applies (README §17.3). Operator CLIs print to the terminal.
+    files: ['src/**/*.ts'],
+    ignores: ['src/cli/**'],
+    rules: { 'no-console': 'error' },
+  },
+  {
     // HTTP assertions work on untyped response bodies (supertest), so unsafe-any rules add noise in tests.
     files: ['test/**/*.ts', 'src/**/*.spec.ts'],
     rules: {

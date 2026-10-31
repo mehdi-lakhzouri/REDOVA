@@ -1101,39 +1101,50 @@ The worker refuses to start in production when `EMAIL_TRANSPORT=smtp` and `SMTP_
 
 | ID | Threat | Vector | Controls | Native / Custom | Verified by |
 | --- | --- | --- | --- | --- | --- |
-| T1 | Credential stuffing / brute force | Automated sign-in attempts | Per-IP rate limit (Redis), per-account throttle (10 failures / 15 min, Redis), HIBP on password set, MFA | Native + Custom | UM-002 / UM-008 tests |
-| T2 | Account enumeration | Sign-up, sign-in, reset responses or timing | Generic responses (native), async email enqueue, per-account throttle applied to unknown emails too | Native + Custom | UM-002 / UM-003 tests |
-| T3 | Session hijacking | Token theft, network sniffing | `HttpOnly`, `Secure`, `__Secure-` prefix, `SameSite=Lax`, HSTS, no cookie cache, revocation | Native + Custom | UM-008 tests |
-| T4 | CSRF | Cross-site request with the victim's cookie | `SameSite=Lax`; Better Auth origin check on `/api/auth`; REDOVA `OriginGuard` on `/api/v1` non-GET; JSON-only bodies | Native + Custom | UM-008 tests |
-| T5 | Privilege escalation (global) | Setting `role` via sign-up/update, admin endpoints over HTTP | `input: false` fields (native), admin HTTP paths disabled, REDOVA admin guard + safeguards | Native + Custom | UM-006 / UM-007 tests |
-| T6 | Privilege escalation (organization) | ORG_ADMIN promoting self/others | Native owner protections + rank rules R3–R6 | Native + Custom | UM-006 tests |
-| T7 | Cross-tenant data access (IDOR) | Guessing ids, forged org id, cursor reuse | Path tenant + per-request membership check + tenant-scoped queries + 404 policy | Custom | UM-006 contract kit |
-| T8 | MFA bypass | Skipping challenge, reusing backup codes, guessing TOTP | Native two-factor cookie flow, single-use backup codes, account lockout | Native | UM-004 tests |
-| T9 | Token leakage | Logs, DB dump, queue payloads | Hashed verification identifiers, logger redaction, queue payload hygiene | Native + Custom | UM-003 / UM-008 tests |
-| T10 | Sensitive data exposure in APIs | Over-fetching entities | Zod output DTOs on every REDOVA response; `account.password` never selected; native `returned: false` | Native + Custom | UM-008 response-shape tests |
-| T11 | Open redirect | `callbackURL` / `redirectTo` manipulation | `trustedOrigins` validation (native) | Native | UM-002 / UM-003 tests |
-| T12 | Invitation hijacking | Forwarded invitation link | Email must match + verified email (native) | Native | UM-005 test |
-| T13 | Audit tampering | App bug or compromised app user | Append-only trigger | Custom | UM-001 / UM-008 test |
-| T14 | Email HTML / header injection | Malicious org or user name | Escaped Handlebars only, CR/LF stripping, length caps | Custom | UM-003 tests |
-| T15 | Dependency on HIBP availability | HIBP outage | Fail-closed, documented for clients | Native | UM-002 test |
-| T16 | Secret leakage | Committed `.env`, logs | `.env*` git-ignored, env validation, gitleaks in CI ([GIT-STRATEGY §11](../GIT-STRATEGY.md#11-secrets-and-sensitive-data)) | Custom | UM-008 CI |
+| T1 | Credential stuffing / brute force | Automated sign-in attempts | Per-IP rate limit (Redis), per-account throttle (10 failures / 15 min, Redis), HIBP on password set, MFA | Native + Custom | IT-001-07, AC-002-12 rate-limit test, IT-008-06, IT-004-06 |
+| T2 | Account enumeration | Sign-up, sign-in, reset responses or timing | Generic responses (native), async email enqueue, per-account throttle applied to unknown emails too | Native + Custom | IT-002-02, IT-002-05, IT-003-05, IT-008-07 |
+| T3 | Session hijacking | Token theft, network sniffing | `HttpOnly`, `Secure`, `__Secure-` prefix, `SameSite=Lax`, HSTS, no cookie cache, revocation | Native + Custom | IT-002-06, IT-008-08, IT-008-09 (SEC-10) |
+| T4 | CSRF | Cross-site request with the victim's cookie | `SameSite=Lax`; Better Auth origin check on `/api/auth`; REDOVA `OriginGuard` on `/api/v1` non-GET; JSON-only bodies | Native + Custom | IT-006-15, IT-007-14, IT-008-10 (SEC-10) |
+| T5 | Privilege escalation (global) | Setting `role` via sign-up/update, admin endpoints over HTTP | `input: false` fields (native), admin HTTP paths disabled, REDOVA admin guard + safeguards | Native + Custom | IT-002-12, IT-006-14, IT-007-07, IT-007-10, IT-007-15 |
+| T6 | Privilege escalation (organization) | ORG_ADMIN promoting self/others | Native owner protections + rank rules R3–R6 | Native + Custom | IT-006-01 … IT-006-05 |
+| T7 | Cross-tenant data access (IDOR) | Guessing ids, forged org id, cursor reuse | Path tenant + per-request membership check + tenant-scoped queries + 404 policy | Custom | IT-006-07, IT-006-10, IT-006-13, TENANT-ISO-01…04 (test items, organization audit events), IT-008-02 |
+| T8 | MFA bypass | Skipping challenge, reusing backup codes, guessing TOTP | Native two-factor cookie flow, single-use backup codes, account lockout | Native | IT-004-04 … IT-004-09 |
+| T9 | Token leakage | Logs, DB dump, queue payloads | Hashed verification identifiers, logger redaction, queue payload hygiene | Native + Custom | IT-003-09, IT-004-14, redaction unit test (AC-001-13), SEC-11 |
+| T10 | Sensitive data exposure in APIs | Over-fetching entities | Zod output DTOs on every REDOVA response; `account.password` never selected; native `returned: false` | Native + Custom | IT-007-04, IT-008-01, SEC-11 |
+| T11 | Open redirect | `callbackURL` / `redirectTo` manipulation | `trustedOrigins` validation (native) | Native | IT-002-07, IT-003-12 |
+| T12 | Invitation hijacking | Forwarded invitation link | Email must match + verified email (native) | Native | IT-005-06 (AC-005-07), IT-005-07 |
+| T13 | Audit tampering | App bug or compromised app user | Append-only trigger | Custom | db trigger test (UM-001), IT-008-05 |
+| T14 | Email HTML / header injection | Malicious org or user name | Escaped Handlebars only, CR/LF stripping, length caps | Custom | UT-003-02, UT-003-03, UT-005-02 |
+| T15 | Dependency on HIBP availability | HIBP outage | Fail-closed, documented for clients | Native | UM-002 HIBP tests |
+| T16 | Secret leakage | Committed `.env`, logs | `.env*` git-ignored, env validation, gitleaks in CI ([GIT-STRATEGY §11](../GIT-STRATEGY.md#11-secrets-and-sensitive-data)) | Custom | `security` CI job (gitleaks, `pnpm audit`), `.gitignore`, env validation (IT-001-11) |
 
 ### 17.2 Security requirements (testable)
 
-| ID | Requirement |
-| --- | --- |
-| SR-01 | No session can exist for a user with `emailVerified = false`. |
-| SR-02 | Password reset tokens expire after 30 min and can be used at most once. |
-| SR-03 | Revoked sessions are rejected on the next request (no caching window). |
-| SR-04 | Banned users cannot use existing sessions nor create new ones until the ban expires. |
-| SR-05 | MFA-enabled users cannot obtain a session without a valid second factor; each backup code works once. |
-| SR-06 | No user can raise their own global or organization role, or assign a role above what the policy permits. |
-| SR-07 | A user can never read or modify data of an organization they are not a member of. Such requests return 404. |
-| SR-08 | Organization membership is verified from the database on every tenant-scoped request. |
-| SR-09 | Credential endpoints are rate-limited per IP and sign-in is throttled per account. Responses never reveal whether an account exists. |
-| SR-10 | Session cookies are `HttpOnly`, `SameSite=Lax`, and `Secure` in production. State-changing requests from untrusted origins are rejected. |
-| SR-11 | Passwords, password hashes, session tokens, TOTP secrets, backup codes and reset/verification tokens never appear in API responses (except where natively designed, §5.3 and §7.3), logs, audit metadata or error messages. |
-| SR-12 | Every privileged operation (§17.4, marked ★) creates exactly one audit event with actor, target, outcome, IP and request id. |
+| ID | Requirement | Verified by |
+| --- | --- | --- |
+| SR-01 | No session can exist for a user with `emailVerified = false`. | IT-002-01, IT-002-04, SEC-01, IT-005-02, IT-005-07 |
+| SR-02 | Password reset tokens expire after 30 min and can be used at most once. | IT-003-08, IT-003-09 |
+| SR-03 | Revoked sessions are rejected on the next request (no caching window). | IT-002-08, IT-002-09, IT-002-10, IT-003-06/07, IT-007-12, IT-007-13 |
+| SR-04 | Banned users cannot use existing sessions nor create new ones until the ban expires. | IT-002-11, IT-007-04/05/06, IT-007-09, SEC-04 |
+| SR-05 | MFA-enabled users cannot obtain a session without a valid second factor; each backup code works once. | IT-004-04, IT-004-05, IT-004-06, IT-004-07, IT-004-08 |
+| SR-06 | No user can raise their own global or organization role, or assign a role above what the policy permits. | IT-002-12, IT-006-01 … IT-006-05, IT-006-14, IT-007-07, IT-007-10 |
+| SR-07 | A user can never read or modify data of an organization they are not a member of. Such requests return 404. | IT-006-07, IT-006-10, IT-006-13, TENANT-ISO-01…04, IT-008-02 |
+| SR-08 | Organization membership is verified from the database on every tenant-scoped request. | IT-006-09, IT-005-11 |
+| SR-09 | Credential endpoints are rate-limited per IP and sign-in is throttled per account. Responses never reveal whether an account exists. | IT-001-07, AC-002-12 rate-limit test, IT-003-04, IT-002-02, IT-002-05, IT-003-05, IT-008-06, IT-008-07 |
+| SR-10 | Session cookies are `HttpOnly`, `SameSite=Lax`, and `Secure` in production. State-changing requests from untrusted origins are rejected. | IT-002-06, IT-006-15, IT-007-14, SEC-10 (IT-008-08, IT-008-09, IT-008-10) |
+| SR-11 | Passwords, password hashes, session tokens, TOTP secrets, backup codes and reset/verification tokens never appear in API responses (except where natively designed, §5.3 and §7.3), logs, audit metadata or error messages. | SEC-11, IT-001-04, IT-003-09, IT-004-14, IT-007-04, IT-008-01, redaction unit test (AC-001-13), E2E log scan |
+| SR-12 | Every privileged operation (§17.4, marked ★) creates exactly one audit event with actor, target, outcome, IP and request id. | SEC-12 (catalog, all 32 actions), IT-008-05, IT-001-10 |
+
+The consolidated suite lives in `apps/server/test/security/` (`SEC-xx`). It covers what the ticket suites do not already prove; the "Verified by" column points to the ticket test that proves the rest, so no scenario is copied twice.
+
+**Residual risks (threat-model review, UM-008).**
+
+- T1/T2: response timing is not equalized beyond Better Auth's native behavior; the per-IP limit and the per-account throttle bound the attack rate.
+- T3: no device binding of sessions; a stolen cookie works until it is revoked or expires (7 days). Mitigated by `HttpOnly`/`Secure`, revocation and admin global sign-out.
+- T9: `GET /api/auth/list-sessions` returns the owner's own tokens (accepted native behavior, §5.3).
+- T13: the append-only trigger stops the application role, not a database superuser; off-site log shipping is future work (§2.2).
+- T15: HIBP outage blocks password changes (fail-closed by design).
+- The audit trail has no retention job yet; IP addresses and user agents are personal data (future retention policy).
 
 ### 17.3 Logging and redaction
 
@@ -1196,7 +1207,7 @@ Audit writes are **synchronous** in the same request, but they are **not** in th
 | `Content-Security-Policy` | `default-src 'none'; frame-ancestors 'none'` on API responses (JSON only). The docs routes, which are non-production only, are excluded. |
 | `X-Powered-By` | removed |
 
-Set via `helmet` in `apps/server`. CORS is not enabled in this phase. The frontend phase will decide between a same-origin proxy (no CORS) and an explicit CORS allow-list for `WEB_ORIGIN`.
+Set via `helmet` in `apps/server`. CORS is not enabled in this phase: `@thallesp/nestjs-better-auth` would enable credentialed CORS for `trustedOrigins` by default, so `disableTrustedOriginsCors: true` is set explicitly (verified by IT-008-08). The frontend phase will decide between a same-origin proxy (no CORS) and an explicit CORS allow-list for `WEB_ORIGIN`.
 
 ---
 

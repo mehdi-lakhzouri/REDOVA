@@ -63,17 +63,17 @@ Make BO-4 (traceability) available to customers and administrators through the A
 
 ### Hardening
 
-- [ ] Verify the `helmet` configuration (README §17.5); no `Access-Control-Allow-Origin` header on any `/api/*` response (CORS not enabled in this phase); `x-powered-by` disabled.
-- [ ] ESLint: forbid `console.log` in `apps/server` / `apps/worker` (logger only); forbid `findUnique` on tenant-owned models without a reviewed exception comment (custom `no-restricted-syntax` rule) **[P1]**.
+- [x] Verify the `helmet` configuration (README §17.5); no `Access-Control-Allow-Origin` header on any `/api/*` response (CORS not enabled in this phase); `x-powered-by` disabled.
+- [x] ESLint: forbid `console.log` in `apps/server` / `apps/worker` (logger only); forbid `findUnique` on tenant-owned models without a reviewed exception comment (custom `no-restricted-syntax` rule) **[P1]**.
 - [ ] `pnpm audit --prod --audit-level=high` in CI (fails the build). Exceptions documented with an expiry date.
 - [ ] gitleaks in CI on every PR (GIT-STRATEGY §11).
-- [ ] Production-mode test profile: start the server with `NODE_ENV=production` + HTTPS `BETTER_AUTH_URL` and assert the cookie `__Secure-redova.session_token` with `Secure`, docs routes (`/api/v1/docs`, `/api/auth/reference`) → 404, HSTS present, error masking.
+- [x] Production-mode test profile: start the server with `NODE_ENV=production` + HTTPS `BETTER_AUTH_URL` and assert the cookie `__Secure-redova.session_token` with `Secure`, docs routes (`/api/v1/docs`, `/api/auth/reference`) → 404, HSTS present, error masking.
 
 ### Security suite and traceability
 
-- [ ] Create `apps/server/test/security/` with one `*.security.spec.ts` per SR (README §17.2), reusing scenarios from earlier tickets where they exist (import shared scenarios; no copy-paste).
-- [ ] Add the "Verified by" column to README §17.2 (test IDs) and confirm the "Verified by" references in §17.1.
-- [ ] Threat-model review: walk through T1–T16, confirm the control and the test for each, record residual risks in README §17.1.
+- [x] Create `apps/server/test/security/` with one `*.security.spec.ts` per SR (README §17.2), reusing scenarios from earlier tickets where they exist (import shared scenarios; no copy-paste).
+- [x] Add the "Verified by" column to README §17.2 (test IDs) and confirm the "Verified by" references in §17.1.
+- [x] Threat-model review: walk through T1–T16, confirm the control and the test for each, record residual risks in README §17.1.
 
 ### CI
 
@@ -88,6 +88,12 @@ Notes for part 1:
 - The metadata allow-list is a key list per action (`AUDIT_METADATA_KEYS`), not a schema per action: values are already constrained by the audit input schema.
 - Single-event routes (`…/audit-events/{eventId}`) were added for both scopes, so the tenant isolation kit can check item access (TENANT-ISO-02).
 - The per-account throttle shares the `RATE_LIMIT_ENABLED` switch and only runs with Redis.
+
+Notes for part 2:
+
+- `@thallesp/nestjs-better-auth` enabled credentialed CORS for `trustedOrigins` by default, contrary to README §17.5. It is now disabled explicitly (`disableTrustedOriginsCors: true`), and IT-008-08 checks that no response carries CORS headers, for foreign and trusted origins alike.
+- `no-console` applies to `apps/server/src` (except the operator CLIs, which print to the terminal) and `apps/worker/src`. The **[P1]** `findUnique` lint rule is moved to the next sprint: tenant-scoped reads already go through `tenantScoped` and the contract kit.
+- `test/security/` holds the specs for what the ticket suites did not already prove (SEC-01, SEC-04, SEC-10, SEC-11, SEC-12). README §17.2 maps every SR to its tests, so no scenario is copied (the ticket's "no copy-paste" rule).
 
 ## Affected monorepo packages/apps
 
