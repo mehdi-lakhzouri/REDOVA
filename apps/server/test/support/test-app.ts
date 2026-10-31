@@ -1,6 +1,7 @@
 import type { INestApplication, ModuleMetadata } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { Auth } from '@redova/auth';
+import type { EmailJob } from '@redova/contracts';
 import type { PrismaClient } from '@redova/db';
 import { getTestDatabaseUrl, loadTestEnv, resetDatabase } from '@redova/db/testing';
 import { AuthService } from '@thallesp/nestjs-better-auth';
@@ -18,6 +19,8 @@ export interface TestApp {
   prisma: PrismaClient;
   redis: Redis;
   auth: Auth;
+  /** Emails enqueued by Better Auth callbacks (test double for the queue). */
+  emails: EmailJob[];
   close: () => Promise<void>;
 }
 
@@ -49,7 +52,12 @@ export const createTestApp = async (
   } = {},
 ): Promise<TestApp> => {
   const env = buildTestEnv(options.env);
-  const app = await NestFactory.create(AppModule.forRoot(env, options.extra), {
+  const emails: EmailJob[] = [];
+  const enqueueEmail = (job: EmailJob) => {
+    emails.push(job);
+    return Promise.resolve();
+  };
+  const app = await NestFactory.create(AppModule.forRoot(env, options.extra, { enqueueEmail }), {
     bodyParser: false,
     logger: false,
   });
@@ -67,6 +75,7 @@ export const createTestApp = async (
     prisma,
     redis,
     auth: app.get(AuthService).instance as unknown as Auth,
+    emails,
     close: () => app.close(),
   };
 };

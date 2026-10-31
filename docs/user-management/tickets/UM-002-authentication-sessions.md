@@ -36,14 +36,14 @@ Provide the entry point to the product (BO-1) with secure defaults: no account e
 
 ## Implementation tasks
 
-- [ ] `hooks.after` (matcher `/sign-in/email`): when `ctx.context.returned` is an `APIError`, record `auth.sign_in.failed` with `outcome: FAILURE`, `metadata: { reason: <native code>, emailHash: sha256(lowercase(email)) }`, and `targetId` = user id when the email exists. Never store the raw email or password.
-- [ ] `hooks.after` (matcher `/sign-out`): record `auth.sign_out`.
-- [ ] `hooks.after` (matchers `/revoke-session`, `/revoke-other-sessions`, `/revoke-sessions`): record `auth.session.revoked` with `metadata.scope` = `one` | `others` | `all`.
-- [ ] Confirm `databaseHooks.user.create.after` → `auth.sign_up.completed` and `databaseHooks.session.create.after` → `auth.session.created` (wired in UM-001), with `ipAddress`/`userAgent` taken from the session.
-- [ ] Hooks never throw into the auth flow: audit failures are logged (README §17.4).
-- [ ] Test factories in `packages/db/test/factories.ts`: user creation through `auth.api.signUpEmail`, DB email verification, `auth.api.signInEmail` returning cookie headers, default `Origin: WEB_ORIGIN` header.
-- [ ] Mocked HIBP helper (undici `MockAgent`) for the compromised-password tests.
-- [ ] README §15 (API client contract) checked against actual responses (status codes, error codes, `X-Retry-After`).
+- [x] `hooks.after` (matcher `/sign-in/email`): when `ctx.context.returned` is an `APIError`, record `auth.sign_in.failed` with `outcome: FAILURE`, `metadata: { reason: <native code>, emailHash: sha256(lowercase(email)) }`, and `targetId` = user id when the email exists. Never store the raw email or password.
+- [x] `hooks.after` (matcher `/sign-out`): record `auth.sign_out`.
+- [x] `hooks.after` (matchers `/revoke-session`, `/revoke-other-sessions`, `/revoke-sessions`): record `auth.session.revoked` with `metadata.scope` = `one` | `others` | `all`.
+- [x] Confirm `databaseHooks.user.create.after` → `auth.sign_up.completed` and `databaseHooks.session.create.after` → `auth.session.created` (wired in UM-001), with `ipAddress`/`userAgent` taken from the session.
+- [x] Hooks never throw into the auth flow: audit failures are logged (README §17.4).
+- [x] Test factories in `apps/server/test/support/factories.ts` (they need `auth.api`, which `packages/db` may not import — README §3.3): user creation through `auth.api.signUpEmail`, DB email verification, `auth.api.signInEmail` returning cookie headers, default `Origin: WEB_ORIGIN` header.
+- [x] Mocked HIBP helper (undici `MockAgent`) for the compromised-password tests.
+- [x] README §15 (API client contract) checked against actual responses (status codes, error codes, `X-Retry-After`).
 
 ## Affected monorepo packages/apps
 
@@ -180,11 +180,11 @@ None (backend-only phase).
 
 | ID | Test | AC |
 | --- | --- | --- |
-| E2E-002-01 | Against the running server: verified user (seeded) signs in → `get-session` → `update-user` name → `list-sessions` → `sign-out` → protected REDOVA call returns 401 | AC-002-06, AC-002-08 |
+| E2E-002-01 | Covered by the in-process "end-to-end flow" integration test; the black-box harness against running processes is introduced with the worker in UM-003. Against the running server: verified user (seeded) signs in → `get-session` → `update-user` name → `list-sessions` → `sign-out` → protected REDOVA call returns 401 | AC-002-06, AC-002-08 |
 
 ## Definition of Done
 
-- [ ] Global Definition of Done (README §20) satisfied.
-- [ ] All AC-002-xx automated and green.
-- [ ] Test factories documented (JSDoc + example) and used by UM-002 tests.
-- [ ] README §15 matches observed native responses.
+- [ ] Global Definition of Done (README §20) satisfied — coverage reporting (§19.3) is added to CI in UM-008.
+- [x] All AC-002-xx automated and green.
+- [x] Test factories documented (JSDoc + example) and used by UM-002 tests.
+- [x] README §15 matches observed native responses.

@@ -1,6 +1,7 @@
 import { type DynamicModule, Logger, Module, type ModuleMetadata } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { createAuth } from '@redova/auth';
+import type { EnqueueEmail } from '@redova/contracts';
 import type { PrismaClient } from '@redova/db';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import type { Redis } from 'ioredis';
@@ -18,12 +19,18 @@ import { LoggingModule } from './logging/logging.module';
 
 const authLogger = new Logger('BetterAuth');
 
+/** Test seams; production code never passes them. */
+export interface AppOverrides {
+  enqueueEmail?: EnqueueEmail;
+}
+
 @Module({})
 export class AppModule {
-  /** `extra` lets integration tests mount test-only modules and controllers. */
+  /** `extra` and `overrides` let integration tests mount test-only modules and capture emails. */
   static forRoot(
     env: Env,
     extra: Pick<ModuleMetadata, 'imports' | 'controllers'> = {},
+    overrides: AppOverrides = {},
   ): DynamicModule {
     return {
       module: AppModule,
@@ -36,7 +43,7 @@ export class AppModule {
             auth: createAuth({
               prisma,
               redis,
-              enqueueEmail: createDevEnqueueEmail(config.NODE_ENV),
+              enqueueEmail: overrides.enqueueEmail ?? createDevEnqueueEmail(config.NODE_ENV),
               recordAudit: (input) => audit.record(input),
               onAuditError: (error) => authLogger.error({ err: error }, 'Audit hook failed'),
               secret: config.BETTER_AUTH_SECRET,
