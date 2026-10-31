@@ -1,4 +1,5 @@
 export * from './audit-event.repository';
+export * from './user-query.repository';
 export * from './client';
 export {
   AuditActorType,

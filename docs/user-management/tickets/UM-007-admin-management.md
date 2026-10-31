@@ -40,22 +40,22 @@ Stop compromised or abusive accounts immediately (BO-5), with every administrati
 
 ### `packages/core`
 
-- [ ] `admin-policies.ts`:
+- [x] `admin-policies.ts`:
   - `canChangeGlobalRole({ actorId, targetId, targetCurrentRole, newRole, platformAdminCount })` → `ADMIN_SELF_ROLE_CHANGE_FORBIDDEN` | `LAST_PLATFORM_ADMIN` | ok.
   - `canBanUser({ actorId, targetId, targetRole })` → native self-ban check is kept, plus `ADMIN_TARGET_IS_PLATFORM_ADMIN`.
 
 ### `packages/contracts`
 
-- [ ] Zod DTOs: `AdminUserListQuery` (`q` ≤ 100 chars, `status` `active|banned`, `role`, `limit`, `cursor`), `AdminUserSummary` (`id`, `name`, `email`, `emailVerified`, `role`, `banned`, `banExpires`, `twoFactorEnabled`, `createdAt`), `AdminUserDetail` (+ `banReason`, `membershipCount`, `activeSessionCount`), `AdminSession` (`id`, `createdAt`, `updatedAt`, `expiresAt`, `ipAddress`, `userAgent`, **no token**), `BanUserBody` (`reason` 10–500, `expiresInDays` 1 \| 7 \| 30 \| null), `SetRoleBody` (`role: GlobalRole`). Output schemas are `strict()`.
+- [x] Zod DTOs: `AdminUserListQuery` (`q` ≤ 100 chars, `status` `active|banned`, `role`, `limit`, `cursor`), `AdminUserSummary` (`id`, `name`, `email`, `emailVerified`, `role`, `banned`, `banExpires`, `twoFactorEnabled`, `createdAt`), `AdminUserDetail` (+ `banReason`, `membershipCount`, `activeSessionCount`), `AdminSession` (`id`, `createdAt`, `updatedAt`, `expiresAt`, `ipAddress`, `userAgent`, **no token**), `BanUserBody` (`reason` 10–500, `expiresInDays` 1 \| 7 \| 30 \| null), `SetRoleBody` (`role: GlobalRole`). Output schemas are `strict()`.
 
 ### `packages/db`
 
-- [ ] `UserQueryRepository.list({ q, status, role, limit, cursor })`: Prisma native cursor (`take: limit + 1`, `cursor: { id }`, `skip: 1`, `orderBy: [{ createdAt: "desc" }, { id: "desc" }]`). `q` = case-insensitive prefix on email or name. Explicit `select`, so `account`/password data is never read.
-- [ ] `UserQueryRepository.getDetail(id)`, `countPlatformAdmins()`, `findSessionTokenForUser(sessionId, userId)`.
+- [x] `UserQueryRepository.list({ q, status, role, limit, cursor })`: Prisma native cursor (`take: limit + 1`, `cursor: { id }`, `skip: 1`, `orderBy: [{ createdAt: "desc" }, { id: "desc" }]`). `q` = case-insensitive prefix on email or name. Explicit `select`, so `account`/password data is never read.
+- [x] `UserQueryRepository.getDetail(id)`, `countPlatformAdmins()`, `findSessionTokenForUser(sessionId, userId)`.
 
 ### `apps/server` — `AdminModule`
 
-- [ ] `AdminUsersController` (all routes `@PlatformAdmin()`; mutations `@PlatformAdminMutation()`):
+- [x] `AdminUsersController` (all routes `@PlatformAdmin()`; mutations `@PlatformAdminMutation()`):
 
 | Route | Behavior |
 | --- | --- |
@@ -68,9 +68,9 @@ Stop compromised or abusive accounts immediately (BO-5), with every administrati
 | `DELETE /api/v1/admin/users/:userId/sessions` | `auth.api.revokeUserSessions` → audit `admin.user.sessions_revoked` (`metadata.count`, written only when count > 0) → `204`. |
 | `DELETE /api/v1/admin/users/:userId/sessions/:sessionId` | Resolve the token with `findSessionTokenForUser`; not found or another user's session → `404 SESSION_NOT_FOUND`; `auth.api.revokeUserSession({ sessionToken })` → audit `admin.user.session_revoked` → `204`. |
 
-- [ ] All `auth.api.*` calls forward the caller's headers, so Better Auth re-checks the admin permission natively (defense in depth). Native `APIError`s are mapped by the exception filter.
-- [ ] OpenAPI documentation for every route (request/response schemas, error codes).
-- [ ] CLI `admin:promote --email <email> [--force]` (`apps/server/src/cli`): the user must exist and be verified; refuses if a `PLATFORM_ADMIN` exists unless `--force`; sets `role = PLATFORM_ADMIN`; audit `admin.bootstrap.promoted` (actor `SYSTEM`, `metadata.forced`). Prints a reminder that MFA enrollment is required before any admin API works.
+- [x] All `auth.api.*` calls forward the caller's headers, so Better Auth re-checks the admin permission natively (defense in depth). Native `APIError`s are mapped by the exception filter.
+- [x] OpenAPI documentation for every route (request/response schemas, error codes).
+- [x] CLI `admin:promote --email <email> [--force]` (`apps/server/src/cli`): the user must exist and be verified; refuses if a `PLATFORM_ADMIN` exists unless `--force`; sets `role = PLATFORM_ADMIN`; audit `admin.bootstrap.promoted` (actor `SYSTEM`, `metadata.forced`). Prints a reminder that MFA enrollment is required before any admin API works.
 
 ## Affected monorepo packages/apps
 
@@ -238,10 +238,18 @@ None (backend-only phase).
 | --- | --- | --- |
 | **E2E-JOURNEY-05** | Against the running server: bootstrap admin via CLI → admin enables MFA → searches Bob → bans him for 1 day → Bob's existing cookie gets 401 → Bob's sign-in gets `BANNED_USER` → admin unbans → Bob signs in | AC-007-05, 08, 16 |
 
+## Implementation notes
+
+- Ban idempotency (`isSameBan`): same reason and same remaining duration in whole days. A retry minutes later is a no-op; the same request days later renews the ban.
+- `UserQueryRepository.list` returns `INVALID_CURSOR` both for a malformed cursor and for a well-formed cursor whose anchor user does not exist.
+- The role change runs `pg_advisory_xact_lock` in a Prisma interactive transaction; Better Auth's `setRole` commits before the lock is released, so the next request counts the new state (IT-007-10 runs both demotions with `Promise.all`).
+- Integration tests use real TOTP enrollment for admins (`test/support/mfa.ts`), so re-authentication after a stale session is the real password + TOTP flow.
+- E2E-JOURNEY-05 is delivered with the API end-to-end harness in UM-008; the demo script is in the PR description.
+
 ## Definition of Done
 
 - [ ] Global Definition of Done (README §20) satisfied.
-- [ ] All AC-007-xx automated and green.
-- [ ] OpenAPI at `/api/v1/docs` shows all admin routes with request/response/error schemas.
-- [ ] Root README documents the `admin:promote` bootstrap step.
-- [ ] Demo script for the PFE defense (API calls for JOURNEY-05) written in the PR description.
+- [x] All AC-007-xx automated and green.
+- [x] OpenAPI at `/api/v1/docs` shows all admin routes with request/response/error schemas.
+- [x] Root README documents the `admin:promote` bootstrap step.
+- [x] Demo script for the PFE defense (API calls for JOURNEY-05) written in the PR description.
