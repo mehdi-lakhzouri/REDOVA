@@ -45,7 +45,7 @@
     },
     "test:integration": {
       "dependsOn": [
-        "^build"
+        "build"
       ],
       "cache": false
     },

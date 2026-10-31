@@ -9,7 +9,11 @@ const base = {
 export const verifyEmailJob = z.object({
   ...base,
   template: z.literal('verify-email'),
-  variables: z.object({ name: z.string(), verifyUrl: z.url(), expiresInHours: z.number().int().positive() }),
+  variables: z.object({
+    name: z.string(),
+    verifyUrl: z.url(),
+    expiresInHours: z.number().int().positive(),
+  }),
 });
 
 export const resetPasswordJob = z.object({

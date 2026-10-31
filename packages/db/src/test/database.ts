@@ -12,7 +12,8 @@ export const loadTestEnv = (): void => {
 export const getTestDatabaseUrl = (): string => {
   if (process.env.TEST_DATABASE_URL) return process.env.TEST_DATABASE_URL;
   const base = process.env.DATABASE_URL;
-  if (!base) throw new Error('DATABASE_URL (or TEST_DATABASE_URL) must be set for integration tests');
+  if (!base)
+    throw new Error('DATABASE_URL (or TEST_DATABASE_URL) must be set for integration tests');
   const url = new URL(base);
   url.pathname = `${url.pathname.replace(/^\//, '')}_test`;
   return url.toString();

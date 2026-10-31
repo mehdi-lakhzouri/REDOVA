@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { cursorQuerySchema, decodeCursor, encodeCursor, InvalidCursorError, limitSchema } from './pagination';
+import {
+  cursorQuerySchema,
+  decodeCursor,
+  encodeCursor,
+  InvalidCursorError,
+  limitSchema,
+} from './pagination';
 
 describe('cursor codec (UT-001-01)', () => {
   it('round-trips a cursor payload', () => {

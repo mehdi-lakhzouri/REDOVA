@@ -3,7 +3,8 @@
 // Usage: node scripts/check-attribution.mjs <file> | node scripts/check-attribution.mjs - (reads stdin)
 import { readFileSync } from 'node:fs';
 
-export const FORBIDDEN = /co-authored-by:|generated (with|by) .*claude|claude\.com\/claude-code|🤖/i;
+export const FORBIDDEN =
+  /co-authored-by:|generated (with|by) .*claude|claude\.com\/claude-code|🤖/i;
 
 const source = process.argv[2] ?? '-';
 const text = source === '-' ? readFileSync(0, 'utf8') : readFileSync(source, 'utf8');

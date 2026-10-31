@@ -7,6 +7,7 @@ allowBuilds:
   '@nestjs/core': false
   '@parcel/watcher': false
   '@prisma/engines': true
+  '@scarf/scarf': set this to true or false
   '@swc/core': true
   esbuild: true
   prisma: true

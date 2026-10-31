@@ -106,7 +106,11 @@ export const createAuth = (options: CreateAuthOptions) => {
           template: 'verify-email',
           to: user.email,
           dedupeKey: url,
-          variables: { name: user.name, verifyUrl: url, expiresInHours: EMAIL_VERIFICATION_EXPIRES_IN_SECONDS / 3600 },
+          variables: {
+            name: user.name,
+            verifyUrl: url,
+            expiresInHours: EMAIL_VERIFICATION_EXPIRES_IN_SECONDS / 3600,
+          },
         });
       },
     },

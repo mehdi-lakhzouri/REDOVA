@@ -29,10 +29,15 @@ export const RATE_LIMIT_KEY_PREFIX = 'redova:rate-limit:';
 
 export const createRedisRateLimitStorage = (redis: Redis): RateLimitStorage => ({
   async consume(key, { window, max }) {
-    const [allowed, ttl] = (await redis.eval(CONSUME_SCRIPT, 1, `${RATE_LIMIT_KEY_PREFIX}${key}`, window, max)) as [
-      number,
-      number,
-    ];
-    return allowed === 1 ? { allowed: true, retryAfter: null } : { allowed: false, retryAfter: ttl };
+    const [allowed, ttl] = (await redis.eval(
+      CONSUME_SCRIPT,
+      1,
+      `${RATE_LIMIT_KEY_PREFIX}${key}`,
+      window,
+      max,
+    )) as [number, number];
+    return allowed === 1
+      ? { allowed: true, retryAfter: null }
+      : { allowed: false, retryAfter: ttl };
   },
 });

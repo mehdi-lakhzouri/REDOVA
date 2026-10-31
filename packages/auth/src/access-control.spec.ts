@@ -3,9 +3,14 @@ import { globalRoles, orgRoles } from './access-control';
 
 describe('access control (UT-001-06 — spot checks; full matrix in UM-006)', () => {
   it('defines the six organization roles and two global roles', () => {
-    expect(Object.keys(orgRoles).sort()).toEqual(
-      ['AI_DEVELOPER', 'AUDITOR', 'ORG_ADMIN', 'ORG_OWNER', 'SECURITY_ENGINEER', 'VIEWER'],
-    );
+    expect(Object.keys(orgRoles).sort()).toEqual([
+      'AI_DEVELOPER',
+      'AUDITOR',
+      'ORG_ADMIN',
+      'ORG_OWNER',
+      'SECURITY_ENGINEER',
+      'VIEWER',
+    ]);
     expect(Object.keys(globalRoles).sort()).toEqual(['PLATFORM_ADMIN', 'USER']);
   });
 
@@ -22,7 +27,10 @@ describe('access control (UT-001-06 — spot checks; full matrix in UM-006)', ()
   });
 
   it('grants PLATFORM_ADMIN account administration but not impersonation', () => {
-    expect(globalRoles.PLATFORM_ADMIN.authorize({ user: ['ban', 'set-role'], session: ['revoke'] }).success).toBe(true);
+    expect(
+      globalRoles.PLATFORM_ADMIN.authorize({ user: ['ban', 'set-role'], session: ['revoke'] })
+        .success,
+    ).toBe(true);
     expect(globalRoles.PLATFORM_ADMIN.authorize({ user: ['impersonate'] }).success).toBe(false);
     expect(globalRoles.USER.authorize({ user: ['list'] }).success).toBe(false);
   });

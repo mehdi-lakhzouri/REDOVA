@@ -18,7 +18,15 @@ describe('audit_event (IT-001-03, IT-001-10)', () => {
       SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename`;
     expect(tables.map((t) => t.tablename)).toEqual(
       expect.arrayContaining([
-        'account', 'audit_event', 'invitation', 'member', 'organization', 'session', 'twoFactor', 'user', 'verification',
+        'account',
+        'audit_event',
+        'invitation',
+        'member',
+        'organization',
+        'session',
+        'twoFactor',
+        'user',
+        'verification',
       ]),
     );
     const indexes = await prisma.$queryRaw<{ indexname: string }[]>`
@@ -38,9 +46,18 @@ describe('audit_event (IT-001-03, IT-001-10)', () => {
 
   it('persists an audit event with a time-ordered UUIDv7 id', async () => {
     const repository = new AuditEventRepository(prisma);
-    const first = await repository.create({ action: 'auth.sign_out', outcome: 'SUCCESS', actorType: 'USER', actorUserId: 'u1' });
+    const first = await repository.create({
+      action: 'auth.sign_out',
+      outcome: 'SUCCESS',
+      actorType: 'USER',
+      actorUserId: 'u1',
+    });
     const second = await repository.create({
-      action: 'auth.sign_out', outcome: 'SUCCESS', actorType: 'USER', actorUserId: 'u1', metadata: { scope: 'one' },
+      action: 'auth.sign_out',
+      outcome: 'SUCCESS',
+      actorType: 'USER',
+      actorUserId: 'u1',
+      metadata: { scope: 'one' },
     });
     expect(first.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-/);
     expect(second.id > first.id).toBe(true);
@@ -49,10 +66,18 @@ describe('audit_event (IT-001-03, IT-001-10)', () => {
   });
 
   it('rejects UPDATE and DELETE (AC-001-07)', async () => {
-    const { id } = await new AuditEventRepository(prisma).create({ action: 'auth.sign_out', outcome: 'SUCCESS', actorType: 'USER' });
-    await expect(prisma.auditEvent.update({ where: { id }, data: { action: 'tampered' } })).rejects.toThrow(/append-only/);
+    const { id } = await new AuditEventRepository(prisma).create({
+      action: 'auth.sign_out',
+      outcome: 'SUCCESS',
+      actorType: 'USER',
+    });
+    await expect(
+      prisma.auditEvent.update({ where: { id }, data: { action: 'tampered' } }),
+    ).rejects.toThrow(/append-only/);
     await expect(prisma.auditEvent.delete({ where: { id } })).rejects.toThrow(/append-only/);
-    await expect(prisma.$executeRaw`UPDATE audit_event SET action = 'tampered'`).rejects.toThrow(/append-only/);
+    await expect(prisma.$executeRaw`UPDATE audit_event SET action = 'tampered'`).rejects.toThrow(
+      /append-only/,
+    );
     const row = await prisma.auditEvent.findUniqueOrThrow({ where: { id } });
     expect(row.action).toBe('auth.sign_out');
   });

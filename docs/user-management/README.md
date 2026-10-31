@@ -1433,9 +1433,13 @@ flowchart LR
 | `EMAIL_API_KEY` | worker | — | Production provider. |
 | `EMAIL_FROM` | worker | `REDOVA <you@gmail.com>` | |
 | `HIBP_ENABLED` | server | `true` | `false` only in unit tests. |
+| `RATE_LIMIT_ENABLED` | server | `true` | Disabled by the integration tests except where rate limiting is under test. |
+| `TEST_DATABASE_URL` | tests | — | Optional. Defaults to `DATABASE_URL` with the `_test` suffix (`redova_test`), created and migrated automatically. |
 | `LOG_LEVEL` | all | `info` | |
 
 All variables are validated at boot with a Zod schema. The app fails fast with a list of missing or invalid variables.
+
+In local development every app and package reads the **repository-root `.env`** (template: `.env.example`). CI and production inject the variables directly; Turborepo passes `DATABASE_URL`, `TEST_DATABASE_URL`, `REDIS_URL`, `NODE_ENV` and `CI` through to tasks (`globalPassThroughEnv`).
 
 ### C.2 Rate-limit rules (`rateLimit.customRules`, per IP)
 

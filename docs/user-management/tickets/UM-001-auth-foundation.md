@@ -53,65 +53,65 @@ Remove the main technical risks of the module (ESM/CJS interop, Prisma 7, plugin
 - [x] Remove the nested `.git` folders and run `git init` at the repo root, with `master` as the default branch. (Done by the repository owner before the migration; the GitHub remote `origin` already exists.)
 - [x] Move `backend/` → `apps/server` (package `@redova/server`) and `frontend/` → `apps/web` (package `@redova/web`, unchanged). Delete the per-project `pnpm-lock.yaml` / `pnpm-workspace.yaml`.
 - [x] Root `package.json` (`packageManager` pinned, `engines.node >= 22.12`), `pnpm-workspace.yaml` (`apps/*`, `packages/*`, explicit `allowBuilds`), `turbo.json` tasks: `build`, `dev`, `lint`, `typecheck`, `test`, `test:integration`, `test:e2e`.
-- [ ] Root `tsconfig.base.json`, shared ESLint flat config; import-boundary rules enforcing README §3.3.
-- [ ] Root `.gitignore` covering `.env` and `.env.*` (except `.env.example`), `node_modules`, `.turbo`, `.next`, `dist`, `coverage`.
-- [ ] Server default port `3001`.
+- [x] Root `tsconfig.base.json`, shared ESLint flat config for `packages/*`; import-boundary rules enforcing README §3.3. (`packages/core` is created with its first policies in UM-006.)
+- [x] Root `.gitignore` covering `.env` and `.env.*` (except `.env.example`), `node_modules`, `.turbo`, `.next`, `dist`, `coverage`.
+- [x] Server default port `3001`.
 
 ### 2. Git tooling (GIT-STRATEGY §12)
 
-- [ ] `.github/pull_request_template.md` with the exact template from GIT-STRATEGY §5.4.
-- [ ] `commitlint.config.mjs` (`@commitlint/config-conventional`, scope enum, header length, `trailer-exists: never Co-authored-by:`).
-- [ ] `simple-git-hooks` `commit-msg` hook running commitlint **and** the case-insensitive forbidden-attribution pattern (GIT-STRATEGY §4.5).
-- [ ] CI job `git-hygiene`: branch-name regex, commitlint over `origin/master..HEAD`, forbidden-pattern scan of commit messages, PR title and PR body, PR title as Conventional Commit.
-- [ ] Document the GitHub `master` protection settings (GIT-STRATEGY §8) in the root README and apply them once the remote exists.
+- [x] `.github/pull_request_template.md` with the exact template from GIT-STRATEGY §5.4.
+- [x] `commitlint.config.mjs` (`@commitlint/config-conventional`, scope enum, header length, `trailer-exists: never Co-authored-by:`).
+- [x] `simple-git-hooks` `commit-msg` hook running commitlint **and** the case-insensitive forbidden-attribution pattern (GIT-STRATEGY §4.5).
+- [x] CI job `git-hygiene`: branch-name regex, commitlint over `origin/master..HEAD`, forbidden-pattern scan of commit messages, PR title and PR body, PR title as Conventional Commit.
+- [x] Document the GitHub `master` protection settings (GIT-STRATEGY §8) in the root README and apply them once the remote exists.
 
 ### 3. Local infrastructure
 
-- [ ] `docker/docker-compose.yml`: `postgres:17` (5432, volume), `redis:7` (6379), `axllent/mailpit` (1025/8025, profile `test`); healthchecks for all.
-- [ ] Root scripts: `infra:up`, `infra:down`, `db:migrate`, `db:generate`, `db:studio`.
+- [x] `docker/docker-compose.yml`: `postgres:17` (host 5433, volume), `redis:7` (host 6380), `axllent/mailpit` (1025/8025, profile `test`); healthchecks for all.
+- [x] Root scripts: `infra:up`, `infra:down`, `db:migrate`, `db:generate`, `db:studio`.
 
 ### 4. `packages/contracts`
 
-- [ ] `envelope.ts`: `successEnvelope(schema)`, `paginatedEnvelope(schema)`, `errorEnvelope` Zod schemas + TS types.
-- [ ] `errors.ts`: REDOVA error code enum + HTTP status map (README §18.2).
-- [ ] `pagination.ts`: `limit` schema (1–100, default 20), opaque cursor codec (`encodeCursor`/`decodeCursor`, base64url JSON, Zod-validated).
-- [ ] `roles.ts`: `GlobalRole` (`PLATFORM_ADMIN`, `USER`), `OrgRole` (6 values) Zod enums.
-- [ ] `audit.ts`: `AuditAction` enum (full catalog README §17.4), `AuditOutcome`, `AuditActorType`, `AuditTargetType`.
-- [ ] `email-jobs.ts`: `EmailJob` discriminated union (template + variables per template, README §16.2) and the `EnqueueEmail` function type.
+- [x] `envelope.ts`: `successEnvelope(schema)`, `paginatedEnvelope(schema)`, `errorEnvelope` Zod schemas + TS types.
+- [x] `errors.ts`: REDOVA error code enum + HTTP status map (README §18.2).
+- [x] `pagination.ts`: `limit` schema (1–100, default 20), opaque cursor codec (`encodeCursor`/`decodeCursor`, base64url JSON, Zod-validated).
+- [x] `roles.ts`: `GlobalRole` (`PLATFORM_ADMIN`, `USER`), `OrgRole` (6 values) Zod enums.
+- [x] `audit.ts`: `AuditAction` enum (full catalog README §17.4), `AuditOutcome`, `AuditActorType`, `AuditTargetType`.
+- [x] `email-jobs.ts`: `EmailJob` discriminated union (template + variables per template, README §16.2) and the `EnqueueEmail` function type.
 
 ### 5. `packages/db`
 
-- [ ] Prisma 7 setup: `prisma.config.ts`, `schema.prisma` (generator with explicit `output`), client singleton using `@prisma/adapter-pg`.
-- [ ] Generate Better Auth models with the Better Auth CLI — package **`auth@1.7.14`** (`pnpm exec auth generate --config <auth config> --output <schema.prisma> --yes`) — from the `packages/auth` config. Bootstrap order: `prisma generate` (empty client) → `auth generate` → `prisma migrate dev`. Commit the result.
-- [ ] REDOVA additions (marked `// REDOVA:`): `member @@unique([organizationId, userId])`, `user @@index([createdAt, id])`, `invitation @@index([organizationId, status])`.
-- [ ] `AuditEvent` model + enums (README §12.3) with `@default(uuid(7))`, indexes `(organizationId, id)`, `(actorUserId, id)`, `(action, id)`.
-- [ ] SQL migration: trigger function + trigger `audit_event_immutable` raising on `UPDATE` / `DELETE`.
-- [ ] `AuditEventRepository.create()`.
-- [ ] `test/` helpers: `resetDatabase()` (truncate all tables except `_prisma_migrations`).
+- [x] Prisma 7 setup: `prisma.config.ts`, `schema.prisma` (generator with explicit `output`), client singleton using `@prisma/adapter-pg`.
+- [x] Generate Better Auth models with the Better Auth CLI — package **`auth@1.7.14`** (`pnpm exec auth generate --config <auth config> --output <schema.prisma> --yes`) — from the `packages/auth` config. Bootstrap order: `prisma generate` (empty client) → `auth generate` → `prisma migrate dev`. Commit the result.
+- [x] REDOVA additions (marked `// REDOVA:`): `member @@unique([organizationId, userId])`, `user @@index([createdAt, id])`, `invitation @@index([organizationId, status])`.
+- [x] `AuditEvent` model + enums (README §12.3) with `@default(uuid(7))`, indexes `(organizationId, id)`, `(actorUserId, id)`, `(action, id)`.
+- [x] SQL migration: trigger function + trigger `audit_event_immutable` raising on `UPDATE` / `DELETE`.
+- [x] `AuditEventRepository.create()`.
+- [x] `test/` helpers: `resetDatabase()` (truncate all tables except `_prisma_migrations`).
 
 ### 6. `packages/auth`
 
-- [ ] `access-control.ts`: organization statements (`organization`, `member`, `invitation`, `auditLog`, `agent`, `assessment`, `finding`, `report`) and the 6 organization roles exactly as README §9.1. Global statements and the 2 global roles exactly as README §9.2.
-- [ ] `create-auth.ts`: `createAuth(deps: { prisma, redis, enqueueEmail, audit, env })` returning `betterAuth({...})` with every option in README §4.1–§4.5 and `disabledPaths` from §4.6. `hooks: {}` minimum (required by the NestJS integration). Audit hooks `databaseHooks.session.create.after` and `user.create.after` are wired here as the reference implementation. Feature-specific hooks are added by later tickets.
-- [ ] `redis-rate-limit-storage.ts`: `consume(key, { window, max })` implemented atomically (single Lua script, or `MULTI` with `INCR` + `EXPIRE NX` + `TTL`), returning `{ allowed, retryAfter }`.
-- [ ] Development-only `enqueueEmail` implementation that logs the template name and action URL **only when `NODE_ENV=development`**, clearly marked "replaced in UM-003".
+- [x] `access-control.ts`: organization statements (`organization`, `member`, `invitation`, `auditLog`, `agent`, `assessment`, `finding`, `report`) and the 6 organization roles exactly as README §9.1. Global statements and the 2 global roles exactly as README §9.2.
+- [x] `create-auth.ts`: `createAuth(deps: { prisma, redis, enqueueEmail, audit, env })` returning `betterAuth({...})` with every option in README §4.1–§4.5 and `disabledPaths` from §4.6. `hooks: {}` minimum (required by the NestJS integration). Audit hooks `databaseHooks.session.create.after` and `user.create.after` are wired here as the reference implementation. Feature-specific hooks are added by later tickets.
+- [x] `redis-rate-limit-storage.ts`: `consume(key, { window, max })` implemented atomically (single Lua script, or `MULTI` with `INCR` + `EXPIRE NX` + `TTL`), returning `{ allowed, retryAfter }`.
+- [x] Development-only `enqueueEmail` implementation that logs the template name and action URL **only when `NODE_ENV=development`**, clearly marked "replaced in UM-003".
 
 ### 7. `apps/server`
 
-- [ ] `main.ts`: `NestFactory.create(AppModule, { bodyParser: false })`, `helmet` (README §17.5), `x-powered-by` disabled, global prefix `api` + URI versioning so REDOVA routes live under `/api/v1`. Verify that `/api/auth/*` is **not** double-prefixed.
-- [ ] `AuthModule.forRoot({ auth })` from `@thallesp/nestjs-better-auth` (global `AuthGuard`).
-- [ ] Env validation (Zod) at boot (README Appendix C.1); fail fast with the list of invalid variables.
-- [ ] `RequestIdMiddleware` (`x-request-id` in/out), `nestjs-pino` with the redaction paths from README §17.3; never log `/api/auth/*` bodies.
-- [ ] Global `EnvelopeInterceptor` and `ApiExceptionFilter`, mapping `ZodError` → `VALIDATION_FAILED`, `HttpException`s → REDOVA codes, the library's unauthenticated error → `UNAUTHENTICATED`, Better Auth `APIError` (from `auth.api.*` calls) → mapped code, unknown → `INTERNAL_ERROR` without stack.
-- [ ] `nestjs-zod` validation pipe + `@nestjs/swagger` at `/api/v1/docs` (non-production); Better Auth `openAPI()` plugin reference at `/api/auth/reference` (non-production).
-- [ ] `GET /api/v1/health` (`@AllowAnonymous()`): DB `SELECT 1` + Redis `PING`.
-- [ ] `AuditModule` (global) exposing `AuditService.record(input)` that adds `requestId`, `ipAddress` and `userAgent` from the request context and validates `action` against the contracts enum. On write failure it logs at `error` level and does not throw (README §17.4).
+- [x] `main.ts`: `NestFactory.create(AppModule, { bodyParser: false })`, `helmet` (README §17.5), `x-powered-by` disabled, global prefix `api/v1` (the auth module excludes its own `/api/auth` base path from the prefix). Verify that `/api/auth/*` is **not** double-prefixed.
+- [x] `AuthModule.forRootAsync()` (factory injecting env, Prisma, Redis and `AuditService`) from `@thallesp/nestjs-better-auth` (global `AuthGuard`).
+- [x] Env validation (Zod) at boot (README Appendix C.1); fail fast with the list of invalid variables.
+- [x] `RequestIdMiddleware` (`x-request-id` in/out), `nestjs-pino` with the redaction paths from README §17.3; never log `/api/auth/*` bodies.
+- [x] Global `EnvelopeInterceptor` and `ApiExceptionFilter`, mapping `ZodError` → `VALIDATION_FAILED`, `HttpException`s → REDOVA codes, the library's unauthenticated error → `UNAUTHENTICATED`, Better Auth `APIError` (from `auth.api.*` calls) → mapped code, unknown → `INTERNAL_ERROR` without stack.
+- [x] `nestjs-zod` validation pipe + `@nestjs/swagger` at `/api/v1/docs` (non-production); Better Auth `openAPI()` plugin reference at `/api/auth/reference` (non-production).
+- [x] `GET /api/v1/health` (`@AllowAnonymous()`): DB `SELECT 1` + Redis `PING`.
+- [x] `AuditModule` (global) exposing `AuditService.record(input)` that adds `requestId`, `ipAddress` and `userAgent` from the request context and validates `action` against the contracts enum. On write failure it logs at `error` level and does not throw (README §17.4).
 
 ### 8. Tooling
 
-- [ ] Replace Jest with Vitest (+ `unplugin-swc` for decorators) in `apps/server`. Add Vitest to the packages.
-- [ ] `.github/workflows/ci.yml`: install → lint → typecheck → unit → integration (service containers: postgres, redis) → `git-hygiene`.
-- [ ] `.env.example` for `apps/server`.
+- [x] Replace Jest with Vitest (+ `unplugin-swc` for decorators) in `apps/server`. Add Vitest to the packages.
+- [x] `.github/workflows/ci.yml`: install → lint → typecheck → unit → integration (service containers: postgres, redis) → `git-hygiene`.
+- [x] Root `.env.example` shared by the server, the database package and (later) the worker; the local `.env` lives at the repository root.
 
 ## Affected monorepo packages/apps
 
@@ -294,12 +294,12 @@ None (backend-only phase). `apps/web` is moved into the monorepo unchanged and m
 
 ## Definition of Done
 
-- [ ] Global Definition of Done (README §20) satisfied.
+- [ ] Global Definition of Done (README §20) satisfied — coverage reporting (§19.3) is added to CI in UM-008.
 - [x] Spike result recorded below.
-- [ ] All AC-001-xx covered by the listed automated tests, green in CI.
-- [ ] `README.md` Appendix C matches the real env variables and compose services.
-- [ ] A new developer can go from clone to a running health endpoint by following the root README in under 15 minutes.
-- [ ] The first PRs of the repository already use the PR template and pass `git-hygiene`.
+- [x] All AC-001-xx covered by the listed automated tests, green in CI.
+- [x] `README.md` Appendix C matches the real env variables and compose services.
+- [x] A new developer can go from clone to a running health endpoint by following the root README in under 15 minutes.
+- [x] The first PRs of the repository already use the PR template and pass `git-hygiene`.
 
 ## Spike result
 

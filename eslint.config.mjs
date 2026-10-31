@@ -9,7 +9,12 @@ import tseslint from 'typescript-eslint';
 const forbid = (...packages) => ({
   'no-restricted-imports': [
     'error',
-    { patterns: packages.map((name) => ({ group: [name, `${name}/*`], message: 'Forbidden by the module dependency rules (README §3.3).' })) },
+    {
+      patterns: packages.map((name) => ({
+        group: [name, `${name}/*`],
+        message: 'Forbidden by the module dependency rules (README §3.3).',
+      })),
+    },
   ],
 });
 
@@ -21,13 +26,52 @@ export default tseslint.config(
   {
     languageOptions: { globals: { ...globals.node } },
     rules: {
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
       'no-console': 'error',
     },
   },
-  { files: ['packages/contracts/**'], rules: forbid('@redova/core', '@redova/db', '@redova/auth', '@redova/queue', '@redova/integrations', '@prisma/*', 'better-auth') },
-  { files: ['packages/core/**'], rules: forbid('@redova/db', '@redova/auth', '@redova/queue', '@redova/integrations', '@prisma/*', 'better-auth') },
-  { files: ['packages/db/**'], rules: forbid('@redova/auth', '@redova/core', '@redova/queue', '@redova/integrations', 'better-auth') },
-  { files: ['packages/integrations/**'], rules: forbid('@redova/auth', '@redova/db', '@redova/queue', 'bullmq') },
-  { files: ['packages/queue/**'], rules: forbid('@redova/auth', '@redova/db', '@redova/integrations') },
+  {
+    files: ['packages/contracts/**'],
+    rules: forbid(
+      '@redova/core',
+      '@redova/db',
+      '@redova/auth',
+      '@redova/queue',
+      '@redova/integrations',
+      '@prisma/*',
+      'better-auth',
+    ),
+  },
+  {
+    files: ['packages/core/**'],
+    rules: forbid(
+      '@redova/db',
+      '@redova/auth',
+      '@redova/queue',
+      '@redova/integrations',
+      '@prisma/*',
+      'better-auth',
+    ),
+  },
+  {
+    files: ['packages/db/**'],
+    rules: forbid(
+      '@redova/auth',
+      '@redova/core',
+      '@redova/queue',
+      '@redova/integrations',
+      'better-auth',
+    ),
+  },
+  {
+    files: ['packages/integrations/**'],
+    rules: forbid('@redova/auth', '@redova/db', '@redova/queue', 'bullmq'),
+  },
+  {
+    files: ['packages/queue/**'],
+    rules: forbid('@redova/auth', '@redova/db', '@redova/integrations'),
+  },
 );

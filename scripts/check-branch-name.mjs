@@ -5,6 +5,8 @@ export const BRANCH_PATTERN =
 
 const name = process.argv[2] ?? '';
 if (!BRANCH_PATTERN.test(name)) {
-  console.error(`Invalid branch name "${name}". Expected <type>/um-<nnn>-<description> (docs/GIT-STRATEGY.md §3).`);
+  console.error(
+    `Invalid branch name "${name}". Expected <type>/um-<nnn>-<description> (docs/GIT-STRATEGY.md §3).`,
+  );
   process.exit(1);
 }

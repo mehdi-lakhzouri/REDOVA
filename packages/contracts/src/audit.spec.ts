@@ -10,7 +10,11 @@ describe('audit catalog (UT-001-07)', () => {
 
   it('rejects unknown actions', () => {
     expect(
-      auditEventInputSchema.safeParse({ action: 'auth.unknown', outcome: 'SUCCESS', actorType: 'USER' }).success,
+      auditEventInputSchema.safeParse({
+        action: 'auth.unknown',
+        outcome: 'SUCCESS',
+        actorType: 'USER',
+      }).success,
     ).toBe(false);
   });
 });
@@ -21,7 +25,11 @@ describe('email job schema', () => {
       template: 'verify-email',
       to: 'alice@acme.io',
       dedupeKey: 'https://api.redova.io/verify?token=x',
-      variables: { name: 'Alice', verifyUrl: 'https://api.redova.io/verify?token=x', expiresInHours: 24 },
+      variables: {
+        name: 'Alice',
+        verifyUrl: 'https://api.redova.io/verify?token=x',
+        expiresInHours: 24,
+      },
     };
     expect(emailJobSchema.safeParse(job).success).toBe(true);
     expect(emailJobSchema.safeParse({ ...job, template: 'unknown' }).success).toBe(false);

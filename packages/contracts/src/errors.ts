@@ -52,7 +52,8 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   FORBIDDEN_PERMISSION: 'You do not have permission to perform this action.',
   ORIGIN_NOT_ALLOWED: 'This request origin is not allowed.',
   ADMIN_SELF_ROLE_CHANGE_FORBIDDEN: 'You cannot change your own platform role.',
-  ADMIN_TARGET_IS_PLATFORM_ADMIN: 'Platform administrators cannot be banned. Change their role first.',
+  ADMIN_TARGET_IS_PLATFORM_ADMIN:
+    'Platform administrators cannot be banned. Change their role first.',
   NOT_FOUND: 'The requested resource was not found.',
   ORGANIZATION_NOT_FOUND: 'Organization not found.',
   USER_NOT_FOUND: 'User not found.',
