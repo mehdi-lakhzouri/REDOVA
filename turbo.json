@@ -49,6 +49,13 @@
     "@redova/server#test:e2e": {
       "dependsOn": ["build", "@redova/worker#build"],
       "cache": false
+    },
+    "@redova/db#typecheck": {
+      "dependsOn": ["build"]
+    },
+    "@redova/db#test": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"]
     }
   }
 }
