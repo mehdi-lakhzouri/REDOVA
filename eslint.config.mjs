@@ -74,4 +74,9 @@ export default tseslint.config(
     files: ['packages/queue/**'],
     rules: forbid('@redova/auth', '@redova/db', '@redova/integrations'),
   },
+  {
+    // Structured logger only, so redaction always applies (README §17.3).
+    files: ['apps/worker/src/**'],
+    rules: { 'no-console': 'error' },
+  },
 );

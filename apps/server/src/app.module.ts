@@ -48,6 +48,8 @@ export class AppModule {
             audit: AuditService,
             enqueueEmail: EnqueueEmail,
           ) => ({
+            // CORS is not enabled in this phase (README §17.5); the library would allow WEB_ORIGIN.
+            disableTrustedOriginsCors: true,
             auth: createAuth({
               prisma,
               redis,
