@@ -1315,6 +1315,10 @@ No Sprint 01 REDOVA endpoint needs `Idempotency-Key`. Building the mechanism now
 
 ### 18.7 OpenAPI
 
+Avatar extension: `POST /api/v1/users/me/avatar` (authenticated + Origin, multipart),
+`DELETE /api/v1/users/me/avatar` (same guards, 204), `GET /api/v1/avatars/{avatarId}`
+(private binary read with visibility checks). Details and storage configuration: [avatars](../avatars.md).
+
 - REDOVA API: `@nestjs/swagger` with Zod-derived DTOs (`nestjs-zod`), served at `/api/v1/docs` outside production.
 - Auth API: Better Auth `openAPI()` plugin reference served at `/api/auth/reference` outside production.
 

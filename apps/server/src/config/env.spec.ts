@@ -27,6 +27,49 @@ describe('environment schema (UT-001-05)', () => {
     expect(parseEnv({ ...valid, LOG_AUTO_LOGGING: 'false' }).LOG_AUTO_LOGGING).toBe(false);
   });
 
+  it('supports S3 IAM roles and R2 explicit credentials', () => {
+    expect(
+      parseEnv({
+        ...valid,
+        AVATAR_STORAGE: 's3',
+        AVATAR_S3_BUCKET: 'private',
+        AVATAR_S3_REGION: 'eu-west-3',
+      }).AVATAR_STORAGE,
+    ).toBe('s3');
+    expect(
+      parseEnv({
+        ...valid,
+        NODE_ENV: 'production',
+        AVATAR_STORAGE: 's3',
+        AVATAR_S3_BUCKET: 'private',
+        AVATAR_S3_REGION: 'auto',
+        AVATAR_S3_ENDPOINT: 'https://account.r2.cloudflarestorage.com',
+        AVATAR_S3_ACCESS_KEY_ID: 'key',
+        AVATAR_S3_SECRET_ACCESS_KEY: 'secret',
+      }).AVATAR_S3_REGION,
+    ).toBe('auto');
+  });
+
+  it.each([
+    { AVATAR_STORAGE: 'invalid' },
+    { AVATAR_STORAGE: 's3' },
+    {
+      AVATAR_STORAGE: 's3',
+      AVATAR_S3_BUCKET: 'private',
+      AVATAR_S3_REGION: 'auto',
+      AVATAR_S3_ACCESS_KEY_ID: 'key',
+    },
+    {
+      NODE_ENV: 'production',
+      AVATAR_STORAGE: 's3',
+      AVATAR_S3_BUCKET: 'private',
+      AVATAR_S3_REGION: 'auto',
+      AVATAR_S3_ENDPOINT: 'http://insecure',
+    },
+  ])('rejects invalid avatar configuration %j', (override) => {
+    expect(() => parseEnv({ ...valid, ...override })).toThrow(InvalidEnvironmentError);
+  });
+
   it.each([
     ['missing secret', { BETTER_AUTH_SECRET: undefined }, 'BETTER_AUTH_SECRET'],
     ['short secret', { BETTER_AUTH_SECRET: 'short' }, 'BETTER_AUTH_SECRET'],

@@ -2,6 +2,8 @@
 
 NestJS REST API. See the [root README](../../README.md) and the [User Management docs](../../docs/user-management/README.md).
 
+Avatar upload, private delivery, local/S3/R2 configuration and cleanup: [Avatar management](../../docs/avatars.md).
+
 ## Jest
 
 Jest complements the existing Vitest unit, integration and E2E suites. Tests live in
