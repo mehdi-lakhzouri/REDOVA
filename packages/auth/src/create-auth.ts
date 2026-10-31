@@ -16,6 +16,7 @@ import { createOrgEscalationHooks } from './org-escalation-hooks';
 import { createOrganizationHooks } from './organization-hooks';
 import { createRedisRateLimitStorage } from './redis-rate-limit-storage';
 import { clientIp, createSecurityNotifier } from './security-notifications';
+import { createSignInThrottle } from './sign-in-throttle';
 
 export interface CreateAuthOptions {
   prisma: PrismaClient;
@@ -92,6 +93,9 @@ export const createAuth = (options: CreateAuthOptions) => {
   const escalation = createOrgEscalationHooks(prisma);
   const notify = createSecurityNotifier(enqueueEmail, options.webOrigin);
   const mfaHooks = createMfaHooks(audit, notify);
+  // Per-account throttle shares the rate-limit switch and needs Redis (README §17.2 SR-09).
+  const throttle =
+    redis && options.rateLimitEnabled ? createSignInThrottle(redis, audit) : undefined;
   const organizationHooks = createOrganizationHooks({
     prisma,
     audit,
@@ -254,6 +258,7 @@ export const createAuth = (options: CreateAuthOptions) => {
     hooks: {
       // Escalation rules run first so a rejected mutation is never audited as performed.
       before: createAuthMiddleware(async (ctx) => {
+        await throttle?.before(ctx);
         await escalation.before(ctx);
         await mfaHooks.before(ctx);
         await auditHooks.before(ctx);
@@ -262,6 +267,7 @@ export const createAuth = (options: CreateAuthOptions) => {
         await auditHooks.after(ctx);
         await organizationHooks.after(ctx);
         await mfaHooks.after(ctx);
+        await throttle?.after(ctx);
       }),
     },
     plugins: [
