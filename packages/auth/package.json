@@ -18,6 +18,7 @@
     "test:integration": "vitest run -c vitest.integration.config.mts"
   },
   "dependencies": {
+    "@better-auth/core": "1.7.14",
     "@better-auth/prisma-adapter": "1.7.14",
     "@redova/contracts": "workspace:*",
     "@redova/core": "workspace:*",

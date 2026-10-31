@@ -12,6 +12,7 @@ import type { Redis } from 'ioredis';
 import { globalAc, globalRoles, orgAc, orgRoles } from './access-control';
 import { createAuditHooks } from './audit-hooks';
 import { createOrgEscalationHooks } from './org-escalation-hooks';
+import { createOrganizationHooks } from './organization-hooks';
 import { createRedisRateLimitStorage } from './redis-rate-limit-storage';
 
 export interface CreateAuthOptions {
@@ -91,6 +92,12 @@ export const createAuth = (options: CreateAuthOptions) => {
 
   const auditHooks = createAuditHooks(audit);
   const escalation = createOrgEscalationHooks(prisma);
+  const organizationHooks = createOrganizationHooks({
+    prisma,
+    audit,
+    enqueueEmail,
+    webOrigin: options.webOrigin,
+  });
 
   return betterAuth({
     appName: 'REDOVA',
@@ -263,6 +270,7 @@ export const createAuth = (options: CreateAuthOptions) => {
       }),
       after: createAuthMiddleware(async (ctx) => {
         await auditHooks.after(ctx);
+        await organizationHooks.after(ctx);
       }),
     },
     plugins: [
@@ -283,7 +291,9 @@ export const createAuth = (options: CreateAuthOptions) => {
         cancelPendingInvitationsOnReInvite: true,
         requireEmailVerificationOnInvitation: true,
         disableOrganizationDeletion: true,
+        sendInvitationEmail: organizationHooks.sendInvitationEmail,
         organizationHooks: {
+          ...organizationHooks.organizationHooks,
           beforeCreateInvitation: escalation.beforeCreateInvitation,
         },
         schema: {

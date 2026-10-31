@@ -1,5 +1,5 @@
 import type { OrgRole } from '@redova/contracts';
-import { createVerifiedUser, signIn, type TestUser } from './factories';
+import { api, createVerifiedUser, signIn, type TestUser } from './factories';
 import type { TestApp } from './test-app';
 
 export interface TestMember extends TestUser {
@@ -49,5 +49,47 @@ export const addMember = async (
   });
   if (!member) throw new Error('addMember failed');
   const cookie = await signIn(t, target);
+  return { ...target, memberId: member.id, role, cookie };
+};
+
+/** Invites over HTTP as `inviter`. Returns the invitation id. */
+export const inviteMember = async (
+  t: TestApp,
+  organizationId: string,
+  inviter: Pick<TestMember, 'cookie'>,
+  email: string,
+  role: OrgRole,
+): Promise<string> => {
+  const res = await api(t).post(
+    '/api/auth/organization/invite-member',
+    { email, role, organizationId },
+    inviter.cookie,
+  );
+  if (res.status !== 200)
+    throw new Error(`invite failed: ${res.status} ${JSON.stringify(res.body)}`);
+  return (res.body as { id: string }).id;
+};
+
+/** Full invitation flow: invite, then the (verified, signed-in) user accepts over HTTP. */
+export const addMemberViaInvitation = async (
+  t: TestApp,
+  organizationId: string,
+  inviter: Pick<TestMember, 'cookie'>,
+  role: OrgRole,
+  user?: TestUser,
+): Promise<TestMember> => {
+  const target = user ?? (await createVerifiedUser(t));
+  const invitationId = await inviteMember(t, organizationId, inviter, target.email, role);
+  const cookie = await signIn(t, target);
+  const res = await api(t).post(
+    '/api/auth/organization/accept-invitation',
+    { invitationId },
+    cookie,
+  );
+  if (res.status !== 200)
+    throw new Error(`accept failed: ${res.status} ${JSON.stringify(res.body)}`);
+  const member = await t.prisma.member.findFirstOrThrow({
+    where: { organizationId, userId: target.id },
+  });
   return { ...target, memberId: member.id, role, cookie };
 };

@@ -975,7 +975,7 @@ sequenceDiagram
 
 1. Sign-in (and 2FA when enabled).
 2. `GET /api/auth/organization/list` returns the user's organizations (bounded by `organizationLimit`).
-3. `POST /api/auth/organization/set-active { organizationId }` changes the convenience active organization [Native].
+3. `POST /api/auth/organization/set-active { organizationId }` changes the convenience active organization [Native]. Switching to an organization the user does not belong to returns `403 USER_IS_NOT_A_MEMBER_OF_THE_ORGANIZATION` and **clears** the active organization (native fail-closed behavior, verified in IT-005-13).
 4. REDOVA tenant-scoped APIs always use the organization in the **path**, independent of the active organization (§10.2).
 
 ### 13.4 Journey D — member management
@@ -1168,6 +1168,12 @@ The worker refuses to start in production when `EMAIL_TRANSPORT=smtp` and `SMTP_
 | `admin.bootstrap.promoted` ★ | platform | CLI | UM-007 |
 | `admin.user.mfa_reset` ★ | platform | Operator CLI | UM-004 |
 
+Hook firing verified in UM-005 (RK-3, IT-005-12/15):
+
+- `leave` does not call `afterRemoveMember`, so it is audited by `hooks.after` `/organization/leave` and never produces `org.member.removed`.
+- Re-inviting (`cancelPendingInvitationsOnReInvite`) cancels the previous invitation without calling `afterCancelInvitation`. The replacement is visible as a second `org.invitation.created` for the same email; only explicit cancellations write `org.invitation.canceled`.
+- `afterUpdateMemberRole` and `afterRemoveMember` receive the target member, not the actor. The actor is read from the session of the running endpoint (`tryGetCurrentAuthEndpointContext`); server-side calls without a session are recorded with `actorType = SYSTEM`.
+
 Audit writes are **synchronous** in the same request, but they are **not** in the same DB transaction as Better Auth's own writes, because hooks run after the fact. A failed audit write is logged at `error` level and does not roll back the auth operation. This is an accepted trade-off, documented and covered by a test asserting the error log.
 
 ### 17.5 HTTP security headers (server)
@@ -1234,7 +1240,7 @@ Native endpoints are **not wrapped**. Wrapping them would break the official cli
 | 429 | `RATE_LIMITED` |
 | 500 | `INTERNAL_ERROR` |
 
-Custom codes thrown from Better Auth hooks (native format): `ORG_ROLE_ESCALATION_FORBIDDEN`, `ORG_ROLE_INVALID`, `ORGANIZATION_ID_REQUIRED`, `ORG_SLUG_IMMUTABLE`, `MFA_REQUIRED_FOR_ROLE`, `TOO_MANY_ATTEMPTS`.
+Custom codes thrown from Better Auth hooks (native format): `ORG_ROLE_ESCALATION_FORBIDDEN`, `ORG_ROLE_INVALID`, `ORGANIZATION_ID_REQUIRED`, `ORG_SLUG_IMMUTABLE`, `ORG_SLUG_INVALID`, `ORG_SLUG_RESERVED`, `ORG_NAME_INVALID`, `ORG_LOGO_INVALID`, `MFA_REQUIRED_FOR_ROLE`, `TOO_MANY_ATTEMPTS`.
 
 ### 18.3 Cursor pagination
 
