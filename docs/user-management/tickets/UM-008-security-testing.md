@@ -65,8 +65,8 @@ Make BO-4 (traceability) available to customers and administrators through the A
 
 - [x] Verify the `helmet` configuration (README §17.5); no `Access-Control-Allow-Origin` header on any `/api/*` response (CORS not enabled in this phase); `x-powered-by` disabled.
 - [x] ESLint: forbid `console.log` in `apps/server` / `apps/worker` (logger only); forbid `findUnique` on tenant-owned models without a reviewed exception comment (custom `no-restricted-syntax` rule) **[P1]**.
-- [ ] `pnpm audit --prod --audit-level=high` in CI (fails the build). Exceptions documented with an expiry date.
-- [ ] gitleaks in CI on every PR (GIT-STRATEGY §11).
+- [x] `pnpm audit --prod --audit-level=high` implemented as blocking `security` CI step; local validation passes without high/critical exceptions.
+- [x] Gitleaks history/source gate and planted-credential self-test implemented on every PR; local checks pass (GIT-STRATEGY §11).
 - [x] Production-mode test profile: start the server with `NODE_ENV=production` + HTTPS `BETTER_AUTH_URL` and assert the cookie `__Secure-redova.session_token` with `Secure`, docs routes (`/api/v1/docs`, `/api/auth/reference`) → 404, HSTS present, error masking.
 
 ### Security suite and traceability
@@ -77,7 +77,8 @@ Make BO-4 (traceability) available to customers and administrators through the A
 
 ### CI
 
-- [ ] Jobs: `lint-typecheck-unit` → `integration` (services: postgres, redis, mailpit) → `e2e` (built server + worker started; API journeys; logs uploaded on failure) → `security` (pnpm audit, gitleaks) → `git-hygiene` (from UM-001). All required for merging into `master` (GIT-STRATEGY §8).
+- [x] All five jobs implemented: lint/typecheck/unit → integration → E2E; security and git-hygiene run independently for early feedback. Coverage artifacts and E2E failure logs are uploaded.
+- [ ] Require `e2e` and `security` alongside the three existing protected-branch checks after publishing this workflow; verify GitHub executions (GIT-STRATEGY §8).
 
 ### Delivery
 
@@ -92,7 +93,7 @@ Notes for part 1:
 Notes for part 2:
 
 - `@thallesp/nestjs-better-auth` enabled credentialed CORS for `trustedOrigins` by default, contrary to README §17.5. It is now disabled explicitly (`disableTrustedOriginsCors: true`), and IT-008-08 checks that no response carries CORS headers, for foreign and trusted origins alike.
-- `no-console` applies to `apps/server/src` (except the operator CLIs, which print to the terminal) and `apps/worker/src`. The **[P1]** `findUnique` lint rule is moved to the next sprint: tenant-scoped reads already go through `tenantScoped` and the contract kit.
+- `no-console` applies to `apps/server/src` (except the operator CLIs) and `apps/worker/src`. The **[P1]** tenant `findUnique`/`findUniqueOrThrow` lint rule is implemented for server/auth/db, with tested local review-note exceptions.
 - `test/security/` holds the specs for what the ticket suites did not already prove (SEC-01, SEC-04, SEC-10, SEC-11, SEC-12). README §17.2 maps every SR to its tests, so no scenario is copied (the ticket's "no copy-paste" rule).
 
 ## Affected monorepo packages/apps
