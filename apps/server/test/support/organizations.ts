@@ -1,0 +1,53 @@
+import type { OrgRole } from '@redova/contracts';
+import { createVerifiedUser, signIn, type TestUser } from './factories';
+import type { TestApp } from './test-app';
+
+export interface TestMember extends TestUser {
+  memberId: string;
+  role: OrgRole;
+  cookie: string;
+}
+
+export interface TestOrganization {
+  id: string;
+  slug: string;
+  owner: TestMember;
+}
+
+let orgSequence = 0;
+
+/** Creates an organization through Better Auth; the creator becomes ORG_OWNER. */
+export const createOrganization = async (t: TestApp, name = 'Org'): Promise<TestOrganization> => {
+  const user = await createVerifiedUser(t);
+  const cookie = await signIn(t, user);
+  const slug = `org-${Date.now()}-${++orgSequence}`;
+  const organization = await t.auth.api.createOrganization({
+    headers: new Headers({ cookie }),
+    body: { name: `${name} ${orgSequence}`, slug },
+  });
+  if (!organization) throw new Error('organization creation failed');
+  const member = await t.prisma.member.findFirstOrThrow({
+    where: { organizationId: organization.id, userId: user.id },
+  });
+  return {
+    id: organization.id,
+    slug,
+    owner: { ...user, memberId: member.id, role: 'ORG_OWNER', cookie },
+  };
+};
+
+/** Adds a signed-in member with `role` (server-side `addMember`, as invitations arrive in UM-005). */
+export const addMember = async (
+  t: TestApp,
+  organizationId: string,
+  role: OrgRole,
+  user?: TestUser,
+): Promise<TestMember> => {
+  const target = user ?? (await createVerifiedUser(t));
+  const member = await t.auth.api.addMember({
+    body: { userId: target.id, organizationId, role },
+  });
+  if (!member) throw new Error('addMember failed');
+  const cookie = await signIn(t, target);
+  return { ...target, memberId: member.id, role, cookie };
+};

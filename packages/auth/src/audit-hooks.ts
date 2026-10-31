@@ -1,6 +1,10 @@
 import { createHash } from 'node:crypto';
 import type { RecordAuditEvent } from '@redova/contracts';
-import { createAuthMiddleware, getSessionFromCtx, isAPIError } from 'better-auth/api';
+import { type createAuthMiddleware, getSessionFromCtx, isAPIError } from 'better-auth/api';
+
+/** Context received by Better Auth endpoint hooks. */
+export type AuthHookContext = Parameters<Parameters<typeof createAuthMiddleware>[0]>[0];
+export type AuthHookHandler = (ctx: AuthHookContext) => Promise<void>;
 
 const REVOCATION_SCOPES: Record<string, 'one' | 'others' | 'all'> = {
   '/revoke-session': 'one',
@@ -22,13 +26,13 @@ export const hashEmail = (email: string): string =>
 export const createAuditHooks = (audit: RecordAuditEvent) => {
   const actors = new WeakMap<Request, string>();
 
-  const before = createAuthMiddleware(async (ctx) => {
+  const before: AuthHookHandler = async (ctx) => {
     if (!ctx.request || !ACTOR_PATHS.has(ctx.path)) return;
     const session = await getSessionFromCtx(ctx).catch(() => null);
     if (session) actors.set(ctx.request, session.user.id);
-  });
+  };
 
-  const after = createAuthMiddleware(async (ctx) => {
+  const after: AuthHookHandler = async (ctx) => {
     const returned: unknown = ctx.context.returned;
     const failed = isAPIError(returned);
 
@@ -76,7 +80,7 @@ export const createAuditHooks = (audit: RecordAuditEvent) => {
         metadata: { scope },
       });
     }
-  });
+  };
 
   return { before, after };
 };

@@ -229,6 +229,9 @@ importers:
       '@redova/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@redova/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@redova/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -393,6 +396,9 @@ importers:
       '@redova/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@redova/core':
+        specifier: workspace:*
+        version: link:../core
       '@redova/db':
         specifier: workspace:*
         version: link:../db
@@ -415,6 +421,12 @@ importers:
       zod:
         specifier: ^4.6.7
         version: 4.6.7
+
+  packages/core:
+    dependencies:
+      '@redova/contracts':
+        specifier: workspace:*
+        version: link:../contracts
 
   packages/db:
     dependencies:

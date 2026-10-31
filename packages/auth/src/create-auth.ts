@@ -2,6 +2,7 @@ import { prismaAdapter } from '@better-auth/prisma-adapter';
 import type { AuditEventInput, EnqueueEmail, RecordAuditEvent } from '@redova/contracts';
 import type { PrismaClient } from '@redova/db';
 import { betterAuth } from 'better-auth';
+import { createAuthMiddleware } from 'better-auth/api';
 import { admin } from 'better-auth/plugins/admin';
 import { haveIBeenPwned } from 'better-auth/plugins/haveibeenpwned';
 import { openAPI } from 'better-auth/plugins/open-api';
@@ -10,6 +11,7 @@ import { twoFactor } from 'better-auth/plugins/two-factor';
 import type { Redis } from 'ioredis';
 import { globalAc, globalRoles, orgAc, orgRoles } from './access-control';
 import { createAuditHooks } from './audit-hooks';
+import { createOrgEscalationHooks } from './org-escalation-hooks';
 import { createRedisRateLimitStorage } from './redis-rate-limit-storage';
 
 export interface CreateAuthOptions {
@@ -81,6 +83,9 @@ export const createAuth = (options: CreateAuthOptions) => {
       options.onAuditError?.(error);
     }
   };
+
+  const auditHooks = createAuditHooks(audit);
+  const escalation = createOrgEscalationHooks(prisma);
 
   return betterAuth({
     appName: 'REDOVA',
@@ -179,7 +184,16 @@ export const createAuth = (options: CreateAuthOptions) => {
       },
     },
     // Endpoint audit hooks (UM-002). `hooks` must stay an object for @thallesp/nestjs-better-auth.
-    hooks: createAuditHooks(audit),
+    hooks: {
+      // Escalation rules run first so a rejected mutation is never audited as performed.
+      before: createAuthMiddleware(async (ctx) => {
+        await escalation.before(ctx);
+        await auditHooks.before(ctx);
+      }),
+      after: createAuthMiddleware(async (ctx) => {
+        await auditHooks.after(ctx);
+      }),
+    },
     plugins: [
       admin({
         ac: globalAc,
@@ -198,6 +212,9 @@ export const createAuth = (options: CreateAuthOptions) => {
         cancelPendingInvitationsOnReInvite: true,
         requireEmailVerificationOnInvitation: true,
         disableOrganizationDeletion: true,
+        organizationHooks: {
+          beforeCreateInvitation: escalation.beforeCreateInvitation,
+        },
         schema: {
           organization: {
             additionalFields: {

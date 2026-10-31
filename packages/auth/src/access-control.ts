@@ -90,3 +90,14 @@ export type OrgPermissions = {
 export type GlobalPermissions = {
   [K in keyof typeof globalStatements]?: (typeof globalStatements)[K][number][];
 };
+
+/** Evaluates organization permissions with the same definitions Better Auth uses (README §10.2). */
+export const hasOrgPermission = (role: string, permissions: OrgPermissions): boolean => {
+  const definition = (
+    orgRoles as Record<string, (typeof orgRoles)[keyof typeof orgRoles] | undefined>
+  )[role];
+  return (
+    definition?.authorize(permissions as Parameters<typeof definition.authorize>[0]).success ??
+    false
+  );
+};
