@@ -26,6 +26,9 @@ curl http://localhost:3001/api/v1/health
 ```
 
 - REDOVA API docs (non-production): <http://localhost:3001/api/v1/docs>
+- First platform admin: sign up and verify a user, then run
+  `pnpm --filter @redova/server admin:promote -- --email <email>` and enable MFA for that user
+  (admin APIs answer `MFA_ENROLLMENT_REQUIRED` until then).
 - Better Auth API reference (non-production): <http://localhost:3001/api/auth/reference>
 - Mailpit inbox (local SMTP sink): <http://localhost:8025>. To send real mail in development, set the
   `SMTP_*` variables to Gmail with an App Password (`.env.example`); Gmail is refused in production.

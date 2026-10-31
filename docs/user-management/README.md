@@ -1007,13 +1007,13 @@ All admin workflows go through REDOVA `/api/v1/admin/*` (envelope, cursor, audit
 | List / search users | `GET /api/v1/admin/users?q=&status=&role=&limit=&cursor=` | Cursor pagination, newest first. |
 | View user | `GET /api/v1/admin/users/{userId}` | Profile, verification, MFA, global role, ban info, membership count, active session count. |
 | List a user's sessions | `GET /api/v1/admin/users/{userId}/sessions` | Session ids, IP, user agent, dates. Tokens never returned. |
-| Ban user | `PUT /api/v1/admin/users/{userId}/ban { reason, expiresInDays }` | Not self (native), not a `PLATFORM_ADMIN` (custom). Native ban revokes all sessions. Idempotent: an identical repeat is a no-op. |
+| Ban user | `PUT /api/v1/admin/users/{userId}/ban { reason, expiresInDays }` | `expiresInDays` is `1`, `7`, `30` or `null` (permanent). Not self (native), not a `PLATFORM_ADMIN` (custom). Native ban revokes all sessions. Idempotent: a repeat with the same reason and the same remaining duration in whole days is a no-op. |
 | Unban user | `DELETE /api/v1/admin/users/{userId}/ban` | Idempotent (unbanning an active user → 204). |
 | Revoke one session | `DELETE /api/v1/admin/users/{userId}/sessions/{sessionId}` | Session id resolved to token server-side. Must belong to `{userId}`, otherwise 404. |
 | Revoke all sessions (global sign-out of a user) | `DELETE /api/v1/admin/users/{userId}/sessions` | Idempotent. |
 | Change global role | `PUT /api/v1/admin/users/{userId}/role { role }` | Not self; not demoting the last admin. The rule is checked under a PostgreSQL advisory lock, so two admins demoting each other concurrently cannot leave zero admins. Promoted admins must enroll MFA before using admin APIs. |
 | Platform audit log | `GET /api/v1/admin/audit-events` | Read-only. |
-| Bootstrap first admin | CLI: `pnpm --filter @redova/server admin:promote --email <email>` | Requires an existing verified user; writes `admin.bootstrap.promoted` audit (actor `SYSTEM`). Refuses if a `PLATFORM_ADMIN` already exists unless `--force` is given (audited). |
+| Bootstrap first admin | CLI: `pnpm --filter @redova/server admin:promote -- --email <email>` | Requires an existing verified user; writes `admin.bootstrap.promoted` audit (actor `SYSTEM`). Refuses if a `PLATFORM_ADMIN` already exists unless `--force` is given (audited). |
 
 **Ban semantics (native + custom):** ban ⇒ all sessions deleted immediately ⇒ next request with an old cookie gets `401` ⇒ any new sign-in gets `403 BANNED_USER` until `banExpires`. The banned user's memberships and data are kept. Ban reason is **never** returned to the banned user.
 

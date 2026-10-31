@@ -8,6 +8,7 @@
     "build": "nest build",
     "dev": "nest start --watch",
     "start": "node dist/main",
+    "admin:promote": "node dist/cli/admin-promote.js",
     "mfa:reset": "node dist/cli/mfa-reset.js",
     "lint": "eslint \"{src,test}/**/*.ts\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",

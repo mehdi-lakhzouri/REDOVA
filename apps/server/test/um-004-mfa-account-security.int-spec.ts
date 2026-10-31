@@ -1,31 +1,14 @@
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import type { AuditAction } from '@redova/contracts';
-import type { Response } from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { api, createVerifiedUser, signIn, type TestUser } from './support/factories';
 import { mockHibp } from './support/hibp';
+import { mergeCookies } from './support/mfa';
 import { createTestApp, type TestApp } from './support/test-app';
 import { totpFromUri } from './support/totp';
 
 const PERIOD_MS = 30_000;
-
-/** Minimal cookie jar: later `Set-Cookie` values win, expired (empty) cookies are dropped. */
-const mergeCookies = (jar: string, res: Response): string => {
-  const cookies = new Map(
-    jar
-      .split('; ')
-      .filter(Boolean)
-      .map((pair) => [pair.split('=')[0], pair] as const),
-  );
-  for (const header of ([] as string[]).concat(res.headers['set-cookie'] ?? [])) {
-    const pair = header.split(';')[0];
-    const [name, value] = [pair.split('=')[0], pair.slice(pair.indexOf('=') + 1)];
-    if (value) cookies.set(name, pair);
-    else cookies.delete(name);
-  }
-  return [...cookies.values()].join('; ');
-};
 
 interface Enrolled {
   user: TestUser;

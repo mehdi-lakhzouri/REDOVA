@@ -6,6 +6,7 @@ import type { PrismaClient } from '@redova/db';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import type { Redis } from 'ioredis';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { AdminModule } from './admin/admin.module';
 import { AuditModule } from './audit/audit.module';
 import { AuditService } from './audit/audit.service';
 import { ApiExceptionFilter } from './common/api-exception.filter';
@@ -63,6 +64,7 @@ export class AppModule {
           }),
           inject: [ENV, PRISMA, REDIS, AuditService, ENQUEUE_EMAIL],
         }),
+        AdminModule,
         ...(extra.imports ?? []),
       ],
       controllers: [HealthController, ...(extra.controllers ?? [])],
