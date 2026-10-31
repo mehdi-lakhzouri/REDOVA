@@ -40,40 +40,40 @@ Close the onboarding loop (BO-1) and provide a recovery path that can't be used 
 
 ### `packages/queue`
 
-- [ ] `createRedisConnection(env)` (BullMQ-compatible, `maxRetriesPerRequest: null`).
-- [ ] `EMAIL_QUEUE = "email"`. `EmailJob` payload schema imported from `packages/contracts` and validated on enqueue **and** on process.
-- [ ] `enqueueEmail(job)`: `queue.add(job.template, job, { jobId: \`${job.template}:${sha256(job.dedupeKey)}\`, attempts: 5, backoff: { type: "exponential", delay: 30_000 }, removeOnComplete: true, removeOnFail: { age: 86_400 } })`.
+- [x] `createRedisConnection(env)` (BullMQ-compatible, `maxRetriesPerRequest: null`).
+- [x] `EMAIL_QUEUE = "email"`. `EmailJob` payload schema imported from `packages/contracts` and validated on enqueue **and** on process.
+- [x] `enqueueEmail(job)`: `queue.add(job.template, job, { jobId: \`${job.template}-${sha256(job.dedupeKey)}\`, attempts: 5, backoff: { type: "exponential", delay: 30_000 }, removeOnComplete: true, removeOnFail: { age: 86_400 } })`.
 
 ### `packages/integrations`
 
-- [ ] `EmailSender` interface: `send({ to, subject, html, text }): Promise<{ messageId: string }>`.
-- [ ] `SmtpEmailSender` (nodemailer) configured from `SMTP_*` env. Dev: Gmail `smtp.gmail.com:465` secure with an App Password. Test/CI: Mailpit `localhost:1025`.
+- [x] `EmailSender` interface: `send({ to, subject, html, text }): Promise<{ messageId: string }>`.
+- [x] `SmtpEmailSender` (nodemailer) configured from `SMTP_*` env. Dev: Gmail `smtp.gmail.com:465` secure with an App Password. Test/CI: Mailpit `localhost:1025`.
 - [ ] `ProviderApiEmailSender` for the provider chosen in D-11. **[P1, blocked by D-11]** If D-11 is undecided at ticket start, deliver config validation that refuses `EMAIL_TRANSPORT=api` without an implemented provider and `EMAIL_API_KEY`.
-- [ ] `createEmailSender(env)` factory selecting by `EMAIL_TRANSPORT`. Startup check: `NODE_ENV=production` + `SMTP_HOST=smtp.gmail.com` → throw.
-- [ ] Handlebars renderer: precompile `templates/**/*.hbs` at startup; register `layouts/base.hbs` and partials `button`, `security-footer`; helpers `formatDate`, `truncate`. Render HTML + text variants and the subject. Strip CR/LF from subjects.
-- [ ] Templates: `verify-email`, `reset-password`, `existing-account`, `security-notification` (each `*.html.hbs`, `*.text.hbs`, `subject.hbs`).
-- [ ] Build-time guard test: no `{{{` in any template.
+- [x] `createEmailSender(env)` factory selecting by `EMAIL_TRANSPORT`. Startup check: `NODE_ENV=production` + `SMTP_HOST=smtp.gmail.com` → throw.
+- [x] Handlebars renderer: precompile `templates/**/*.hbs` at startup; register `layouts/base.hbs` and partials `button`, `security-footer`; helpers `formatDate`, `truncate`. Render HTML + text variants and the subject. Strip CR/LF from subjects.
+- [x] Templates: `verify-email`, `reset-password`, `existing-account`, `security-notification` (each `*.html.hbs`, `*.text.hbs`, `subject.hbs`).
+- [x] Build-time guard test: no `{{{` in any template.
 
 ### `apps/worker`
 
-- [ ] Bootstrap: env validation (Zod), Redis connection, `Worker(EMAIL_QUEUE, processor, { concurrency: 5 })`.
-- [ ] Processor: validate payload → render → `EmailSender.send` → log `{ jobId, template, messageId, recipientDomain }`. Never log the payload or the full recipient address.
-- [ ] Graceful shutdown on SIGTERM/SIGINT (`worker.close()`).
-- [ ] `turbo dev` runs the worker alongside the server. `.env.example` for `apps/worker`.
+- [x] Bootstrap: env validation (Zod), Redis connection, `Worker(EMAIL_QUEUE, processor, { concurrency: 5 })`.
+- [x] Processor: validate payload → render → `EmailSender.send` → log `{ jobId, template, messageId, recipientDomain }`. Never log the payload or the full recipient address.
+- [x] Graceful shutdown on SIGTERM/SIGINT (`worker.close()`).
+- [x] `turbo dev` runs the worker alongside the server. `.env.example` for `apps/worker`.
 
 ### `packages/auth` (Better Auth callbacks)
 
-- [ ] `emailVerification.sendVerificationEmail({ user, url })` → enqueue `verify-email` (`dedupeKey = url`).
-- [ ] `emailAndPassword.sendResetPassword({ user, url })` → enqueue `reset-password` + audit `auth.password.reset_requested` (target = user).
-- [ ] `emailAndPassword.onPasswordReset({ user })` → enqueue `security-notification` (`eventLabel: "Password reset"`) + audit `auth.password.reset_completed` (★).
-- [ ] `emailAndPassword.onExistingUserSignUp({ user })` → enqueue `existing-account`.
-- [ ] `emailVerification.afterEmailVerification(user)` → audit `auth.email.verified`.
-- [ ] Confirm `verification.storeIdentifier: "hashed"` and that the verify/reset flows still work with it (tests below).
-- [ ] Rate-limit rules for `/send-verification-email`, `/request-password-reset`, `/reset-password` (README Appendix C.2).
+- [x] `emailVerification.sendVerificationEmail({ user, url })` → enqueue `verify-email` (`dedupeKey = url`).
+- [x] `emailAndPassword.sendResetPassword({ user, url })` → enqueue `reset-password` + audit `auth.password.reset_requested` (target = user).
+- [x] `emailAndPassword.onPasswordReset({ user })` → enqueue `security-notification` (`eventLabel: "Password reset"`) + audit `auth.password.reset_completed` (★).
+- [x] `emailAndPassword.onExistingUserSignUp({ user })` → enqueue `existing-account`.
+- [x] `emailVerification.afterEmailVerification(user)` → audit `auth.email.verified`.
+- [x] Confirm `verification.storeIdentifier: "hashed"` and that the verify/reset flows still work with it (tests below).
+- [x] Rate-limit rules for `/send-verification-email`, `/request-password-reset`, `/reset-password` (README Appendix C.2).
 
 ### Test support
 
-- [ ] Mailpit API client helper for integration and API end-to-end tests (`waitForEmail(to, subject)`, `extractLink(email, prefix)`).
+- [x] Mailpit API client helper for integration and API end-to-end tests (`waitForEmail(to, subject)`, `extractLink(email, prefix)`).
 
 ## Affected monorepo packages/apps
 
@@ -235,10 +235,17 @@ None (backend-only phase). Links to future frontend pages (`signInUrl`, `secureA
 | E2E-003-01 | Sign up → read Mailpit → follow link → `get-session` returns the user, verified | AC-003-01, AC-003-02 |
 | **E2E-JOURNEY-03** | Request reset → link from Mailpit → follow redirect → `reset-password` → old cookie jar rejected → sign in with the new password succeeds; a second use of the same token returns `INVALID_TOKEN` | AC-003-06, 07, 08 |
 
+## Implementation notes
+
+- The BullMQ `jobId` is `${template}-${sha256(dedupeKey)}`: BullMQ 6 rejects custom ids containing `:`.
+- `ProviderApiEmailSender` stays blocked by D-11. `createEmailSender` refuses `EMAIL_TRANSPORT=api` with an explicit configuration error.
+- Server integration tests replace the producer with an in-memory capture (`createTestApp().emails`); real delivery through Redis and Mailpit is covered by the worker integration suite (`apps/worker/test`).
+- E2E-003-01 and E2E-JOURNEY-03 are delivered with the API end-to-end harness in UM-008; their assertions are already covered at integration level (IT-003-01..08).
+
 ## Definition of Done
 
 - [ ] Global Definition of Done (README §20) satisfied.
-- [ ] All AC-003-xx automated and green.
+- [x] All AC-003-xx automated and green (integration level; API end-to-end journeys land with the UM-008 E2E harness).
 - [ ] Manual check in development with a Gmail App Password: verification and reset emails arrive and render correctly in Gmail web and one mobile client (screenshots in the PR).
-- [ ] `apps/worker/.env.example` documents every email variable. The README §16.3 Gmail notes are accurate.
-- [ ] The UM-001 development `enqueueEmail` stub is removed.
+- [x] The shared root `.env.example` documents every email variable (one env file for the monorepo, UM-001). The README §16.3 Gmail notes are accurate.
+- [x] The UM-001 development `enqueueEmail` stub is removed.

@@ -1,0 +1,7 @@
+{{#> base title="Verify your email"}}
+<p>Hello {{truncate name}},</p>
+<p>Confirm your email address to activate your REDOVA account.</p>
+{{> button url=verifyUrl label="Verify email"}}
+<p>This link expires in {{expiresInHours}} hours.</p>
+{{> security-footer}}
+{{/base}}

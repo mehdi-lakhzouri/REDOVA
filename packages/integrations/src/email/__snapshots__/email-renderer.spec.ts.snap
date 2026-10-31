@@ -1,0 +1,204 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`email templates (UT-003-01) > renders existing-account (html, text, subject) 1`] = `
+{
+  "html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>You already have an account</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;padding:32px;">
+            <tr><td style="font-size:20px;font-weight:bold;letter-spacing:2px;padding-bottom:24px;">REDOVA</td></tr>
+            <tr><td style="font-size:15px;line-height:22px;"><p>Hello Alice,</p>
+<p>Someone tried to create a REDOVA account with this email address, but an account already exists.</p>
+<p style="margin:24px 0;"><a href="https://app.redova.io/sign-in" style="background:#1f2933;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Sign in</a></p>
+<p style="font-size:12px;color:#6b7280;">If the button does not work, copy this link into your browser:<br />https://app.redova.io/sign-in</p><p>Forgot your password? <a href="https://app.redova.io/forgot-password">Reset it here</a>. If this was not you, no action is needed.</p>
+</td></tr>
+            <tr>
+              <td style="font-size:12px;line-height:18px;color:#6b7280;padding-top:32px;">
+                You received this email because of activity on your REDOVA account.
+                If you did not expect it, you can ignore it or contact support.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+",
+  "subject": "You already have a REDOVA account",
+  "text": "REDOVA
+
+Hello Alice,
+
+Someone tried to create a REDOVA account with this email address, but an account already exists.
+
+Sign in: https://app.redova.io/sign-inForgot your password? Reset it here: https://app.redova.io/forgot-password
+If this was not you, no action is needed.
+
+--
+You received this email because of activity on your REDOVA account.
+If you did not expect it, you can ignore it or contact support.
+",
+}
+`;
+
+exports[`email templates (UT-003-01) > renders reset-password (html, text, subject) 1`] = `
+{
+  "html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reset your password</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;padding:32px;">
+            <tr><td style="font-size:20px;font-weight:bold;letter-spacing:2px;padding-bottom:24px;">REDOVA</td></tr>
+            <tr><td style="font-size:15px;line-height:22px;"><p>Hello Alice,</p>
+<p>We received a request to reset the password of your REDOVA account from 203.0.113.7.</p>
+<p style="margin:24px 0;"><a href="https://api.redova.io/api/auth/reset-password/t" style="background:#1f2933;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Reset password</a></p>
+<p style="font-size:12px;color:#6b7280;">If the button does not work, copy this link into your browser:<br />https://api.redova.io/api/auth/reset-password/t</p><p>This link expires in 30 minutes and can be used once. If you did not ask for it, ignore this email: your password stays unchanged.</p>
+<p style="font-size:13px;color:#6b7280;">Never share this link. REDOVA will never ask for your password by email.</p></td></tr>
+            <tr>
+              <td style="font-size:12px;line-height:18px;color:#6b7280;padding-top:32px;">
+                You received this email because of activity on your REDOVA account.
+                If you did not expect it, you can ignore it or contact support.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+",
+  "subject": "Reset your REDOVA password",
+  "text": "REDOVA
+
+Hello Alice,
+
+We received a request to reset the password of your REDOVA account from 203.0.113.7.
+
+Reset password: https://api.redova.io/api/auth/reset-password/t
+This link expires in 30 minutes and can be used once. If you did not ask for it, ignore this email: your password stays unchanged.
+Never share this link. REDOVA will never ask for your password by email.
+--
+You received this email because of activity on your REDOVA account.
+If you did not expect it, you can ignore it or contact support.
+",
+}
+`;
+
+exports[`email templates (UT-003-01) > renders security-notification (html, text, subject) 1`] = `
+{
+  "html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Security alert</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;padding:32px;">
+            <tr><td style="font-size:20px;font-weight:bold;letter-spacing:2px;padding-bottom:24px;">REDOVA</td></tr>
+            <tr><td style="font-size:15px;line-height:22px;"><p>Hello Alice,</p>
+<p>A security change was made to your REDOVA account: <strong>Password reset</strong>.</p>
+<p>When: Sat, 31 Oct 2026 12:00:00 GMT<br />From IP address: 203.0.113.7</p>
+<p>If this was you, no action is needed. If not, secure your account immediately.</p>
+<p style="margin:24px 0;"><a href="https://app.redova.io/account/security" style="background:#1f2933;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Secure my account</a></p>
+<p style="font-size:12px;color:#6b7280;">If the button does not work, copy this link into your browser:<br />https://app.redova.io/account/security</p></td></tr>
+            <tr>
+              <td style="font-size:12px;line-height:18px;color:#6b7280;padding-top:32px;">
+                You received this email because of activity on your REDOVA account.
+                If you did not expect it, you can ignore it or contact support.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+",
+  "subject": "Security alert: Password reset",
+  "text": "REDOVA
+
+Hello Alice,
+
+A security change was made to your REDOVA account: Password reset.
+
+When: Sat, 31 Oct 2026 12:00:00 GMT
+From IP address: 203.0.113.7
+If this was you, no action is needed. If not, secure your account immediately.
+
+Secure my account: https://app.redova.io/account/security
+--
+You received this email because of activity on your REDOVA account.
+If you did not expect it, you can ignore it or contact support.
+",
+}
+`;
+
+exports[`email templates (UT-003-01) > renders verify-email (html, text, subject) 1`] = `
+{
+  "html": "<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Verify your email</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;padding:32px;">
+            <tr><td style="font-size:20px;font-weight:bold;letter-spacing:2px;padding-bottom:24px;">REDOVA</td></tr>
+            <tr><td style="font-size:15px;line-height:22px;"><p>Hello Alice,</p>
+<p>Confirm your email address to activate your REDOVA account.</p>
+<p style="margin:24px 0;"><a href="https://api.redova.io/api/auth/verify-email?token&#x3D;t" style="background:#1f2933;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Verify email</a></p>
+<p style="font-size:12px;color:#6b7280;">If the button does not work, copy this link into your browser:<br />https://api.redova.io/api/auth/verify-email?token&#x3D;t</p><p>This link expires in 24 hours.</p>
+<p style="font-size:13px;color:#6b7280;">Never share this link. REDOVA will never ask for your password by email.</p></td></tr>
+            <tr>
+              <td style="font-size:12px;line-height:18px;color:#6b7280;padding-top:32px;">
+                You received this email because of activity on your REDOVA account.
+                If you did not expect it, you can ignore it or contact support.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+",
+  "subject": "Verify your REDOVA email address",
+  "text": "REDOVA
+
+Hello Alice,
+
+Confirm your email address to activate your REDOVA account.
+
+Verify email: https://api.redova.io/api/auth/verify-email?token=t
+This link expires in 24 hours.
+Never share this link. REDOVA will never ask for your password by email.
+--
+You received this email because of activity on your REDOVA account.
+If you did not expect it, you can ignore it or contact support.
+",
+}
+`;

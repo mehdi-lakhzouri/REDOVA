@@ -1,0 +1,6 @@
+{{#> base title="You already have an account"}}
+<p>Hello {{truncate name}},</p>
+<p>Someone tried to create a REDOVA account with this email address, but an account already exists.</p>
+{{> button url=signInUrl label="Sign in"}}
+<p>Forgot your password? <a href="{{resetUrl}}">Reset it here</a>. If this was not you, no action is needed.</p>
+{{/base}}

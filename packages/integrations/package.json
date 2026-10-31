@@ -1,0 +1,28 @@
+{
+  "name": "@redova/integrations",
+  "version": "0.0.0",
+  "private": true,
+  "description": "EmailSender port, SMTP/provider adapters and Handlebars email templates",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@redova/contracts": "workspace:*",
+    "handlebars": "^4.7.10",
+    "nodemailer": "^10.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^8.0.2"
+  }
+}

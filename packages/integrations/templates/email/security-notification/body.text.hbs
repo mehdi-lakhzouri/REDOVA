@@ -1,0 +1,12 @@
+{{#> base}}
+Hello {{truncate name}},
+
+A security change was made to your REDOVA account: {{eventLabel}}.
+
+When: {{formatDate occurredAt}}
+{{#if ipAddress}}From IP address: {{ipAddress}}
+{{/if}}
+If this was you, no action is needed. If not, secure your account immediately.
+
+{{> button url=secureAccountUrl label="Secure my account"}}
+{{/base}}

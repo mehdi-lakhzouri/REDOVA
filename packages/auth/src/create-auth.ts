@@ -35,6 +35,11 @@ const DAY = 60 * 60 * 24;
 
 export const SESSION_FRESH_AGE_SECONDS = 60 * 60;
 export const EMAIL_VERIFICATION_EXPIRES_IN_SECONDS = DAY;
+export const RESET_PASSWORD_EXPIRES_IN_SECONDS = 30 * 60;
+
+/** First hop of X-Forwarded-For (README §4.1 `ipAddressHeaders`), for security notifications. */
+const clientIp = (request?: Request): string | null =>
+  request?.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || null;
 
 /** HTTP paths that REDOVA wraps or excludes (README §4.6). `auth.api.*` server calls keep working. */
 export const DISABLED_PATHS = [
@@ -109,8 +114,64 @@ export const createAuth = (options: CreateAuthOptions) => {
       requireEmailVerification: true,
       minPasswordLength: 12,
       maxPasswordLength: 128,
-      resetPasswordTokenExpiresIn: 30 * 60,
+      resetPasswordTokenExpiresIn: RESET_PASSWORD_EXPIRES_IN_SECONDS,
       revokeSessionsOnPasswordReset: true,
+      // Called for existing users only; the HTTP response stays generic (anti-enumeration).
+      sendResetPassword: async ({ user, url }, request) => {
+        await enqueueEmail({
+          template: 'reset-password',
+          to: user.email,
+          dedupeKey: url,
+          variables: {
+            name: user.name,
+            resetUrl: url,
+            expiresInMinutes: RESET_PASSWORD_EXPIRES_IN_SECONDS / 60,
+            requestIp: clientIp(request),
+          },
+        });
+        await audit({
+          action: 'auth.password.reset_requested',
+          outcome: 'SUCCESS',
+          actorType: 'ANONYMOUS',
+          targetType: 'USER',
+          targetId: user.id,
+        });
+      },
+      onPasswordReset: async ({ user }, request) => {
+        await enqueueEmail({
+          template: 'security-notification',
+          to: user.email,
+          dedupeKey: `password-reset:${user.id}:${Date.now()}`,
+          variables: {
+            name: user.name,
+            eventLabel: 'Password reset',
+            occurredAt: new Date().toISOString(),
+            ipAddress: clientIp(request),
+            secureAccountUrl: `${options.webOrigin}/account/security`,
+          },
+        });
+        await audit({
+          action: 'auth.password.reset_completed',
+          outcome: 'SUCCESS',
+          actorType: 'USER',
+          actorUserId: user.id,
+          targetType: 'USER',
+          targetId: user.id,
+        });
+      },
+      // The real owner is told someone tried to register again; at most one notice per hour.
+      onExistingUserSignUp: async ({ user }) => {
+        await enqueueEmail({
+          template: 'existing-account',
+          to: user.email,
+          dedupeKey: `existing-account:${user.id}:${Math.floor(Date.now() / 3_600_000)}`,
+          variables: {
+            name: user.name,
+            signInUrl: `${options.webOrigin}/sign-in`,
+            resetUrl: `${options.webOrigin}/forgot-password`,
+          },
+        });
+      },
     },
     emailVerification: {
       sendOnSignUp: true,
@@ -127,6 +188,16 @@ export const createAuth = (options: CreateAuthOptions) => {
             verifyUrl: url,
             expiresInHours: EMAIL_VERIFICATION_EXPIRES_IN_SECONDS / 3600,
           },
+        });
+      },
+      afterEmailVerification: async (user) => {
+        await audit({
+          action: 'auth.email.verified',
+          outcome: 'SUCCESS',
+          actorType: 'USER',
+          actorUserId: user.id,
+          targetType: 'USER',
+          targetId: user.id,
         });
       },
     },

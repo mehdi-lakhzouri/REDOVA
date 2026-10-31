@@ -1,0 +1,10 @@
+{{#> base}}
+Hello {{truncate name}},
+
+We received a request to reset the password of your REDOVA account{{#if requestIp}} from {{requestIp}}{{/if}}.
+
+{{> button url=resetUrl label="Reset password"}}
+
+This link expires in {{expiresInMinutes}} minutes and can be used once. If you did not ask for it, ignore this email: your password stays unchanged.
+{{> security-footer}}
+{{/base}}

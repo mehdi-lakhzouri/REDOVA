@@ -1,0 +1,10 @@
+{{#> base}}
+Hello {{truncate name}},
+
+Confirm your email address to activate your REDOVA account.
+
+{{> button url=verifyUrl label="Verify email"}}
+
+This link expires in {{expiresInHours}} hours.
+{{> security-footer}}
+{{/base}}

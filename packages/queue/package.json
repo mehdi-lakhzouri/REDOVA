@@ -1,0 +1,24 @@
+{
+  "name": "@redova/queue",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BullMQ queue definitions and producers (transactional email)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@redova/contracts": "workspace:*",
+    "bullmq": "^6.5.3",
+    "ioredis": "^5.11.1",
+    "zod": "^4.6.7"
+  }
+}

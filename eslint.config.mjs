@@ -19,7 +19,7 @@ const forbid = (...packages) => ({
 });
 
 export default tseslint.config(
-  { ignores: ['**/dist/**', '**/generated/**', '**/*.config.*', 'apps/**'] },
+  { ignores: ['**/dist/**', '**/generated/**', '**/*.config.*', 'apps/server/**', 'apps/web/**'] },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   prettier,
