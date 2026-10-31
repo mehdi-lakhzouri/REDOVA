@@ -7,3 +7,4 @@ export * from './org-escalation-hooks';
 export * from './mfa-hooks';
 export * from './organization-hooks';
 export * from './security-notifications';
+export * from './sign-in-throttle';

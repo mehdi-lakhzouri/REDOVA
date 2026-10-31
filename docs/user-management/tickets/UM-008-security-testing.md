@@ -42,24 +42,24 @@ Make BO-4 (traceability) available to customers and administrators through the A
 
 ### Audit read API (`apps/server`, `packages/db`, `packages/contracts`)
 
-- [ ] `AuditEventQuery` DTO: `action` (enum, optional, repeatable), `outcome`, `actorUserId` (platform only), `from`/`to` (ISO dates, `to - from` ≤ 90 days), `limit`, `cursor`.
-- [ ] `AuditEventDto`: `id`, `occurredAt`, `action`, `outcome`, `actorType`, `actor` (`{ id, name, email }` resolved by batch lookup; `null` for SYSTEM/ANONYMOUS or deleted users), `targetType`, `targetId`, `ipAddress`, `userAgent`, `requestId`, `metadata` (allow-listed keys only).
-- [ ] `AuditEventRepository.list({ scope, organizationId?, filters, cursor, limit })`: `orderBy: { id: "desc" }` (UUIDv7), Prisma cursor. Platform scope = **all** events, including organization ones (admin oversight). Organization scope = `where organizationId = :organizationId` **always**.
-- [ ] `GET /api/v1/admin/audit-events` → `@PlatformAdmin()`.
-- [ ] `GET /api/v1/organizations/:organizationId/audit-events` → `@RequireOrgPermission({ auditLog: ["read"] })`, tenant from `@Tenant()` only.
-- [ ] Apply `describeTenantIsolation` (UM-006) to the organization audit endpoint.
-- [ ] OpenAPI documentation.
+- [x] `AuditEventQuery` DTO: `action` (enum, optional, repeatable), `outcome`, `actorUserId` (platform only), `from`/`to` (ISO dates, `to - from` ≤ 90 days), `limit`, `cursor`.
+- [x] `AuditEventDto`: `id`, `occurredAt`, `action`, `outcome`, `actorType`, `actor` (`{ id, name, email }` resolved by batch lookup; `null` for SYSTEM/ANONYMOUS or deleted users), `targetType`, `targetId`, `ipAddress`, `userAgent`, `requestId`, `metadata` (allow-listed keys only).
+- [x] `AuditEventRepository.list({ scope, organizationId?, filters, cursor, limit })`: `orderBy: { id: "desc" }` (UUIDv7), Prisma cursor. Platform scope = **all** events, including organization ones (admin oversight). Organization scope = `where organizationId = :organizationId` **always**.
+- [x] `GET /api/v1/admin/audit-events` → `@PlatformAdmin()`.
+- [x] `GET /api/v1/organizations/:organizationId/audit-events` → `@RequireOrgPermission({ auditLog: ["read"] })`, tenant from `@Tenant()` only.
+- [x] Apply `describeTenantIsolation` (UM-006) to the organization audit endpoint.
+- [x] OpenAPI documentation.
 
 ### Audit completeness
 
-- [ ] `audit-catalog.security.spec.ts`: a table mapping each `AuditAction` → a trigger function (reusing the factories), asserting exactly one matching row with correct `actorType`, `actorUserId`, `organizationId`, `targetType` and `outcome`. Fails if an enum value has no mapping.
-- [ ] Metadata allow-list per action in `packages/contracts` (`auditMetadataSchemas`). `AuditService.record` rejects unknown keys in test and strips them in production with a warning log.
+- [x] `audit-catalog.security.spec.ts`: a table mapping each `AuditAction` → a trigger function (reusing the factories), asserting exactly one matching row with correct `actorType`, `actorUserId`, `organizationId`, `targetType` and `outcome`. Fails if an enum value has no mapping.
+- [x] Metadata allow-list per action in `packages/contracts` (`auditMetadataSchemas`). `AuditService.record` rejects unknown keys in test and strips them in production with a warning log.
 
 ### Per-account sign-in throttle **[P1]**
 
-- [ ] `hooks.before` matcher `/sign-in/email`: key `signin-fail:{sha256(lowercase(email))}`; if the failure count ≥ 10 → `APIError(429, { code: "TOO_MANY_ATTEMPTS", message: generic })` + audit `auth.sign_in.throttled`.
-- [ ] `hooks.after` matcher `/sign-in/email`: on `APIError` with `INVALID_EMAIL_OR_PASSWORD` → `INCR` + `EXPIRE … 900 NX` (atomic, reusing the UM-001 Redis script helper); on success → `DEL`.
-- [ ] Applies identically to unknown emails (anti-enumeration).
+- [x] `hooks.before` matcher `/sign-in/email`: key `signin-fail:{sha256(lowercase(email))}`; if the failure count ≥ 10 → `APIError(429, { code: "TOO_MANY_ATTEMPTS", message: generic })` + audit `auth.sign_in.throttled`.
+- [x] `hooks.after` matcher `/sign-in/email`: on `APIError` with `INVALID_EMAIL_OR_PASSWORD` → `INCR` + `EXPIRE … 900 NX` (atomic, reusing the UM-001 Redis script helper); on success → `DEL`.
+- [x] Applies identically to unknown emails (anti-enumeration).
 
 ### Hardening
 
@@ -78,6 +78,16 @@ Make BO-4 (traceability) available to customers and administrators through the A
 ### CI
 
 - [ ] Jobs: `lint-typecheck-unit` → `integration` (services: postgres, redis, mailpit) → `e2e` (built server + worker started; API journeys; logs uploaded on failure) → `security` (pnpm audit, gitleaks) → `git-hygiene` (from UM-001). All required for merging into `master` (GIT-STRATEGY §8).
+
+### Delivery
+
+UM-008 ships in several PRs that reference the ticket: (1) audit read API, metadata allow-list, catalog completeness and per-account throttle; (2) hardening and the consolidated security suite with traceability; (3) API end-to-end harness, CI `e2e` and `security` jobs and coverage reporting.
+
+Notes for part 1:
+
+- The metadata allow-list is a key list per action (`AUDIT_METADATA_KEYS`), not a schema per action: values are already constrained by the audit input schema.
+- Single-event routes (`…/audit-events/{eventId}`) were added for both scopes, so the tenant isolation kit can check item access (TENANT-ISO-02).
+- The per-account throttle shares the `RATE_LIMIT_ENABLED` switch and only runs with Redis.
 
 ## Affected monorepo packages/apps
 

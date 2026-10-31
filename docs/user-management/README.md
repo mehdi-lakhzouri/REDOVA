@@ -1012,7 +1012,7 @@ All admin workflows go through REDOVA `/api/v1/admin/*` (envelope, cursor, audit
 | Revoke one session | `DELETE /api/v1/admin/users/{userId}/sessions/{sessionId}` | Session id resolved to token server-side. Must belong to `{userId}`, otherwise 404. |
 | Revoke all sessions (global sign-out of a user) | `DELETE /api/v1/admin/users/{userId}/sessions` | Idempotent. |
 | Change global role | `PUT /api/v1/admin/users/{userId}/role { role }` | Not self; not demoting the last admin. The rule is checked under a PostgreSQL advisory lock, so two admins demoting each other concurrently cannot leave zero admins. Promoted admins must enroll MFA before using admin APIs. |
-| Platform audit log | `GET /api/v1/admin/audit-events` | Read-only. |
+| Platform audit log | `GET /api/v1/admin/audit-events?action=&outcome=&actorUserId=&from=&to=&limit=&cursor=`, `GET /api/v1/admin/audit-events/{eventId}` | Read-only, all scopes, newest first (UUIDv7 id). `action` is repeatable; `from`/`to` at most 90 days apart. |
 | Bootstrap first admin | CLI: `pnpm --filter @redova/server admin:promote -- --email <email>` | Requires an existing verified user; writes `admin.bootstrap.promoted` audit (actor `SYSTEM`). Refuses if a `PLATFORM_ADMIN` already exists unless `--force` is given (audited). |
 
 **Ban semantics (native + custom):** ban ⇒ all sessions deleted immediately ⇒ next request with an old cookie gets `401` ⇒ any new sign-in gets `403 BANNED_USER` until `banExpires`. The banned user's memberships and data are kept. Ban reason is **never** returned to the banned user.
@@ -1181,6 +1181,8 @@ Hook firing verified in UM-005 (RK-3, IT-005-12/15):
 - Re-inviting (`cancelPendingInvitationsOnReInvite`) cancels the previous invitation without calling `afterCancelInvitation`. The replacement is visible as a second `org.invitation.created` for the same email; only explicit cancellations write `org.invitation.canceled`.
 - `afterUpdateMemberRole` and `afterRemoveMember` receive the target member, not the actor. The actor is read from the session of the running endpoint (`tryGetCurrentAuthEndpointContext`); server-side calls without a session are recorded with `actorType = SYSTEM`.
 
+**Metadata allow-list.** `AUDIT_METADATA_KEYS` (`packages/contracts`) lists the metadata keys of each action. `AuditService.record` throws on other keys outside production and strips them (with a warning log) in production; the audit API only returns allow-listed keys. The catalog suite (`apps/server/test/security/audit-catalog.security.spec.ts`) triggers every action above and asserts exactly one event with the expected scope, actor, target and outcome.
+
 Audit writes are **synchronous** in the same request, but they are **not** in the same DB transaction as Better Auth's own writes, because hooks run after the fact. A failed audit write is logged at `error` level and does not roll back the auth operation. This is an accepted trade-off, documented and covered by a test asserting the error log.
 
 ### 17.5 HTTP security headers (server)
@@ -1295,6 +1297,7 @@ No Sprint 01 REDOVA endpoint needs `Idempotency-Key`. Building the mechanism now
 | `DELETE /api/v1/admin/users/{userId}/sessions/{sessionId}` | same + Fresh + Origin | UM-007 |
 | `GET /api/v1/admin/audit-events` | Auth, Roles, MFA | UM-008 |
 | `GET /api/v1/organizations/{organizationId}/audit-events` | Auth, `OrgPermissionGuard({ auditLog: ["read"] })` | UM-008 |
+| `GET /api/v1/admin/audit-events/{eventId}`, `GET /api/v1/organizations/{organizationId}/audit-events/{eventId}` | Same guards as the lists; another scope's event is a `404 NOT_FOUND` like a missing one | UM-008 |
 
 ### 18.7 OpenAPI
 
