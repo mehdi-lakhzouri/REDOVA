@@ -82,6 +82,21 @@ describe('email templates (UT-003-01)', () => {
     },
   );
 
+  it.each(samples.map((job) => [job.template, job] as const))(
+    'ends every link of the %s text part at a line break, so it stays clickable',
+    (_name, job) => {
+      const { text } = renderer.render(job);
+      const urls = Object.values(job.variables).filter(
+        (value): value is string => typeof value === 'string' && value.startsWith('https://'),
+      );
+      for (const url of urls) {
+        const end = text.indexOf(url) + url.length;
+        expect(text.indexOf(url), url).toBeGreaterThanOrEqual(0);
+        expect(end === text.length || /\s/.test(text[end]), url).toBe(true);
+      }
+    },
+  );
+
   it('includes the action URL in both HTML and text parts', () => {
     const message = renderer.render(samples[0]);
     // HTML-escaped (= becomes &#x3D;), which browsers decode in href attributes.

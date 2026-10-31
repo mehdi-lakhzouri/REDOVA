@@ -1,8 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [
-    "tsconfig.base.json"
-  ],
+  "globalDependencies": ["tsconfig.base.json"],
   "globalPassThroughEnv": [
     "NODE_ENV",
     "LOG_LEVEL",
@@ -11,51 +9,45 @@
     "CI",
     "DATABASE_URL",
     "TEST_DATABASE_URL",
-    "REDIS_URL"
+    "REDIS_URL",
+    "E2E_REDIS_URL",
+    "E2E_MAILPIT_URL",
+    "E2E_SMTP_HOST",
+    "E2E_SMTP_PORT",
+    "E2E_PORT",
+    "MAILPIT_URL",
+    "MAILPIT_SMTP_HOST",
+    "MAILPIT_SMTP_PORT"
   ],
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**",
-        ".next/**",
-        "!.next/cache/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "lint": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "typecheck": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "coverage/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
     },
     "test:integration": {
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "cache": false
     },
     "test:e2e": {
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "@redova/server#test:e2e": {
+      "dependsOn": ["build", "@redova/worker#build"],
       "cache": false
     }
   }
