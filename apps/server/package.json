@@ -13,7 +13,8 @@
     "lint": "eslint \"{src,test}/**/*.ts\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "test:integration": "vitest run -c vitest.integration.config.mts"
+    "test:integration": "vitest run -c vitest.integration.config.mts",
+    "test:e2e": "vitest run -c vitest.e2e.config.mts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

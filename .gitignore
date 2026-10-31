@@ -27,6 +27,8 @@ coverage/
 .nyc_output/
 test-results/
 junit*.xml
+# API end-to-end process logs (uploaded by CI on failure)
+.e2e-logs/
 
 # Environment variables & secrets — never commit (see docs/GIT-STRATEGY.md §11)
 .env

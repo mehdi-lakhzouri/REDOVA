@@ -40,7 +40,8 @@ Hello Alice,
 
 Someone tried to create a REDOVA account with this email address, but an account already exists.
 
-Sign in: https://app.redova.io/sign-inForgot your password? Reset it here: https://app.redova.io/forgot-password
+Sign in: https://app.redova.io/sign-in
+Forgot your password? Reset it here: https://app.redova.io/forgot-password
 If this was not you, no action is needed.
 
 --
@@ -91,7 +92,8 @@ Hello,
 
 Olivia invited you to join Acme Security on REDOVA as AI Developer.
 
-View invitation: https://app.redova.io/invitations/inv_123This invitation expires on Sat, 31 Oct 2026 12:00:00 GMT. Sign in (or create an account) with this email address to accept it.
+View invitation: https://app.redova.io/invitations/inv_123
+This invitation expires on Sat, 31 Oct 2026 12:00:00 GMT. Sign in (or create an account) with this email address to accept it.
 If you did not expect this invitation, you can ignore this email.
 
 --
@@ -142,6 +144,7 @@ Hello Alice,
 We received a request to reset the password of your REDOVA account from 203.0.113.7.
 
 Reset password: https://api.redova.io/api/auth/reset-password/t
+
 This link expires in 30 minutes and can be used once. If you did not ask for it, ignore this email: your password stays unchanged.
 Never share this link. REDOVA will never ask for your password by email.
 --
@@ -197,6 +200,7 @@ From IP address: 203.0.113.7
 If this was you, no action is needed. If not, secure your account immediately.
 
 Secure my account: https://app.redova.io/account/security
+
 --
 You received this email because of activity on your REDOVA account.
 If you did not expect it, you can ignore it or contact support.
@@ -245,6 +249,7 @@ Hello Alice,
 Confirm your email address to activate your REDOVA account.
 
 Verify email: https://api.redova.io/api/auth/verify-email?token=t
+
 This link expires in 24 hours.
 Never share this link. REDOVA will never ask for your password by email.
 --

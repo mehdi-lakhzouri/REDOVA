@@ -44,6 +44,26 @@ services:
       timeout: 3s
       retries: 10
 
+  redis-e2e:
+    image: redis:7
+    profiles: ['e2e']
+    ports: ['127.0.0.1:6381:6379']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit-e2e:
+    image: axllent/mailpit
+    profiles: ['e2e']
+    ports: ['127.0.0.1:1026:1025', '127.0.0.1:8026:8025']
+    healthcheck:
+      test: ['CMD', '/mailpit', 'readyz']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
 volumes:
   postgres-data:
   redis-data:
