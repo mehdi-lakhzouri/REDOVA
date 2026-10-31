@@ -4,6 +4,34 @@ NestJS REST API. See the [root README](../../README.md) and the [User Management
 
 Avatar upload, private delivery, local/S3/R2 configuration and cleanup: [Avatar management](../../docs/avatars.md).
 
+## UM-008 validation
+
+```bash
+pnpm infra:up
+pnpm infra:e2e
+pnpm turbo run build --filter=@redova/server --filter=@redova/worker
+pnpm --filter @redova/server exec vitest run -c vitest.integration.config.mts --coverage
+pnpm test:e2e
+pnpm security:audit
+pnpm security:secrets
+pnpm security:secrets:self-test
+```
+
+Vitest integration measures the server's 80% line threshold, including `test/avatar.int-spec.ts`.
+It writes LCOV, HTML and JSON summaries to `coverage/integration/`; unit package thresholds remain
+95% for core and 85% for contracts/integrations. CI uploads these reports.
+Jest tests are complementary and are not averaged with Vitest coverage.
+
+API E2E starts real server/worker processes, uses `<db>_e2e` and Redis db 12, and defaults to dedicated
+Redis `:6381`, Mailpit HTTP `:8026` and SMTP `:1026`. It never clears the development Mailpit inbox.
+CI sets `E2E_REDIS_URL`, `E2E_MAILPIT_URL` and `E2E_SMTP_PORT` to disposable job services.
+Logs are written to `.e2e-logs/` and uploaded for 7 days on failure.
+
+Gitleaks scans the full Git history and a snapshot of tracked/unignored source. Ignored `.env` files
+are not copied. Its official Docker image is digest-pinned; Docker must be available locally.
+Reports are fully redacted under `test-results/security/`. The isolated self-test proves that a fake
+credential makes the scanner fail; it does not create a branch or modify repository source.
+
 ## Jest
 
 Jest complements the existing Vitest unit, integration and E2E suites. Tests live in

@@ -227,7 +227,7 @@ None (backend-only phase). The invitation email links to the future frontend pag
 ## Definition of Done
 
 - [ ] Global Definition of Done (README §20) satisfied.
-- [ ] All AC-005-xx automated and green, including E2E-JOURNEY-01, 02 and 06.
+- [x] All AC-005-xx automated and green, including E2E-JOURNEY-01, 02 and 06 (CI `e2e` job, UM-008).
 - [x] UM-006 escalation tests still green (no rule duplicated or bypassed).
 - [x] Hook-firing behavior verified (IT-005-15). README §17.4 updated if needed.
 - [ ] Invitation email checked in Gmail (dev) and Mailpit (screenshots).
