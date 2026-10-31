@@ -50,7 +50,7 @@ Remove the main technical risks of the module (ESM/CJS interop, Prisma 7, plugin
 
 ### 1. Monorepo migration
 
-- [x] Remove the nested `.git` folders and run `git init` at the repo root, with `main` as the default branch. (Done by the repository owner before the migration; the GitHub remote `origin` already exists.)
+- [x] Remove the nested `.git` folders and run `git init` at the repo root, with `master` as the default branch. (Done by the repository owner before the migration; the GitHub remote `origin` already exists.)
 - [x] Move `backend/` → `apps/server` (package `@redova/server`) and `frontend/` → `apps/web` (package `@redova/web`, unchanged). Delete the per-project `pnpm-lock.yaml` / `pnpm-workspace.yaml`.
 - [x] Root `package.json` (`packageManager` pinned, `engines.node >= 22.12`), `pnpm-workspace.yaml` (`apps/*`, `packages/*`, explicit `allowBuilds`), `turbo.json` tasks: `build`, `dev`, `lint`, `typecheck`, `test`, `test:integration`, `test:e2e`.
 - [ ] Root `tsconfig.base.json`, shared ESLint flat config; import-boundary rules enforcing README §3.3.
@@ -62,8 +62,8 @@ Remove the main technical risks of the module (ESM/CJS interop, Prisma 7, plugin
 - [ ] `.github/pull_request_template.md` with the exact template from GIT-STRATEGY §5.4.
 - [ ] `commitlint.config.mjs` (`@commitlint/config-conventional`, scope enum, header length, `trailer-exists: never Co-authored-by:`).
 - [ ] `simple-git-hooks` `commit-msg` hook running commitlint **and** the case-insensitive forbidden-attribution pattern (GIT-STRATEGY §4.5).
-- [ ] CI job `git-hygiene`: branch-name regex, commitlint over `origin/main..HEAD`, forbidden-pattern scan of commit messages, PR title and PR body, PR title as Conventional Commit.
-- [ ] Document the GitHub `main` protection settings (GIT-STRATEGY §8) in the root README and apply them once the remote exists.
+- [ ] CI job `git-hygiene`: branch-name regex, commitlint over `origin/master..HEAD`, forbidden-pattern scan of commit messages, PR title and PR body, PR title as Conventional Commit.
+- [ ] Document the GitHub `master` protection settings (GIT-STRATEGY §8) in the root README and apply them once the remote exists.
 
 ### 3. Local infrastructure
 

@@ -77,7 +77,7 @@ Make BO-4 (traceability) available to customers and administrators through the A
 
 ### CI
 
-- [ ] Jobs: `lint-typecheck-unit` → `integration` (services: postgres, redis, mailpit) → `e2e` (built server + worker started; API journeys; logs uploaded on failure) → `security` (pnpm audit, gitleaks) → `git-hygiene` (from UM-001). All required for merging into `main` (GIT-STRATEGY §8).
+- [ ] Jobs: `lint-typecheck-unit` → `integration` (services: postgres, redis, mailpit) → `e2e` (built server + worker started; API journeys; logs uploaded on failure) → `security` (pnpm audit, gitleaks) → `git-hygiene` (from UM-001). All required for merging into `master` (GIT-STRATEGY §8).
 
 ## Affected monorepo packages/apps
 
@@ -249,5 +249,5 @@ None (backend-only phase).
 - [ ] All AC-008-xx automated and green (P1 items either done or explicitly moved to the next sprint with the owner's agreement).
 - [ ] README §17.1 and §17.2 updated with "Verified by" test IDs, and residual risks recorded.
 - [ ] Coverage targets of README §19.3 met and reported in CI.
-- [ ] All six API journeys pass in CI on `main`.
+- [ ] All six API journeys pass in CI on `master`.
 - [ ] Security sign-off: threat-model walkthrough completed and recorded in the PR description. This evidence pack is reused in the PFE report.
