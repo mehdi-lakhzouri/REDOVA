@@ -2,6 +2,49 @@
 
 NestJS REST API. See the [root README](../../README.md) and the [User Management docs](../../docs/user-management/README.md).
 
+## Jest
+
+Jest complements the existing Vitest unit, integration and E2E suites. Tests live in
+`test/jest/unit` and `test/jest/integration`; `.test.ts` filenames keep discovery separate
+from the existing `.spec.ts` suites. SWC preserves Nest decorators and dependency injection
+metadata. The scripts enable Node VM modules for Better Auth's ESM dependencies.
+
+From the repository root:
+
+```bash
+pnpm --filter @redova/server test:jest:unit
+pnpm --filter @redova/server test:jest:watch
+```
+
+For the full suite, start the local PostgreSQL and Redis services and build the workspace
+packages first. The root `.env` must provide `DATABASE_URL`; Redis uses `REDIS_URL` or
+`redis://localhost:6380` locally.
+
+```bash
+docker compose -f docker/docker-compose.yml up -d
+pnpm turbo run build --filter=@redova/server
+pnpm test:jest
+pnpm --filter @redova/server test:jest:integration
+pnpm --filter @redova/server test:jest:coverage
+```
+
+Integration setup creates and migrates `<DATABASE_URL database>_jest_test`, then resets its
+fixtures. Redis logical database **11** is reserved for Jest and must be empty; the suite
+refuses to reset it if it already contains data. Use local/test infrastructure only.
+Email delivery is captured in memory and HIBP calls and rate limits are disabled by the
+shared integration fixture. Existing Vitest suites exercise those integrations separately.
+
+Coverage reports are generated in `coverage/jest/` (`lcov.info` and `coverage-summary.json`).
+Coverage includes backend source files except the executable entry point and CLI commands;
+the additional Jest suite does not replace coverage from Vitest. CI runs Jest after the
+existing integration suites against its PostgreSQL and Redis services.
+
+The Jest tests cover request correlation and concurrent context isolation, dependency
+health failures, audit metadata filtering and storage failures, authentication guards,
+MFA and recent-session requirements, tenant permissions, and HTTP regressions for SQL
+payloads, privilege escalation, forged/expired/revoked sessions, untrusted origins,
+pagination and JSON response security headers.
+
 ## Logging
 
 Pino is configured once through `LoggingModule.forRoot(env)` in `AppModule`. Nest's own logs and

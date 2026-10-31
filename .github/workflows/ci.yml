@@ -79,6 +79,8 @@ jobs:
         run: pnpm db:migrate
       - name: 'Integration tests (serialized: packages share the test database)'
         run: pnpm test:integration
+      - name: Jest backend unit and HTTP security tests
+        run: pnpm test:jest
       - name: Backend integration coverage
         if: always()
         uses: actions/upload-artifact@v4
