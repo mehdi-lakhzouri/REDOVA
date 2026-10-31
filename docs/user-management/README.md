@@ -259,6 +259,7 @@ All values below were verified against the installed `better-auth@1.7.14` source
 | `rateLimit.customStorage` | Redis implementation of `consume(key, {window, max})` | Atomic, shared across instances (1.7.x requires atomic `consume`; `get/set` is no longer accepted). |
 | `rateLimit.customRules` | see [Appendix C](#appendix-c--configuration-reference) | Tight limits on credential endpoints. |
 | `advanced.cookiePrefix` | `redova` | Cookie: `redova.session_token` (`__Secure-` prefix added on HTTPS). |
+| `advanced.disableOriginCheck` | `false` (explicit) | Better Auth skips origin/CSRF checks when `NODE_ENV=test` unless this is set; setting it keeps the protections, and the security tests, real in every environment (verified in source). |
 | `advanced.useSecureCookies` | `true` in production | |
 | `advanced.ipAddress.ipAddressHeaders` | `["x-forwarded-for"]` (only behind a trusted proxy) | Correct IP for rate limit + audit. |
 | `disabledPaths` | see §4.6 | Disable HTTP exposure of endpoints REDOVA wraps or excludes. |

@@ -9,6 +9,7 @@ import { organization } from 'better-auth/plugins/organization';
 import { twoFactor } from 'better-auth/plugins/two-factor';
 import type { Redis } from 'ioredis';
 import { globalAc, globalRoles, orgAc, orgRoles } from './access-control';
+import { createAuditHooks } from './audit-hooks';
 import { createRedisRateLimitStorage } from './redis-rate-limit-storage';
 
 export interface CreateAuthOptions {
@@ -139,6 +140,9 @@ export const createAuth = (options: CreateAuthOptions) => {
     },
     advanced: {
       cookiePrefix: 'redova',
+      // Explicit: Better Auth skips origin/CSRF checks when NODE_ENV=test unless this is set,
+      // which would make the security tests meaningless.
+      disableOriginCheck: false,
       useSecureCookies: production,
       ipAddress: { ipAddressHeaders: ['x-forwarded-for'] },
     },
@@ -174,8 +178,8 @@ export const createAuth = (options: CreateAuthOptions) => {
         },
       },
     },
-    // `hooks` must be an object for the @thallesp/nestjs-better-auth hook decorators.
-    hooks: {},
+    // Endpoint audit hooks (UM-002). `hooks` must stay an object for @thallesp/nestjs-better-auth.
+    hooks: createAuditHooks(audit),
     plugins: [
       admin({
         ac: globalAc,
