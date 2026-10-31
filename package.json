@@ -23,7 +23,8 @@
     "db:migrate": "pnpm --filter @redova/db db:migrate",
     "db:migrate:dev": "pnpm --filter @redova/db db:migrate:dev",
     "db:generate": "pnpm --filter @redova/db db:generate",
-    "db:studio": "pnpm --filter @redova/db db:studio"
+    "db:studio": "pnpm --filter @redova/db db:studio",
+    "check:workflows": "node scripts/check-workflows.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
@@ -38,7 +39,8 @@
     "turbo": "^2.11.10",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.72.1",
-    "vitest": "^4.1.12"
+    "vitest": "^4.1.12",
+    "yaml": "^2.9.1"
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm exec commitlint --edit \"$1\" && node scripts/check-attribution.mjs \"$1\""

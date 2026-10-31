@@ -60,7 +60,7 @@ jobs:
         run: pnpm db:schema:check
       - name: Migrations apply on an empty database (AC-001-06)
         run: pnpm db:migrate
-      - name: Integration tests (serialized: packages share the test database)
+      - name: "Integration tests (serialized: packages share the test database)"
         run: pnpm test:integration
 
   git-hygiene:
