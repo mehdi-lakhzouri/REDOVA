@@ -1051,7 +1051,7 @@ Better Auth callback / hook ──► packages/queue producer ──► Redis (B
 
 - **Why a queue:** Better Auth recommends not awaiting email delivery inside auth endpoints (prevents timing-based enumeration). Retries survive SMTP hiccups. The worker scales independently.
 - **Job options:** `attempts: 5`, exponential backoff starting at 30 s, `removeOnComplete: true`, `removeOnFail: { age: 86400 }`.
-- **Queue-level idempotency:** deterministic `jobId = "{template}:{sha256(dedupe-key)}"` (e.g. the verification URL). A retried HTTP request that re-enqueues the same email is deduplicated by BullMQ.
+- **Queue-level idempotency:** deterministic `jobId = "{template}-{sha256(dedupe-key)}"` (BullMQ rejects `:` in custom ids) (e.g. the verification URL). A retried HTTP request that re-enqueues the same email is deduplicated by BullMQ.
 - **Delivery semantics:** at-least-once. A crash after SMTP accepted but before job completion can send a duplicate email; this is accepted.
 - **Sensitive payloads:** jobs carry action URLs containing tokens. Mitigations: Redis on a private network with password (and TLS in prod), jobs removed on completion, payloads never logged, failed jobs kept at most 24 h.
 

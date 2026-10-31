@@ -44,6 +44,12 @@ jobs:
         ports: ['6379:6379']
         options: >-
           --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
+      # SMTP sink for the worker delivery tests (README §16.3).
+      mailpit:
+        image: axllent/mailpit
+        ports: ['1025:1025', '8025:8025']
+        options: >-
+          --health-cmd "/mailpit readyz" --health-interval 5s --health-timeout 3s --health-retries 10
     env:
       DATABASE_URL: postgresql://redova:redova@localhost:5432/redova
       REDIS_URL: redis://localhost:6379
@@ -60,7 +66,7 @@ jobs:
         run: pnpm db:schema:check
       - name: Migrations apply on an empty database (AC-001-06)
         run: pnpm db:migrate
-      - name: "Integration tests (serialized: packages share the test database)"
+      - name: 'Integration tests (serialized: packages share the test database)'
         run: pnpm test:integration
 
   git-hygiene:

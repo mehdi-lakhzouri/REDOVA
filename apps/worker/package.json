@@ -1,0 +1,30 @@
+{
+  "name": "@redova/worker",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BullMQ worker: renders and delivers transactional emails",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json && node --watch dist/main.js",
+    "start": "node dist/main.js",
+    "lint": "eslint src test",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "vitest run -c vitest.integration.config.mts"
+  },
+  "dependencies": {
+    "@redova/contracts": "workspace:*",
+    "@redova/integrations": "workspace:*",
+    "@redova/queue": "workspace:*",
+    "bullmq": "^6.5.3",
+    "dotenv": "^17.4.2",
+    "ioredis": "^5.11.1",
+    "pino": "^10.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "vitest": "^4.1.12"
+  }
+}

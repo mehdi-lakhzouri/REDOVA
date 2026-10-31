@@ -1,0 +1,130 @@
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import type { EmailJob } from '@redova/contracts';
+import { describe, expect, it } from 'vitest';
+import { EMAIL_TEMPLATES_DIR, EmailRenderer, sanitizeSubject } from './email-renderer';
+
+const renderer = new EmailRenderer();
+const occurredAt = '2026-10-31T12:00:00.000Z';
+
+const samples: EmailJob[] = [
+  {
+    template: 'verify-email',
+    to: 'alice@acme.io',
+    dedupeKey: 'k1',
+    variables: {
+      name: 'Alice',
+      verifyUrl: 'https://api.redova.io/api/auth/verify-email?token=t',
+      expiresInHours: 24,
+    },
+  },
+  {
+    template: 'reset-password',
+    to: 'alice@acme.io',
+    dedupeKey: 'k2',
+    variables: {
+      name: 'Alice',
+      resetUrl: 'https://api.redova.io/api/auth/reset-password/t',
+      expiresInMinutes: 30,
+      requestIp: '203.0.113.7',
+    },
+  },
+  {
+    template: 'existing-account',
+    to: 'alice@acme.io',
+    dedupeKey: 'k3',
+    variables: {
+      name: 'Alice',
+      signInUrl: 'https://app.redova.io/sign-in',
+      resetUrl: 'https://app.redova.io/forgot-password',
+    },
+  },
+  {
+    template: 'security-notification',
+    to: 'alice@acme.io',
+    dedupeKey: 'k4',
+    variables: {
+      name: 'Alice',
+      eventLabel: 'Password reset',
+      occurredAt,
+      ipAddress: '203.0.113.7',
+      secureAccountUrl: 'https://app.redova.io/account/security',
+    },
+  },
+];
+
+describe('email templates (UT-003-01)', () => {
+  it.each(samples.map((job) => [job.template, job] as const))(
+    'renders %s (html, text, subject)',
+    (_name, job) => {
+      const message = renderer.render(job);
+      expect(message.to).toBe('alice@acme.io');
+      expect(message.subject.length).toBeGreaterThan(0);
+      expect(message.html).toContain('REDOVA');
+      expect(message.text).toContain('REDOVA');
+      expect({
+        subject: message.subject,
+        html: message.html,
+        text: message.text,
+      }).toMatchSnapshot();
+    },
+  );
+
+  it('includes the action URL in both HTML and text parts', () => {
+    const message = renderer.render(samples[0]);
+    // HTML-escaped (= becomes &#x3D;), which browsers decode in href attributes.
+    expect(message.html).toContain('https://api.redova.io/api/auth/verify-email?token&#x3D;t');
+    expect(message.text).toContain('https://api.redova.io/api/auth/verify-email?token=t');
+  });
+});
+
+describe('template safety (UT-003-02, UT-003-03)', () => {
+  it('no template uses raw {{{ }}} interpolation', () => {
+    const files: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir)) {
+        const path = join(dir, entry);
+        if (statSync(path).isDirectory()) walk(path);
+        else files.push(path);
+      }
+    };
+    walk(EMAIL_TEMPLATES_DIR);
+    expect(files.length).toBeGreaterThan(10);
+    for (const file of files) expect(readFileSync(file, 'utf8'), file).not.toContain('{{{');
+  });
+
+  it('escapes HTML in user-controlled values and truncates them (AC-003-14)', () => {
+    const malicious = '<img src=x onerror=alert(1)>';
+    const message = renderer.render({
+      ...samples[0],
+      variables: { ...samples[0].variables, name: malicious },
+    } as EmailJob);
+    expect(message.html).toContain('&lt;img src&#x3D;x onerror&#x3D;alert(1)&gt;');
+    expect(message.html).not.toContain('<img');
+
+    const long = 'x'.repeat(200);
+    const truncated = renderer.render({
+      ...samples[0],
+      variables: { ...samples[0].variables, name: long },
+    } as EmailJob);
+    expect(truncated.html).not.toContain(long);
+    expect(truncated.html).toContain(`${'x'.repeat(63)}…`);
+  });
+
+  it('removes CR/LF from subjects', () => {
+    expect(sanitizeSubject('Hello\r\nBcc: victim@example.com')).toBe(
+      'Hello Bcc: victim@example.com',
+    );
+    const message = renderer.render({
+      ...samples[3],
+      variables: { ...samples[3].variables, eventLabel: 'Reset\r\nBcc: x@evil.example' },
+    } as EmailJob);
+    expect(message.subject).not.toMatch(/[\r\n]/);
+  });
+
+  it('rejects unknown templates', () => {
+    expect(() =>
+      renderer.render({ ...samples[0], template: 'nope' } as unknown as EmailJob),
+    ).toThrow(/Unknown email template/);
+  });
+});

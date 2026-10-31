@@ -12,7 +12,7 @@ import { ApiExceptionFilter } from './common/api-exception.filter';
 import { EnvelopeInterceptor } from './common/envelope.interceptor';
 import type { Env } from './config/env';
 import { ENV, PRISMA, REDIS } from './config/tokens';
-import { createDevEnqueueEmail } from './email/dev-enqueue-email';
+import { EmailQueueModule, ENQUEUE_EMAIL } from './email/email-queue.module';
 import { HealthController } from './health/health.controller';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { LoggingModule } from './logging/logging.module';
@@ -38,12 +38,19 @@ export class AppModule {
         InfrastructureModule.forRoot(env),
         LoggingModule.forRoot(env),
         AuditModule,
+        EmailQueueModule.forRoot(env, overrides.enqueueEmail),
         AuthModule.forRootAsync({
-          useFactory: (config: Env, prisma: PrismaClient, redis: Redis, audit: AuditService) => ({
+          useFactory: (
+            config: Env,
+            prisma: PrismaClient,
+            redis: Redis,
+            audit: AuditService,
+            enqueueEmail: EnqueueEmail,
+          ) => ({
             auth: createAuth({
               prisma,
               redis,
-              enqueueEmail: overrides.enqueueEmail ?? createDevEnqueueEmail(config.NODE_ENV),
+              enqueueEmail,
               recordAudit: (input) => audit.record(input),
               onAuditError: (error) => authLogger.error({ err: error }, 'Audit hook failed'),
               secret: config.BETTER_AUTH_SECRET,
@@ -54,7 +61,7 @@ export class AppModule {
               rateLimitEnabled: config.RATE_LIMIT_ENABLED,
             }),
           }),
-          inject: [ENV, PRISMA, REDIS, AuditService],
+          inject: [ENV, PRISMA, REDIS, AuditService, ENQUEUE_EMAIL],
         }),
         ...(extra.imports ?? []),
       ],
