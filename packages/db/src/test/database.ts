@@ -31,7 +31,14 @@ export const prepareTestDatabase = async (): Promise<string> => {
   await client.connect();
   try {
     const exists = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [dbName]);
-    if (exists.rowCount === 0) await client.query(`CREATE DATABASE "${dbName.replace(/"/g, '')}"`);
+    if (exists.rowCount === 0) {
+      await client
+        .query(`CREATE DATABASE "${dbName.replace(/"/g, '')}"`)
+        // 42P04 = database already exists (another test run created it concurrently).
+        .catch((error: { code?: string }) => {
+          if (error.code !== '42P04' && error.code !== '23505') throw error;
+        });
+    }
   } finally {
     await client.end();
   }
