@@ -495,7 +495,8 @@ sequenceDiagram
     Note over C: Client shows the QR code and the codes once
     C->>BA: POST /two-factor/verify-totp { code }
     BA->>DB: user.twoFactorEnabled = true, twoFactor.verified = true
-    BA-->>C: 200
+    BA->>DB: Replace the session (new session cookie)
+    BA-->>C: 200 + Set-Cookie
     BA->>Q: security-notification "MFA enabled" (hooks.after)
     end
 
@@ -514,7 +515,7 @@ sequenceDiagram
         BA-->>C: Set-Cookie session
     else invalid (attempt n)
         BA->>DB: failedVerificationCount++
-        BA-->>C: 401 (after 10 failures: locked 15 min)
+        BA-->>C: 401 (5 per challenge, then sign in again; after 10 consecutive failures: locked 15 min)
     end
     end
 ```
@@ -524,6 +525,12 @@ sequenceDiagram
 - The password is required to start enrollment [Native]. MFA is **not** active until a valid TOTP code is submitted (`skipVerificationOnEnable: false`) [Native].
 - `totpURI` and the backup codes are returned **once**, in the `enable` response. REDOVA never stores them in clear, never logs them, never emails them, and never renders QR codes server-side.
 - Abandoned enrollment (no verification) leaves `twoFactorEnabled = false`. Restarting enrollment regenerates the secret [Native].
+- Confirming enrollment replaces the current session: clients must keep the `Set-Cookie` of the `verify-totp` response [Native, verified in UM-004].
+
+### 7.3.1 Challenge limits [Native, verified in IT-004-06]
+
+- A sign-in challenge accepts 5 attempts. The next one returns `TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE` and the client must sign in again with the password.
+- 10 consecutive failures across challenges lock the second factor for 15 minutes (`429 ACCOUNT_TEMPORARILY_LOCKED`), even for a valid code. Every failure is audited as `auth.mfa.challenge_failed` against the challenged user, with the method and native error code only.
 
 ### 7.4 Backup codes
 
@@ -537,7 +544,7 @@ sequenceDiagram
 ### 7.6 Lost authenticator
 
 1. **Has backup codes:** sign in with a backup code, then disable and re-enroll MFA.
-2. **No backup codes:** out-of-band operator procedure (runbook + CLI in UM-004): identity verification by the platform operator, then `mfa:reset`, which clears the `twoFactor` row, sets `twoFactorEnabled = false`, revokes sessions and records `admin.user.mfa_reset` with actor `SYSTEM`. An admin API for this is a future enhancement.
+2. **No backup codes:** out-of-band operator procedure ([runbook](runbooks/mfa-reset.md), CLI `pnpm --filter @redova/server mfa:reset -- --email <email> --reason <text>`): identity verification by the platform operator, then `mfa:reset`, which clears the `twoFactor` row, sets `twoFactorEnabled = false`, revokes sessions and records `admin.user.mfa_reset` with actor `SYSTEM`. An admin API for this is a future enhancement.
 
 ---
 

@@ -11,9 +11,11 @@ import { twoFactor } from 'better-auth/plugins/two-factor';
 import type { Redis } from 'ioredis';
 import { globalAc, globalRoles, orgAc, orgRoles } from './access-control';
 import { createAuditHooks } from './audit-hooks';
+import { createMfaHooks } from './mfa-hooks';
 import { createOrgEscalationHooks } from './org-escalation-hooks';
 import { createOrganizationHooks } from './organization-hooks';
 import { createRedisRateLimitStorage } from './redis-rate-limit-storage';
+import { clientIp, createSecurityNotifier } from './security-notifications';
 
 export interface CreateAuthOptions {
   prisma: PrismaClient;
@@ -37,10 +39,6 @@ const DAY = 60 * 60 * 24;
 export const SESSION_FRESH_AGE_SECONDS = 60 * 60;
 export const EMAIL_VERIFICATION_EXPIRES_IN_SECONDS = DAY;
 export const RESET_PASSWORD_EXPIRES_IN_SECONDS = 30 * 60;
-
-/** First hop of X-Forwarded-For (README §4.1 `ipAddressHeaders`), for security notifications. */
-const clientIp = (request?: Request): string | null =>
-  request?.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || null;
 
 /** HTTP paths that REDOVA wraps or excludes (README §4.6). `auth.api.*` server calls keep working. */
 export const DISABLED_PATHS = [
@@ -92,6 +90,8 @@ export const createAuth = (options: CreateAuthOptions) => {
 
   const auditHooks = createAuditHooks(audit);
   const escalation = createOrgEscalationHooks(prisma);
+  const notify = createSecurityNotifier(enqueueEmail, options.webOrigin);
+  const mfaHooks = createMfaHooks(audit, notify);
   const organizationHooks = createOrganizationHooks({
     prisma,
     audit,
@@ -145,18 +145,7 @@ export const createAuth = (options: CreateAuthOptions) => {
         });
       },
       onPasswordReset: async ({ user }, request) => {
-        await enqueueEmail({
-          template: 'security-notification',
-          to: user.email,
-          dedupeKey: `password-reset:${user.id}:${Date.now()}`,
-          variables: {
-            name: user.name,
-            eventLabel: 'Password reset',
-            occurredAt: new Date().toISOString(),
-            ipAddress: clientIp(request),
-            secureAccountUrl: `${options.webOrigin}/account/security`,
-          },
-        });
+        await notify(user, 'password_reset', request);
         await audit({
           action: 'auth.password.reset_completed',
           outcome: 'SUCCESS',
@@ -266,11 +255,13 @@ export const createAuth = (options: CreateAuthOptions) => {
       // Escalation rules run first so a rejected mutation is never audited as performed.
       before: createAuthMiddleware(async (ctx) => {
         await escalation.before(ctx);
+        await mfaHooks.before(ctx);
         await auditHooks.before(ctx);
       }),
       after: createAuthMiddleware(async (ctx) => {
         await auditHooks.after(ctx);
         await organizationHooks.after(ctx);
+        await mfaHooks.after(ctx);
       }),
     },
     plugins: [

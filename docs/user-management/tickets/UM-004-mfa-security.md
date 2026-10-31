@@ -39,20 +39,20 @@ Protect the highest-impact accounts (BO-3) and give every user strong, self-serv
 
 ## Implementation tasks
 
-- [ ] Confirm the `twoFactor` configuration from UM-001 (issuer `REDOVA`, `trustDeviceMaxAge: 604800`, TOTP defaults, backup codes encrypted, lockout defaults).
-- [ ] `hooks.before` (matcher `/two-factor/disable`): load the session user; if `role === "PLATFORM_ADMIN"` throw `APIError("FORBIDDEN", { code: "MFA_REQUIRED_FOR_ROLE" })`.
-- [ ] `hooks.after` (matcher `/two-factor/verify-totp`):
+- [x] Confirm the `twoFactor` configuration from UM-001 (issuer `REDOVA`, `trustDeviceMaxAge: 604800`, TOTP defaults, backup codes encrypted, lockout defaults).
+- [x] `hooks.before` (matcher `/two-factor/disable`): load the session user; if `role === "PLATFORM_ADMIN"` throw `APIError("FORBIDDEN", { code: "MFA_REQUIRED_FOR_ROLE" })`.
+- [x] `hooks.after` (matcher `/two-factor/verify-totp`):
   - success **with** an authenticated session (enrollment confirmation) → audit `auth.mfa.enabled` (★) + enqueue `security-notification` ("Two-factor authentication enabled");
   - error **without** a session (sign-in challenge) → audit `auth.mfa.challenge_failed` (no secret, no code in metadata).
-- [ ] `hooks.after` (matcher `/two-factor/verify-backup-code`): success → audit `auth.mfa.backup_code_used`; error → `auth.mfa.challenge_failed`.
-- [ ] `hooks.after` (matcher `/two-factor/disable`): success → audit `auth.mfa.disabled` (★) + notification.
-- [ ] `hooks.after` (matcher `/two-factor/generate-backup-codes`): success → audit `auth.mfa.backup_codes_regenerated` (★) + notification.
-- [ ] `hooks.after` (matcher `/change-password`): success → audit `auth.password.changed` (★) + notification "Password changed".
-- [ ] Add `eventLabel` values for the new notifications to the `security-notification` template mapping (`packages/integrations`).
-- [ ] Rate-limit rules for `/two-factor/verify-totp` and `/two-factor/verify-backup-code` (README Appendix C.2).
-- [ ] Test helper: compute a TOTP code from `totpURI` (RFC 6238, `otpauth` or `@better-auth/utils`).
-- [ ] Logger redaction includes `totpURI`, `code`, `backupCodes` (README §17.3); verify with a test.
-- [ ] **[P1]** `apps/server` CLI `mfa:reset --email <email> --reason <text>`: requires an interactive confirmation, deletes the `twoFactor` row, sets `twoFactorEnabled=false`, revokes all sessions, writes `admin.user.mfa_reset` with actor `SYSTEM` and the reason. Runbook in `docs/user-management/runbooks/mfa-reset.md` (identity-verification steps, who may run it).
+- [x] `hooks.after` (matcher `/two-factor/verify-backup-code`): success → audit `auth.mfa.backup_code_used`; error → `auth.mfa.challenge_failed`.
+- [x] `hooks.after` (matcher `/two-factor/disable`): success → audit `auth.mfa.disabled` (★) + notification.
+- [x] `hooks.after` (matcher `/two-factor/generate-backup-codes`): success → audit `auth.mfa.backup_codes_regenerated` (★) + notification.
+- [x] `hooks.after` (matcher `/change-password`): success → audit `auth.password.changed` (★) + notification "Password changed".
+- [x] Add `eventLabel` values for the new notifications to the `security-notification` template mapping (`packages/integrations`).
+- [x] Rate-limit rules for `/two-factor/verify-totp` and `/two-factor/verify-backup-code` (README Appendix C.2).
+- [x] Test helper: compute a TOTP code from `totpURI` (RFC 6238, `otpauth` or `@better-auth/utils`).
+- [x] Logger redaction includes `totpURI`, `code`, `backupCodes` (README §17.3); verify with a test.
+- [x] **[P1]** `apps/server` CLI `mfa:reset --email <email> --reason <text>`: requires an interactive confirmation, deletes the `twoFactor` row, sets `twoFactorEnabled=false`, revokes all sessions, writes `admin.user.mfa_reset` with actor `SYSTEM` and the reason. Runbook in `docs/user-management/runbooks/mfa-reset.md` (identity-verification steps, who may run it).
 
 ## Affected monorepo packages/apps
 
@@ -220,9 +220,18 @@ None (backend-only phase). The client obligations for `totpURI` and backup codes
 | --- | --- | --- |
 | **E2E-JOURNEY-04** | Against the running server and worker: enable MFA → verify with a computed TOTP → notification in Mailpit → sign out → sign in with TOTP → sign out → sign in with a backup code → sign out → reuse of the same backup code is rejected | AC-004-03, 05, 07 |
 
+## Implementation notes
+
+- Hooks live in `packages/auth/src/mfa-hooks.ts`; notification labels and the notifier in `security-notifications.ts` (also used for the password-reset notice).
+- The caller is resolved in `hooks.before`: the session user, or, during a sign-in challenge, the user of the signed two-factor cookie. `auth.mfa.challenge_failed` therefore targets the challenged account, with only the method and the native error code.
+- Verified native behavior (README §7.3, §7.3.1): enrollment confirmation replaces the session; a challenge allows 5 attempts (`TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE`), and 10 consecutive failures lock the factor (`429 ACCOUNT_TEMPORARILY_LOCKED`). AC-004-06 is tested with two challenges of 5 failures.
+- The TOTP helper (`apps/server/test/support/totp.ts`) is a small RFC 6238 implementation checked against the RFC vectors (UT-004-01).
+- Log secrecy (AC-004-14) is covered by the redaction unit test, which includes `totpURI`, `code` and `backupCodes`.
+- E2E-JOURNEY-04 is delivered with the API end-to-end harness in UM-008; its steps are covered by IT-004-03/05/07.
+
 ## Definition of Done
 
 - [ ] Global Definition of Done (README §20) satisfied.
-- [ ] All AC-004-xx automated and green (AC-004-16 if the P1 task is done).
+- [x] All AC-004-xx automated and green (AC-004-16 if the P1 task is done).
 - [ ] Manual check: the `totpURI` scanned (as a QR code generated locally) into two real authenticator apps produces accepted codes; issuer shows "REDOVA".
 - [ ] All four security-notification variants render correctly (Mailpit screenshots).
