@@ -180,7 +180,7 @@ A ticket can be started when:
 | SD-1 | Full scope (≈ 3–3.5 solo sprints) or lean scope (≈ 3)? | Full scope; re-decide at the Sprint 01 review | Forecast |
 | D-09 | `freshAge` = 1 h (also applies to native "list sessions") | Adopted | UM-002, UM-004, UM-007 |
 | D-11 | Production email provider | SMTP-only until deployment is planned | UM-003 |
-| D-12 | Vitest replaces the scaffolded Jest | Adopted | UM-001 |
+| D-12 | Vitest owns CI coverage and E2E; Jest provides complementary backend tests following the requested extension | Implemented | UM-001, UM-008 |
 | D-13 | `PLATFORM_ADMIN` has no implicit tenant-data access | Adopted | UM-006, UM-007 |
 | D-18 | Any organization member can list pending invitations (native behavior) | Adopted | UM-005, UM-006 |
 
