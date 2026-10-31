@@ -26,6 +26,42 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm turbo run build lint typecheck test
 
+  integration:
+    name: integration
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: redova
+          POSTGRES_PASSWORD: redova
+          POSTGRES_DB: redova
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U redova -d redova" --health-interval 5s --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://redova:redova@localhost:5432/redova
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build
+      - name: Better Auth schema matches the plugin configuration (CHK-001-01)
+        run: pnpm db:schema:check
+      - name: Migrations apply on an empty database (AC-001-06)
+        run: pnpm db:migrate
+      - run: pnpm turbo run test:integration
+
   git-hygiene:
     name: git-hygiene
     if: github.event_name == 'pull_request'

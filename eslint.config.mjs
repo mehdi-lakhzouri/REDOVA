@@ -1,0 +1,33 @@
+// @ts-check
+// Shared ESLint config for packages/* (apps keep their own configs).
+// Import boundaries follow docs/user-management/README.md §3.3.
+import eslint from '@eslint/js';
+import prettier from 'eslint-config-prettier';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+
+const forbid = (...packages) => ({
+  'no-restricted-imports': [
+    'error',
+    { patterns: packages.map((name) => ({ group: [name, `${name}/*`], message: 'Forbidden by the module dependency rules (README §3.3).' })) },
+  ],
+});
+
+export default tseslint.config(
+  { ignores: ['**/dist/**', '**/generated/**', '**/*.config.*', 'apps/**'] },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  prettier,
+  {
+    languageOptions: { globals: { ...globals.node } },
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-console': 'error',
+    },
+  },
+  { files: ['packages/contracts/**'], rules: forbid('@redova/core', '@redova/db', '@redova/auth', '@redova/queue', '@redova/integrations', '@prisma/*', 'better-auth') },
+  { files: ['packages/core/**'], rules: forbid('@redova/db', '@redova/auth', '@redova/queue', '@redova/integrations', '@prisma/*', 'better-auth') },
+  { files: ['packages/db/**'], rules: forbid('@redova/auth', '@redova/core', '@redova/queue', '@redova/integrations', 'better-auth') },
+  { files: ['packages/integrations/**'], rules: forbid('@redova/auth', '@redova/db', '@redova/queue', 'bullmq') },
+  { files: ['packages/queue/**'], rules: forbid('@redova/auth', '@redova/db', '@redova/integrations') },
+);
