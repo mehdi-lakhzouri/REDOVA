@@ -4,3 +4,6 @@ export * from './redis-rate-limit-storage';
 export { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from 'better-auth/api';
 export * from './audit-hooks';
 export * from './org-escalation-hooks';
+export * from './mfa-hooks';
+export * from './organization-hooks';
+export * from './security-notifications';
