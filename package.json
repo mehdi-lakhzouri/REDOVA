@@ -17,11 +17,18 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "infra:up": "docker compose -f docker/docker-compose.yml --profile test up -d --wait",
-    "infra:down": "docker compose -f docker/docker-compose.yml --profile test down"
+    "infra:down": "docker compose -f docker/docker-compose.yml --profile test down",
+    "prepare": "simple-git-hooks"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "prettier": "^3.4.2",
+    "simple-git-hooks": "^2.14.0",
     "turbo": "^2.11.10",
     "typescript": "5.9.3"
+  },
+  "simple-git-hooks": {
+    "commit-msg": "pnpm exec commitlint --edit \"$1\" && node scripts/check-attribution.mjs \"$1\""
   }
 }

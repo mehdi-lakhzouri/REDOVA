@@ -11,4 +11,5 @@ allowBuilds:
   esbuild: true
   prisma: true
   sharp: false
+  simple-git-hooks: false
   unrs-resolver: false
