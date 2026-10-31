@@ -8,6 +8,7 @@ import {
 } from '@redova/contracts';
 import type { Prisma } from '@redova/db';
 import request from 'supertest';
+import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { api, createVerifiedUser, signIn, type TestUser, uniqueEmail } from '../support/factories';
 import { enrollMfa, mergeCookies } from '../support/mfa';
@@ -103,6 +104,26 @@ const BAN = { reason: 'Catalog completeness test', expiresInDays: 1 };
 
 /** One trigger per audit action (README §17.4). TypeScript fails if an action has no trigger. */
 const CATALOG: Record<AuditAction, Trigger> = {
+  'profile.avatar.updated': async ({ t }) => {
+    const user = await createVerifiedUser(t);
+    const cookie = await signIn(t, user);
+    const image = await sharp({ create: { width: 2, height: 2, channels: 3, background: 'blue' } })
+      .png()
+      .toBuffer();
+    await request(t.app.getHttpServer())
+      .post('/api/v1/users/me/avatar')
+      .set('origin', WEB_ORIGIN)
+      .set('cookie', cookie)
+      .attach('file', image, 'avatar.png')
+      .expect(200);
+    await request(t.app.getHttpServer())
+      .delete('/api/v1/users/me/avatar')
+      .set('origin', WEB_ORIGIN)
+      .set('cookie', cookie)
+      .expect(204);
+    return { where: { targetId: user.id }, ...asUser(user) };
+  },
+  'profile.avatar.deleted': async (ctx) => CATALOG['profile.avatar.updated'](ctx),
   'auth.sign_up.completed': async ({ t }) => {
     const email = uniqueEmail('catalog');
     await signUp(t, email);

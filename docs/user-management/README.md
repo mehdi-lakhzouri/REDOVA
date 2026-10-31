@@ -1027,7 +1027,7 @@ This section is what any API client (automated tests today, the web app later) m
 | --- | --- |
 | Base URLs | Native auth: `{BETTER_AUTH_URL}/api/auth/*`. REDOVA: `{BETTER_AUTH_URL}/api/v1/*`. |
 | Authentication | Session cookie `redova.session_token` (`__Secure-` prefix on HTTPS). Clients send it with every request (`credentials: "include"` in browsers; a cookie jar in tests). No bearer tokens in Sprint 01. |
-| Request bodies | `Content-Type: application/json` only. Other content types are rejected. |
+| Request bodies | JSON for auth and application mutations; avatar upload accepts only one multipart file field `file` (5 MiB maximum). |
 | Origin | State-changing requests must carry `Origin: {WEB_ORIGIN}`. Better Auth (native origin check) and REDOVA (`OriginGuard`) reject other origins. |
 | Redirect URLs | `callbackURL` (sign-up, send-verification-email, sign-in) and `redirectTo` (request-password-reset) must be absolute URLs on `WEB_ORIGIN` or relative paths. Anything else is rejected natively. |
 | Error formats | Native endpoints: `{ code, message }`. REDOVA endpoints: the `{ data, meta, error }` envelope (§18.2). Clients branch on `code` / `error.code`, never on message text. |
@@ -1104,7 +1104,7 @@ The worker refuses to start in production when `EMAIL_TRANSPORT=smtp` and `SMTP_
 | T1 | Credential stuffing / brute force | Automated sign-in attempts | Per-IP rate limit (Redis), per-account throttle (10 failures / 15 min, Redis), HIBP on password set, MFA | Native + Custom | IT-001-07, AC-002-12 rate-limit test, IT-008-06, IT-004-06 |
 | T2 | Account enumeration | Sign-up, sign-in, reset responses or timing | Generic responses (native), async email enqueue, per-account throttle applied to unknown emails too | Native + Custom | IT-002-02, IT-002-05, IT-003-05, IT-008-07 |
 | T3 | Session hijacking | Token theft, network sniffing | `HttpOnly`, `Secure`, `__Secure-` prefix, `SameSite=Lax`, HSTS, no cookie cache, revocation | Native + Custom | IT-002-06, IT-008-08, IT-008-09 (SEC-10) |
-| T4 | CSRF | Cross-site request with the victim's cookie | `SameSite=Lax`; Better Auth origin check on `/api/auth`; REDOVA `OriginGuard` on `/api/v1` non-GET; JSON-only bodies | Native + Custom | IT-006-15, IT-007-14, IT-008-10 (SEC-10) |
+| T4 | CSRF | Cross-site request with the victim's cookie | `SameSite=Lax`; Better Auth origin check on `/api/auth`; REDOVA `OriginGuard` on mutations, including multipart avatar upload | Native + Custom | IT-006-15, IT-007-14, IT-008-10 (SEC-10), avatar HTTP integration tests |
 | T5 | Privilege escalation (global) | Setting `role` via sign-up/update, admin endpoints over HTTP | `input: false` fields (native), admin HTTP paths disabled, REDOVA admin guard + safeguards | Native + Custom | IT-002-12, IT-006-14, IT-007-07, IT-007-10, IT-007-15 |
 | T6 | Privilege escalation (organization) | ORG_ADMIN promoting self/others | Native owner protections + rank rules R3–R6 | Native + Custom | IT-006-01 … IT-006-05 |
 | T7 | Cross-tenant data access (IDOR) | Guessing ids, forged org id, cursor reuse | Path tenant + per-request membership check + tenant-scoped queries + 404 policy | Custom | IT-006-07, IT-006-10, IT-006-13, TENANT-ISO-01…04 (test items, organization audit events), IT-008-02 |
@@ -1133,7 +1133,7 @@ The worker refuses to start in production when `EMAIL_TRANSPORT=smtp` and `SMTP_
 | SR-09 | Credential endpoints are rate-limited per IP and sign-in is throttled per account. Responses never reveal whether an account exists. | IT-001-07, AC-002-12 rate-limit test, IT-003-04, IT-002-02, IT-002-05, IT-003-05, IT-008-06, IT-008-07 |
 | SR-10 | Session cookies are `HttpOnly`, `SameSite=Lax`, and `Secure` in production. State-changing requests from untrusted origins are rejected. | IT-002-06, IT-006-15, IT-007-14, SEC-10 (IT-008-08, IT-008-09, IT-008-10) |
 | SR-11 | Passwords, password hashes, session tokens, TOTP secrets, backup codes and reset/verification tokens never appear in API responses (except where natively designed, §5.3 and §7.3), logs, audit metadata or error messages. | SEC-11, IT-001-04, IT-003-09, IT-004-14, IT-007-04, IT-008-01, redaction unit test (AC-001-13), E2E log scan |
-| SR-12 | Every privileged operation (§17.4, marked ★) creates exactly one audit event with actor, target, outcome, IP and request id. | SEC-12 (catalog, all 32 actions), IT-008-05, IT-001-10 |
+| SR-12 | Every privileged operation (§17.4, marked ★) creates exactly one audit event with actor, target, outcome, IP and request id. | SEC-12 (catalog, all 34 actions), IT-008-05, IT-001-10 |
 
 The consolidated suite lives in `apps/server/test/security/` (`SEC-xx`). It covers what the ticket suites do not already prove; the "Verified by" column points to the ticket test that proves the rest, so no scenario is copied twice.
 
@@ -1185,6 +1185,7 @@ The consolidated suite lives in `apps/server/test/security/` (`SEC-xx`). It cove
 | `admin.user.session_revoked` ★ / `admin.user.sessions_revoked` ★ | platform | REDOVA admin service | UM-007 |
 | `admin.bootstrap.promoted` ★ | platform | CLI | UM-007 |
 | `admin.user.mfa_reset` ★ | platform | Operator CLI | UM-004 |
+| `profile.avatar.updated` ★ / `profile.avatar.deleted` ★ | platform/profile | Avatar service; repeated deletion without an image emits no additional event | Avatar extension |
 
 Hook firing verified in UM-005 (RK-3, IT-005-12/15):
 
@@ -1244,6 +1245,7 @@ Native endpoints are **not wrapped**. Wrapping them would break the official cli
 ```
 
 - `204 No Content` is used for idempotent `DELETE`s, with no body.
+- `GET /api/v1/avatars/{avatarId}` returns private WebP bytes instead of a JSON envelope; error responses retain the envelope.
 - `error.details` holds validation issues: `[{ "path": "role", "message": "Invalid enum value" }]`.
 - `error.message` is human-readable and safe to display. It never contains stack traces or internal ids.
 - Implemented by a global interceptor (success) and a global exception filter (errors) in `apps/server`. They apply only to Nest controllers, not to the Better Auth handler.
@@ -1252,15 +1254,16 @@ Native endpoints are **not wrapped**. Wrapping them would break the official cli
 
 | HTTP | Code |
 | --- | --- |
-| 400 | `VALIDATION_FAILED`, `INVALID_CURSOR` |
+| 400 | `VALIDATION_FAILED`, `INVALID_CURSOR`, `AVATAR_INVALID` |
 | 401 | `UNAUTHENTICATED` |
 | 403 | `EMAIL_NOT_VERIFIED`, `MFA_ENROLLMENT_REQUIRED`, `REAUTHENTICATION_REQUIRED`, `FORBIDDEN_PERMISSION`, `ORIGIN_NOT_ALLOWED`, `ADMIN_SELF_ROLE_CHANGE_FORBIDDEN`, `ADMIN_TARGET_IS_PLATFORM_ADMIN` |
-| 404 | `ORGANIZATION_NOT_FOUND`, `USER_NOT_FOUND`, `SESSION_NOT_FOUND` |
+| 404 | `ORGANIZATION_NOT_FOUND`, `USER_NOT_FOUND`, `SESSION_NOT_FOUND`, `AVATAR_NOT_FOUND` |
+| 413 | `AVATAR_TOO_LARGE` |
 | 409 | `LAST_PLATFORM_ADMIN` |
 | 429 | `RATE_LIMITED` |
 | 500 | `INTERNAL_ERROR` |
 
-Custom codes thrown from Better Auth hooks (native format): `ORG_ROLE_ESCALATION_FORBIDDEN`, `ORG_ROLE_INVALID`, `ORGANIZATION_ID_REQUIRED`, `ORG_SLUG_IMMUTABLE`, `ORG_SLUG_INVALID`, `ORG_SLUG_RESERVED`, `ORG_NAME_INVALID`, `ORG_LOGO_INVALID`, `MFA_REQUIRED_FOR_ROLE`, `TOO_MANY_ATTEMPTS`.
+Custom codes thrown from Better Auth hooks (native format): `ORG_ROLE_ESCALATION_FORBIDDEN`, `ORG_ROLE_INVALID`, `ORGANIZATION_ID_REQUIRED`, `ORG_SLUG_IMMUTABLE`, `ORG_SLUG_INVALID`, `ORG_SLUG_RESERVED`, `ORG_NAME_INVALID`, `ORG_LOGO_INVALID`, `MFA_REQUIRED_FOR_ROLE`, `TOO_MANY_ATTEMPTS`, `AVATAR_MANAGED_BY_SERVER`.
 
 ### 18.3 Cursor pagination
 
@@ -1378,7 +1381,7 @@ A ticket of this module is **Done** only when **all** of the following are true:
 2. `pnpm turbo run lint typecheck test` is green locally and in CI. No skipped tests without a linked follow-up.
 3. Coverage targets of §19.3 are met for the touched packages.
 4. Security considerations listed in the ticket are implemented and each has at least one negative test.
-5. Every REDOVA API endpoint returns the `{ data, meta, error }` envelope, list endpoints use cursors, and the endpoints are documented in OpenAPI with their error codes.
+5. REDOVA JSON API responses use `{ data, meta, error }`; 204 has no body and private avatar reads return WebP bytes. REDOVA paginated lists use cursors. Endpoints are documented in OpenAPI with their error codes.
 6. No secret, token or password appears in logs, responses (outside native design) or audit metadata. This is checked by the redaction tests.
 7. Every privileged operation introduced by the ticket writes its audit event, with a test.
 8. Prisma migrations (if any) are committed, apply cleanly to an empty DB, and the generated Better Auth schema matches the plugin configuration (Better Auth CLI diff is empty).
@@ -1460,7 +1463,7 @@ flowchart LR
 | D-09 | `freshAge` = 1 h, which also applies to native `/list-sessions`. | Proposed |
 | D-10 | Sessions stored only in PostgreSQL (no Redis secondary storage); `cookieCache` disabled. | Proposed |
 | D-11 | Production email provider (e.g. Brevo, Resend, Postmark). | **Open** |
-| D-12 | Vitest replaces Jest (ESM-only `better-auth`). | Proposed |
+| D-12 | Vitest owns unit/integration/E2E and the CI coverage thresholds; Jest supplies complementary backend tests with SWC and VM modules. HTTP avatar tests run in the measured Vitest integration suite. | Implemented |
 | D-13 | `PLATFORM_ADMIN` has no implicit access to tenant data; no impersonation. | Proposed |
 | D-14 | Tenant taken from the URL path on REDOVA APIs; non-member → 404. | Proposed |
 | D-15 | No `Idempotency-Key` endpoint in Sprint 01; convention defined for future POSTs. | Proposed |

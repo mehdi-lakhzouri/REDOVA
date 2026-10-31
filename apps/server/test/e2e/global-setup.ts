@@ -2,6 +2,7 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import { createWriteStream, mkdirSync } from 'node:fs';
 import { once } from 'node:events';
 import { resolve } from 'node:path';
+import { tmpdir } from 'node:os';
 import { createPrismaClient } from '@redova/db';
 import { loadTestEnv, prepareTestDatabase, resetDatabase } from '@redova/db/testing';
 import { Redis } from 'ioredis';
@@ -105,6 +106,8 @@ export default async function setup(project: TestProject): Promise<() => Promise
     WEB_ORIGIN,
     HIBP_ENABLED: 'false',
     RATE_LIMIT_ENABLED: 'false',
+    AVATAR_STORAGE: 'local',
+    AVATAR_LOCAL_DIR: resolve(tmpdir(), 'redova-e2e-avatars'),
   });
   const worker = start('worker', WORKER_MAIN, {
     NODE_ENV: 'production',

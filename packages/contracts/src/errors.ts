@@ -16,6 +16,9 @@ export const ErrorCode = {
   SESSION_NOT_FOUND: 'SESSION_NOT_FOUND',
   LAST_PLATFORM_ADMIN: 'LAST_PLATFORM_ADMIN',
   RATE_LIMITED: 'RATE_LIMITED',
+  AVATAR_INVALID: 'AVATAR_INVALID',
+  AVATAR_TOO_LARGE: 'AVATAR_TOO_LARGE',
+  AVATAR_NOT_FOUND: 'AVATAR_NOT_FOUND',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
 } as const;
 
@@ -38,6 +41,9 @@ export const ERROR_HTTP_STATUS: Record<ErrorCode, number> = {
   SESSION_NOT_FOUND: 404,
   LAST_PLATFORM_ADMIN: 409,
   RATE_LIMITED: 429,
+  AVATAR_INVALID: 400,
+  AVATAR_TOO_LARGE: 413,
+  AVATAR_NOT_FOUND: 404,
   INTERNAL_ERROR: 500,
 };
 
@@ -60,5 +66,9 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   SESSION_NOT_FOUND: 'Session not found.',
   LAST_PLATFORM_ADMIN: 'The last platform administrator cannot be demoted.',
   RATE_LIMITED: 'Too many requests. Try again later.',
+  AVATAR_INVALID:
+    'Provide one valid, non-animated JPEG, PNG or WebP image (maximum 16 megapixels).',
+  AVATAR_TOO_LARGE: 'The avatar must not exceed 5 MiB.',
+  AVATAR_NOT_FOUND: 'Avatar not found.',
   INTERNAL_ERROR: 'An unexpected error occurred.',
 };

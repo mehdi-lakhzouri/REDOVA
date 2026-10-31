@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { createTestApp } from '../../support/test-app';
 
 /** Dedicated PostgreSQL database and reserved Redis db 11, independent of the existing suites. */
-export const createJestApp = async () => {
+export const createJestApp = async (options: { avatarDirectory?: string } = {}) => {
   const database = new URL(process.env.TEST_DATABASE_URL ?? 'postgresql://missing/missing');
   if (!database.pathname.endsWith('_jest_test')) {
     throw new Error('Jest integration tests require their dedicated *_jest_test database');
@@ -17,6 +17,10 @@ export const createJestApp = async () => {
     await redis.quit();
   }
   return createTestApp({
-    env: { REDIS_URL: redisUrl.toString() },
+    env: {
+      REDIS_URL: redisUrl.toString(),
+      AVATAR_STORAGE: 'local',
+      ...(options.avatarDirectory ? { AVATAR_LOCAL_DIR: options.avatarDirectory } : {}),
+    },
   });
 };

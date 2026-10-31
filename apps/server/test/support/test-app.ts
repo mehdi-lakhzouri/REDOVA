@@ -1,4 +1,6 @@
 import type { INestApplication, ModuleMetadata } from '@nestjs/common';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { NestFactory } from '@nestjs/core';
 import type { Auth } from '@redova/auth';
 import type { EmailJob } from '@redova/contracts';
@@ -41,6 +43,8 @@ export const buildTestEnv = (overrides: Partial<Record<keyof Env, string>> = {})
     WEB_ORIGIN,
     HIBP_ENABLED: 'false',
     RATE_LIMIT_ENABLED: 'false',
+    AVATAR_STORAGE: 'local',
+    AVATAR_LOCAL_DIR: join(tmpdir(), 'redova-integration-avatars', String(process.pid)),
     ...overrides,
   });
 };

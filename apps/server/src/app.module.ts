@@ -17,6 +17,7 @@ import { EmailQueueModule, ENQUEUE_EMAIL } from './email/email-queue.module';
 import { HealthController } from './health/health.controller';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { LoggingModule } from './logging/logging.module';
+import { ProfileModule } from './profile/profile.module';
 
 const authLogger = new Logger('BetterAuth');
 
@@ -67,6 +68,7 @@ export class AppModule {
           inject: [ENV, PRISMA, REDIS, AuditService, ENQUEUE_EMAIL],
         }),
         AdminModule,
+        ProfileModule,
         ...(extra.imports ?? []),
       ],
       controllers: [HealthController, ...(extra.controllers ?? [])],
