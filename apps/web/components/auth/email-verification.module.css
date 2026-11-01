@@ -1,0 +1,551 @@
+.layout.layout {
+  grid-template-columns: minmax(0, 48.7fr) minmax(0, 51.3fr);
+}
+.layout .cardArea {
+  align-items: center;
+  justify-content: center;
+  padding: 36px clamp(40px, 7.44vw, 150px) 40px 0;
+}
+.layout .scenery::after {
+  background: linear-gradient(90deg, rgb(0 0 0 / 4%), transparent 48%, rgb(0 0 0 / 7%));
+}
+.hero {
+  position: relative;
+  min-width: 0;
+  padding: 38px 28px 0 clamp(40px, 5.93vw, 112px);
+}
+.brandLink {
+  display: inline-flex;
+  border-radius: 5px;
+}
+.headerLogo {
+  width: 272px;
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 16px;
+  color: var(--auth-strong);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.38em;
+  white-space: nowrap;
+}
+.eyebrow > span {
+  color: var(--brand-red);
+  font-size: 8px;
+}
+.cardFrame {
+  position: relative;
+  width: 100%;
+  max-width: 696px;
+}
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  overflow: visible;
+  padding: 55px 80px 50px;
+  border: 1px solid rgb(229 231 235 / 34%);
+  border-radius: 31px;
+  background: linear-gradient(140deg, rgb(11 12 17 / 96%), rgb(10 9 13 / 97%));
+  color: var(--auth-strong);
+  box-shadow: 0 20px 70px rgb(0 0 0 / 30%);
+}
+.card::before,
+.card::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 210px;
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, #ff2d2d, transparent);
+  filter: drop-shadow(0 0 6px #ff2d2d) drop-shadow(0 0 14px #ff163d);
+  pointer-events: none;
+}
+.card::before {
+  top: -1px;
+}
+.card::after {
+  bottom: -1px;
+}
+.cardFrame::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 28%;
+  width: 2px;
+  height: 32%;
+  background: linear-gradient(transparent, #ff163d, transparent);
+  filter: drop-shadow(0 0 8px #ff173b);
+  pointer-events: none;
+}
+.badgeArea {
+  display: flex;
+  justify-content: center;
+}
+.badge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 134px;
+  height: 118px;
+  border: 1px solid rgb(255 59 76 / 48%);
+  border-radius: 25px;
+  background: radial-gradient(
+    at top left,
+    rgb(135 10 27 / 47%),
+    rgb(21 7 13 / 80%) 66%,
+    rgb(168 7 25 / 58%)
+  );
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 25%),
+    0 0 24px rgb(255 0 40 / 8%);
+}
+.badgeMail {
+  width: 68px;
+  height: 68px;
+  color: #f4eef0;
+}
+.badgeCheck {
+  position: absolute;
+  top: 18px;
+  right: 17px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 4px solid #1a0d13;
+  border-radius: 50%;
+  background: linear-gradient(130deg, #ff5262, #ff163d);
+  color: #330710;
+}
+.badgeCheck svg {
+  width: 21px;
+  height: 21px;
+}
+.headingArea {
+  margin-top: 16px;
+  text-align: center;
+}
+.headingArea h1 {
+  color: #f5f6f7;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 58px;
+  letter-spacing: -0.02em;
+}
+.headingArea h1 > span {
+  color: #ff1437;
+}
+.lead {
+  margin-top: 14px;
+  color: #b5bdc6;
+  font-size: 21px;
+  line-height: 28px;
+  text-align: center;
+}
+.emailPill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  gap: 22px;
+  width: fit-content;
+  min-width: min(316px, 100%);
+  max-width: 100%;
+  min-height: 56px;
+  margin-top: 16px;
+  border: 1px solid rgb(229 231 235 / 15%);
+  border-radius: 40px;
+  padding: 12px 26px;
+  background: linear-gradient(120deg, rgb(12 15 20 / 72%), rgb(7 10 14 / 40%));
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / 4%);
+}
+.emailPill > svg {
+  flex: 0 0 25px;
+  width: 25px;
+  height: 25px;
+  color: #ff5266;
+}
+.emailAddress {
+  min-width: 0;
+  color: #f5f6f7;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 26px;
+  overflow-wrap: anywhere;
+}
+.description {
+  margin-top: 18px;
+  color: #b5bdc6;
+  font-size: 21px;
+  line-height: 31px;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+.actions {
+  margin-top: 30px;
+}
+.resendButton {
+  display: flex;
+  width: 100%;
+  height: 66px;
+  gap: 20px;
+  border: 1px solid rgb(255 104 115 / 26%);
+  border-radius: 16px;
+  background: linear-gradient(105deg, #ff163d, #ff002c 55%, #ff1538);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 28px;
+  box-shadow: 0 8px 34px rgb(255 0 40 / 16%);
+}
+.resendButton:hover:not(:disabled) {
+  background: linear-gradient(105deg, #ff2c50, #ff163f 55%, #ff2d4d);
+  box-shadow: 0 8px 40px rgb(255 0 40 / 24%);
+}
+.resendIcon {
+  display: inline-flex;
+}
+.resendButton svg {
+  width: 29px;
+  height: 29px;
+}
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  min-height: 78px;
+  margin-top: 26px;
+  border: 1px solid rgb(255 91 110 / 25%);
+  border-radius: 18px;
+  padding: 14px 24px;
+  background: linear-gradient(120deg, rgb(44 12 23 / 14%), rgb(17 12 18 / 40%));
+}
+.notice > svg {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  color: #ff5369;
+}
+.notice p {
+  color: #c4cbd2;
+  font-size: 17px;
+  line-height: 24px;
+}
+.feedback {
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #c4cbd2;
+  font-size: 14px;
+  line-height: 22px;
+}
+.feedback[data-kind='error'] {
+  border-color: color-mix(in srgb, var(--destructive) 30%, transparent);
+  background: var(--destructive-subtle);
+  color: var(--destructive);
+}
+.feedback[data-kind='success'] {
+  border-color: color-mix(in srgb, var(--success) 30%, transparent);
+  background: var(--success-subtle);
+}
+@media (min-width: 1900px) {
+  .layout.layout {
+    grid-template-columns: minmax(0, 1fr) 900px;
+  }
+  .hero {
+    padding-left: max(100px, calc((100vw - 1720px) / 2));
+  }
+}
+@media (min-width: 1100px) and (max-width: 1390px) {
+  .layout.layout {
+    grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
+  }
+  .hero {
+    padding-left: 40px;
+  }
+  .headerLogo {
+    width: 240px;
+  }
+  .eyebrow {
+    gap: 16px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+  }
+  .layout .cardArea {
+    padding-right: 40px;
+  }
+  .card {
+    padding-right: 42px;
+    padding-left: 42px;
+  }
+  .headingArea h1 {
+    font-size: 40px;
+    line-height: 50px;
+  }
+  .lead,
+  .description {
+    font-size: 18px;
+    line-height: 28px;
+  }
+  .notice {
+    gap: 16px;
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+  .notice p {
+    font-size: 15px;
+    line-height: 23px;
+  }
+}
+@media (min-width: 1100px) and (max-height: 800px) {
+  .layout .cardArea {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+  .card {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    border-radius: 24px;
+  }
+  .hero {
+    padding-top: 26px;
+  }
+  .headerLogo {
+    width: 230px;
+  }
+  .badge {
+    width: 100px;
+    height: 88px;
+    border-radius: 20px;
+  }
+  .badgeMail {
+    width: 54px;
+    height: 54px;
+  }
+  .badgeCheck {
+    top: 11px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+  }
+  .badgeCheck svg {
+    width: 18px;
+    height: 18px;
+  }
+  .headingArea {
+    margin-top: 12px;
+  }
+  .headingArea h1 {
+    font-size: 38px;
+    line-height: 48px;
+  }
+  .lead {
+    margin-top: 12px;
+    font-size: 18px;
+    line-height: 26px;
+  }
+  .emailPill {
+    min-height: 50px;
+    margin-top: 14px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+  }
+  .emailAddress {
+    font-size: 18px;
+  }
+  .description {
+    margin-top: 16px;
+    font-size: 17px;
+    line-height: 26px;
+  }
+  .actions {
+    margin-top: 22px;
+  }
+  .resendButton {
+    height: 56px;
+    font-size: 20px;
+  }
+  .resendButton svg {
+    width: 25px;
+    height: 25px;
+  }
+  .notice {
+    min-height: 70px;
+    margin-top: 20px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+@media (max-width: 1099px) {
+  .layout.layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero {
+    padding: 26px 32px 0;
+  }
+  .headerLogo {
+    width: 220px;
+  }
+  .eyebrow {
+    justify-content: center;
+    margin-top: 24px;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+  }
+  .layout .cardArea {
+    padding: 30px 24px 40px;
+  }
+  .cardFrame {
+    max-width: 660px;
+  }
+  .card {
+    padding: 34px 54px;
+    border-radius: 24px;
+  }
+  .headingArea h1 {
+    font-size: 40px;
+    line-height: 50px;
+  }
+  .lead,
+  .description {
+    font-size: 18px;
+    line-height: 28px;
+  }
+  .layout .scenery {
+    max-height: 1300px;
+  }
+  .layout .scenery img {
+    object-position: 35% center;
+  }
+}
+@media (max-width: 640px) {
+  .hero {
+    padding: 22px 22px 0;
+  }
+  .headerLogo {
+    width: 190px;
+  }
+  .eyebrow {
+    gap: 16px;
+    margin-top: 22px;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+  }
+  .layout .cardArea {
+    padding: 26px 16px 28px;
+  }
+  .card {
+    padding: 30px 23px 26px;
+    border-radius: 22px;
+  }
+  .badge {
+    width: 104px;
+    height: 92px;
+    border-radius: 21px;
+  }
+  .badgeMail {
+    width: 54px;
+    height: 54px;
+  }
+  .badgeCheck {
+    top: 12px;
+    right: 11px;
+    width: 32px;
+    height: 32px;
+  }
+  .badgeCheck svg {
+    width: 18px;
+    height: 18px;
+  }
+  .headingArea {
+    margin-top: 18px;
+  }
+  .headingArea h1 {
+    font-size: clamp(29px, 8.2vw, 36px);
+    line-height: 1.2;
+  }
+  .lead {
+    margin-top: 16px;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .emailPill {
+    gap: 14px;
+    min-width: min(276px, 100%);
+    min-height: 52px;
+    margin-top: 16px;
+    padding: 11px 18px;
+  }
+  .emailPill > svg {
+    flex-basis: 22px;
+    width: 22px;
+    height: 22px;
+  }
+  .emailAddress {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .description {
+    margin-top: 18px;
+    font-size: 16px;
+    line-height: 25px;
+  }
+  .actions {
+    margin-top: 24px;
+  }
+  .resendButton {
+    height: 56px;
+    gap: 14px;
+    border-radius: 13px;
+    font-size: 19px;
+  }
+  .resendButton svg {
+    width: 25px;
+    height: 25px;
+  }
+  .notice {
+    gap: 13px;
+    min-height: 76px;
+    margin-top: 22px;
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .notice > svg {
+    flex-basis: 25px;
+    width: 25px;
+    height: 25px;
+  }
+  .notice p {
+    font-size: 13px;
+    line-height: 21px;
+  }
+}
+@media (max-width: 360px) {
+  .hero {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+  .layout .cardArea {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+  .card {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+  .notice {
+    gap: 10px;
+    padding-right: 11px;
+    padding-left: 11px;
+  }
+}
