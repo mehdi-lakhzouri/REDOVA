@@ -3,30 +3,88 @@
 exports[`email templates (UT-003-01) > renders existing-account (html, text, subject) 1`] = `
 {
   "html": "<!doctype html>
-<html lang="en">
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>You already have an account</title>
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>Your account is already here | REDOVA</title>
+    <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+    <style>
+      :root { color-scheme: light; supported-color-schemes: light; }
+      body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+      table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+      img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+      a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
+      @media screen and (max-width: 620px) {
+        .email-outer { padding: 20px 12px !important; }
+        .email-header { padding: 28px 24px 22px !important; }
+        .email-art { padding: 0 24px 24px !important; }
+        .email-content { padding: 0 24px 28px !important; }
+        .email-footer { padding: 24px !important; }
+        .email-title { font-size: 25px !important; line-height: 33px !important; }
+      }
+    </style>
   </head>
-  <body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+  <body bgcolor="#F4F5F7" style="margin:0;padding:0;width:100%;background-color:#F4F5F7;font-family:Arial,Helvetica,sans-serif;color:#1E242B;">
+    <div aria-hidden="true" style="display:none;font-size:1px;line-height:1px;color:#F4F5F7;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">You already have a REDOVA account. Sign in or recover access securely.</div>
+    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F4F5F7" style="width:100%;background-color:#F4F5F7;">
       <tr>
-        <td align="center">
-          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;padding:32px;">
-            <tr><td style="font-size:20px;font-weight:bold;letter-spacing:2px;padding-bottom:24px;">REDOVA</td></tr>
-            <tr><td style="font-size:15px;line-height:22px;"><p>Hello Alice,</p>
-<p>Someone tried to create a REDOVA account with this email address, but an account already exists.</p>
-<p style="margin:24px 0;"><a href="https://app.redova.io/sign-in" style="background:#1f2933;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Sign in</a></p>
-<p style="font-size:12px;color:#6b7280;">If the button does not work, copy this link into your browser:<br />https://app.redova.io/sign-in</p><p>Forgot your password? <a href="https://app.redova.io/forgot-password">Reset it here</a>. If this was not you, no action is needed.</p>
-</td></tr>
+        <td class="email-outer" align="center" style="padding:40px 16px;">
+          <!--[if mso]><table role="presentation" width="600" border="0" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+          <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="width:100%;max-width:600px;table-layout:fixed;border:1px solid #E5E7EB;border-radius:16px;background-color:#FFFFFF;">
+            <tr><td height="4" bgcolor="#FF2D2D" style="height:4px;font-size:0;line-height:4px;background-color:#FF2D2D;border-radius:16px 16px 0 0;">&nbsp;</td></tr>
             <tr>
-              <td style="font-size:12px;line-height:18px;color:#6b7280;padding-top:32px;">
-                You received this email because of activity on your REDOVA account.
-                If you did not expect it, you can ignore it or contact support.
+              <td class="email-header" style="padding:32px 40px 24px;">
+                <img src="cid:redova-logo@assets.redova" width="184" height="44" alt="REDOVA" style="display:block;width:184px;height:44px;max-width:100%;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:24px;font-weight:bold;" />
+                <p style="margin:12px 0 0;color:#667085;font-size:10px;line-height:16px;letter-spacing:2px;">SECURE &nbsp;&middot;&nbsp; TEST &nbsp;&middot;&nbsp; EMPOWER AI</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-art" style="padding:0 40px 28px;">
+                <img src="cid:redova-account-security@assets.redova" width="520" height="174" alt="" role="presentation" style="display:block;width:100%;max-width:520px;height:auto;border-radius:10px;background-color:#FFF8F8;" />
+              </td>
+            </tr>
+            <tr>
+              <td class="email-content" style="padding:0 40px 36px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:26px;color:#475467;word-wrap:break-word;overflow-wrap:anywhere;">
+                <p style="margin:0 0 10px;color:#C8102E;font-size:11px;line-height:18px;font-weight:bold;letter-spacing:1.8px;">YOUR REDOVA ACCOUNT</p>
+                <h1 class="email-title" style="margin:0 0 22px;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:29px;line-height:37px;font-weight:bold;letter-spacing:-0.5px;">Your account is already here</h1>
+                <p style="margin:0 0 16px;">Hello Alice,</p>
+                <p style="margin:0;">An account already exists for this email address. If you were trying to get started with REDOVA, you can sign in to your existing account.</p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+                  <tr>
+                    <td align="left" style="padding:24px 0 20px;">
+                      <!--[if mso]>
+                      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://app.redova.io/sign-in" style="height:48px;v-text-anchor:middle;width:240px;" arcsize="17%" stroke="f" fillcolor="#C8102E">
+                        <w:anchorlock/>
+                        <center style="color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;">Sign in to REDOVA</center>
+                      </v:roundrect>
+                      <![endif]-->
+                      <!--[if !mso]><!-- -->
+                      <a href="https://app.redova.io/sign-in" style="display:inline-block;width:240px;max-width:100%;line-height:48px;border-radius:8px;background-color:#C8102E;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;text-align:center;text-decoration:none;mso-hide:all;">Sign in to REDOVA</a>
+                      <!--<![endif]-->
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0 0 8px;color:#667085;font-size:12px;line-height:20px;">If the button does not work, copy and paste this link into your browser:</p>
+                <p style="margin:0 0 24px;font-size:12px;line-height:20px;word-break:break-all;overflow-wrap:anywhere;"><a href="https://app.redova.io/sign-in" style="color:#C8102E;text-decoration:underline;word-break:break-all;">https://app.redova.io/sign-in</a></p>
+                <p style="margin:0 0 20px;">Forgot your password? <a href="https://app.redova.io/forgot-password" style="color:#C8102E;text-decoration:underline;">Reset it securely</a>.</p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFF5F6" style="width:100%;background-color:#FFF5F6;border:1px solid #F9D9DF;border-radius:8px;">
+                  <tr><td style="padding:14px 16px;color:#475467;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:21px;"><strong style="color:#0B0F14;">Wasn&#x27;t you?</strong><br />You can ignore this message. This sign-up attempt has not changed your existing account.</td></tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-footer" bgcolor="#FAFBFC" style="padding:24px 40px;background-color:#FAFBFC;border-top:1px solid #E5E7EB;border-radius:0 0 16px 16px;">
+                <p style="margin:0 0 6px;color:#344054;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;font-weight:bold;">REDOVA &nbsp;&middot;&nbsp; AI Agent Security</p>
+                <p style="margin:0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;">This transactional email relates to your REDOVA account. Never share your password, verification links or recovery codes.</p>
               </td>
             </tr>
           </table>
+          <!--[if mso]></td></tr></table><![endif]-->
+          <p style="margin:20px 0 0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:18px;">Built for safer AI agents. Designed for your peace of mind.</p>
         </td>
       </tr>
     </table>
@@ -38,15 +96,15 @@ exports[`email templates (UT-003-01) > renders existing-account (html, text, sub
 
 Hello Alice,
 
-Someone tried to create a REDOVA account with this email address, but an account already exists.
+An account already exists for this email address. If you were trying to get started with REDOVA, you can sign in to your existing account.
 
 Sign in: https://app.redova.io/sign-in
 Forgot your password? Reset it here: https://app.redova.io/forgot-password
-If this was not you, no action is needed.
+Wasn't you? You can ignore this message. This sign-up attempt has not changed your existing account.
 
 --
-You received this email because of activity on your REDOVA account.
-If you did not expect it, you can ignore it or contact support.
+REDOVA - AI Agent Security
+This transactional email relates to your REDOVA account. Never share your password, verification links or recovery codes.
 ",
 }
 `;
@@ -54,31 +112,91 @@ If you did not expect it, you can ignore it or contact support.
 exports[`email templates (UT-003-01) > renders organization-invitation (html, text, subject) 1`] = `
 {
   "html": "<!doctype html>
-<html lang="en">
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>You are invited</title>
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>Your team is waiting for you | REDOVA</title>
+    <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+    <style>
+      :root { color-scheme: light; supported-color-schemes: light; }
+      body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+      table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+      img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+      a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
+      @media screen and (max-width: 620px) {
+        .email-outer { padding: 20px 12px !important; }
+        .email-header { padding: 28px 24px 22px !important; }
+        .email-art { padding: 0 24px 24px !important; }
+        .email-content { padding: 0 24px 28px !important; }
+        .email-footer { padding: 24px !important; }
+        .email-title { font-size: 25px !important; line-height: 33px !important; }
+      }
+    </style>
   </head>
-  <body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+  <body bgcolor="#F4F5F7" style="margin:0;padding:0;width:100%;background-color:#F4F5F7;font-family:Arial,Helvetica,sans-serif;color:#1E242B;">
+    <div aria-hidden="true" style="display:none;font-size:1px;line-height:1px;color:#F4F5F7;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">You&#x27;ve been invited to collaborate on REDOVA. Review your organization invitation.</div>
+    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F4F5F7" style="width:100%;background-color:#F4F5F7;">
       <tr>
-        <td align="center">
-          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;padding:32px;">
-            <tr><td style="font-size:20px;font-weight:bold;letter-spacing:2px;padding-bottom:24px;">REDOVA</td></tr>
-            <tr><td style="font-size:15px;line-height:22px;"><p>Hello,</p>
-<p><strong>Olivia</strong> invited you to join <strong>Acme Security</strong> on REDOVA as <strong>AI Developer</strong>.</p>
-<p style="margin:24px 0;"><a href="https://app.redova.io/invitations/inv_123" style="background:#1f2933;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;display:inline-block;">View invitation</a></p>
-<p style="font-size:12px;color:#6b7280;">If the button does not work, copy this link into your browser:<br />https://app.redova.io/invitations/inv_123</p><p>This invitation expires on Sat, 31 Oct 2026 12:00:00 GMT. Sign in (or create an account) with this email address to accept it.</p>
-<p>If you did not expect this invitation, you can ignore this email.</p>
-</td></tr>
+        <td class="email-outer" align="center" style="padding:40px 16px;">
+          <!--[if mso]><table role="presentation" width="600" border="0" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+          <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="width:100%;max-width:600px;table-layout:fixed;border:1px solid #E5E7EB;border-radius:16px;background-color:#FFFFFF;">
+            <tr><td height="4" bgcolor="#FF2D2D" style="height:4px;font-size:0;line-height:4px;background-color:#FF2D2D;border-radius:16px 16px 0 0;">&nbsp;</td></tr>
             <tr>
-              <td style="font-size:12px;line-height:18px;color:#6b7280;padding-top:32px;">
-                You received this email because of activity on your REDOVA account.
-                If you did not expect it, you can ignore it or contact support.
+              <td class="email-header" style="padding:32px 40px 24px;">
+                <img src="cid:redova-logo@assets.redova" width="184" height="44" alt="REDOVA" style="display:block;width:184px;height:44px;max-width:100%;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:24px;font-weight:bold;" />
+                <p style="margin:12px 0 0;color:#667085;font-size:10px;line-height:16px;letter-spacing:2px;">SECURE &nbsp;&middot;&nbsp; TEST &nbsp;&middot;&nbsp; EMPOWER AI</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-art" style="padding:0 40px 28px;">
+                <img src="cid:redova-account-security@assets.redova" width="520" height="174" alt="" role="presentation" style="display:block;width:100%;max-width:520px;height:auto;border-radius:10px;background-color:#FFF8F8;" />
+              </td>
+            </tr>
+            <tr>
+              <td class="email-content" style="padding:0 40px 36px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:26px;color:#475467;word-wrap:break-word;overflow-wrap:anywhere;">
+                <p style="margin:0 0 10px;color:#C8102E;font-size:11px;line-height:18px;font-weight:bold;letter-spacing:1.8px;">ORGANIZATION INVITATION</p>
+                <h1 class="email-title" style="margin:0 0 22px;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:29px;line-height:37px;font-weight:bold;letter-spacing:-0.5px;">Your team is waiting for you</h1>
+                <p style="margin:0 0 16px;">Hello,</p>
+                <p style="margin:0 0 20px;"><strong style="color:#0B0F14;">Olivia</strong> invited you to join <strong style="color:#0B0F14;">Acme Security</strong> on REDOVA.</p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F9FAFB" style="width:100%;background-color:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;">
+                  <tr><td style="padding:14px 16px;font-size:14px;line-height:23px;color:#475467;">Your role: <strong style="color:#0B0F14;">AI Developer</strong><br />Expires: Sat, 31 Oct 2026 12:00:00 GMT</td></tr>
+                </table>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+                  <tr>
+                    <td align="left" style="padding:24px 0 20px;">
+                      <!--[if mso]>
+                      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://app.redova.io/invitations/inv_123" style="height:48px;v-text-anchor:middle;width:240px;" arcsize="17%" stroke="f" fillcolor="#C8102E">
+                        <w:anchorlock/>
+                        <center style="color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;">View invitation</center>
+                      </v:roundrect>
+                      <![endif]-->
+                      <!--[if !mso]><!-- -->
+                      <a href="https://app.redova.io/invitations/inv_123" style="display:inline-block;width:240px;max-width:100%;line-height:48px;border-radius:8px;background-color:#C8102E;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;text-align:center;text-decoration:none;mso-hide:all;">View invitation</a>
+                      <!--<![endif]-->
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0 0 8px;color:#667085;font-size:12px;line-height:20px;">If the button does not work, copy and paste this link into your browser:</p>
+                <p style="margin:0 0 24px;font-size:12px;line-height:20px;word-break:break-all;overflow-wrap:anywhere;"><a href="https://app.redova.io/invitations/inv_123" style="color:#C8102E;text-decoration:underline;word-break:break-all;">https://app.redova.io/invitations/inv_123</a></p>
+                <p style="margin:0 0 20px;">Sign in or create an account using the email address that received this invitation.</p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFF5F6" style="width:100%;background-color:#FFF5F6;border:1px solid #F9D9DF;border-radius:8px;">
+                  <tr><td style="padding:14px 16px;color:#475467;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:21px;"><strong style="color:#0B0F14;">Not expecting this invitation?</strong><br />You can ignore this email. You will not join the organization unless you accept the invitation.</td></tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-footer" bgcolor="#FAFBFC" style="padding:24px 40px;background-color:#FAFBFC;border-top:1px solid #E5E7EB;border-radius:0 0 16px 16px;">
+                <p style="margin:0 0 6px;color:#344054;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;font-weight:bold;">REDOVA &nbsp;&middot;&nbsp; AI Agent Security</p>
+                <p style="margin:0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;">This transactional email relates to your REDOVA account. Never share your password, verification links or recovery codes.</p>
               </td>
             </tr>
           </table>
+          <!--[if mso]></td></tr></table><![endif]-->
+          <p style="margin:20px 0 0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:18px;">Built for safer AI agents. Designed for your peace of mind.</p>
         </td>
       </tr>
     </table>
@@ -94,11 +212,11 @@ Olivia invited you to join Acme Security on REDOVA as AI Developer.
 
 View invitation: https://app.redova.io/invitations/inv_123
 This invitation expires on Sat, 31 Oct 2026 12:00:00 GMT. Sign in (or create an account) with this email address to accept it.
-If you did not expect this invitation, you can ignore this email.
+Not expecting this invitation? You can ignore this email. You will not join the organization unless you accept the invitation.
 
 --
-You received this email because of activity on your REDOVA account.
-If you did not expect it, you can ignore it or contact support.
+REDOVA - AI Agent Security
+This transactional email relates to your REDOVA account. Never share your password, verification links or recovery codes.
 ",
 }
 `;
@@ -106,30 +224,89 @@ If you did not expect it, you can ignore it or contact support.
 exports[`email templates (UT-003-01) > renders reset-password (html, text, subject) 1`] = `
 {
   "html": "<!doctype html>
-<html lang="en">
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Reset your password</title>
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>Reset your password | REDOVA</title>
+    <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+    <style>
+      :root { color-scheme: light; supported-color-schemes: light; }
+      body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+      table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+      img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+      a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
+      @media screen and (max-width: 620px) {
+        .email-outer { padding: 20px 12px !important; }
+        .email-header { padding: 28px 24px 22px !important; }
+        .email-art { padding: 0 24px 24px !important; }
+        .email-content { padding: 0 24px 28px !important; }
+        .email-footer { padding: 24px !important; }
+        .email-title { font-size: 25px !important; line-height: 33px !important; }
+      }
+    </style>
   </head>
-  <body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+  <body bgcolor="#F4F5F7" style="margin:0;padding:0;width:100%;background-color:#F4F5F7;font-family:Arial,Helvetica,sans-serif;color:#1E242B;">
+    <div aria-hidden="true" style="display:none;font-size:1px;line-height:1px;color:#F4F5F7;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">A secure link to choose a new password for your REDOVA account.</div>
+    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F4F5F7" style="width:100%;background-color:#F4F5F7;">
       <tr>
-        <td align="center">
-          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;padding:32px;">
-            <tr><td style="font-size:20px;font-weight:bold;letter-spacing:2px;padding-bottom:24px;">REDOVA</td></tr>
-            <tr><td style="font-size:15px;line-height:22px;"><p>Hello Alice,</p>
-<p>We received a request to reset the password of your REDOVA account from 203.0.113.7.</p>
-<p style="margin:24px 0;"><a href="https://api.redova.io/api/auth/reset-password/t" style="background:#1f2933;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Reset password</a></p>
-<p style="font-size:12px;color:#6b7280;">If the button does not work, copy this link into your browser:<br />https://api.redova.io/api/auth/reset-password/t</p><p>This link expires in 30 minutes and can be used once. If you did not ask for it, ignore this email: your password stays unchanged.</p>
-<p style="font-size:13px;color:#6b7280;">Never share this link. REDOVA will never ask for your password by email.</p></td></tr>
+        <td class="email-outer" align="center" style="padding:40px 16px;">
+          <!--[if mso]><table role="presentation" width="600" border="0" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+          <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="width:100%;max-width:600px;table-layout:fixed;border:1px solid #E5E7EB;border-radius:16px;background-color:#FFFFFF;">
+            <tr><td height="4" bgcolor="#FF2D2D" style="height:4px;font-size:0;line-height:4px;background-color:#FF2D2D;border-radius:16px 16px 0 0;">&nbsp;</td></tr>
             <tr>
-              <td style="font-size:12px;line-height:18px;color:#6b7280;padding-top:32px;">
-                You received this email because of activity on your REDOVA account.
-                If you did not expect it, you can ignore it or contact support.
+              <td class="email-header" style="padding:32px 40px 24px;">
+                <img src="cid:redova-logo@assets.redova" width="184" height="44" alt="REDOVA" style="display:block;width:184px;height:44px;max-width:100%;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:24px;font-weight:bold;" />
+                <p style="margin:12px 0 0;color:#667085;font-size:10px;line-height:16px;letter-spacing:2px;">SECURE &nbsp;&middot;&nbsp; TEST &nbsp;&middot;&nbsp; EMPOWER AI</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-art" style="padding:0 40px 28px;">
+                <img src="cid:redova-account-security@assets.redova" width="520" height="174" alt="" role="presentation" style="display:block;width:100%;max-width:520px;height:auto;border-radius:10px;background-color:#FFF8F8;" />
+              </td>
+            </tr>
+            <tr>
+              <td class="email-content" style="padding:0 40px 36px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:26px;color:#475467;word-wrap:break-word;overflow-wrap:anywhere;">
+                <p style="margin:0 0 10px;color:#C8102E;font-size:11px;line-height:18px;font-weight:bold;letter-spacing:1.8px;">ACCOUNT RECOVERY</p>
+                <h1 class="email-title" style="margin:0 0 22px;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:29px;line-height:37px;font-weight:bold;letter-spacing:-0.5px;">Reset your password</h1>
+                <p style="margin:0 0 16px;">Hello Alice,</p>
+                <p style="margin:0;">We received a request to reset your REDOVA password. Use the button below to choose a new one.</p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+                  <tr>
+                    <td align="left" style="padding:24px 0 20px;">
+                      <!--[if mso]>
+                      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://api.redova.io/api/auth/reset-password/t" style="height:48px;v-text-anchor:middle;width:240px;" arcsize="17%" stroke="f" fillcolor="#C8102E">
+                        <w:anchorlock/>
+                        <center style="color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;">Reset password</center>
+                      </v:roundrect>
+                      <![endif]-->
+                      <!--[if !mso]><!-- -->
+                      <a href="https://api.redova.io/api/auth/reset-password/t" style="display:inline-block;width:240px;max-width:100%;line-height:48px;border-radius:8px;background-color:#C8102E;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;text-align:center;text-decoration:none;mso-hide:all;">Reset password</a>
+                      <!--<![endif]-->
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0 0 8px;color:#667085;font-size:12px;line-height:20px;">If the button does not work, copy and paste this link into your browser:</p>
+                <p style="margin:0 0 24px;font-size:12px;line-height:20px;word-break:break-all;overflow-wrap:anywhere;"><a href="https://api.redova.io/api/auth/reset-password/t" style="color:#C8102E;text-decoration:underline;word-break:break-all;">https://api.redova.io/api/auth/reset-password/t</a></p>
+                <p style="margin:0 0 18px;color:#344054;font-size:14px;line-height:22px;">This link expires in <strong>30 minutes</strong> and can be used once. Request IP: 203.0.113.7.</p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFF5F6" style="width:100%;background-color:#FFF5F6;border:1px solid #F9D9DF;border-radius:8px;">
+                  <tr><td style="padding:14px 16px;color:#475467;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:21px;"><strong style="color:#0B0F14;">Didn&#x27;t request a reset?</strong><br />No action is needed. Your current password stays unchanged unless you complete this request.</td></tr>
+                </table>
+                <p style="margin:18px 0 0;color:#667085;font-size:13px;line-height:21px;">Keep this link private. REDOVA will never ask for your password or recovery codes by email.</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-footer" bgcolor="#FAFBFC" style="padding:24px 40px;background-color:#FAFBFC;border-top:1px solid #E5E7EB;border-radius:0 0 16px 16px;">
+                <p style="margin:0 0 6px;color:#344054;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;font-weight:bold;">REDOVA &nbsp;&middot;&nbsp; AI Agent Security</p>
+                <p style="margin:0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;">This transactional email relates to your REDOVA account. Never share your password, verification links or recovery codes.</p>
               </td>
             </tr>
           </table>
+          <!--[if mso]></td></tr></table><![endif]-->
+          <p style="margin:20px 0 0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:18px;">Built for safer AI agents. Designed for your peace of mind.</p>
         </td>
       </tr>
     </table>
@@ -141,15 +318,18 @@ exports[`email templates (UT-003-01) > renders reset-password (html, text, subje
 
 Hello Alice,
 
-We received a request to reset the password of your REDOVA account from 203.0.113.7.
+We received a request to reset your REDOVA password. Use the link below to choose a new one.
 
 Reset password: https://api.redova.io/api/auth/reset-password/t
 
-This link expires in 30 minutes and can be used once. If you did not ask for it, ignore this email: your password stays unchanged.
-Never share this link. REDOVA will never ask for your password by email.
+This link expires in 30 minutes and can be used once.
+Request IP: 203.0.113.7.
+Didn't request a reset? No action is needed. Your current password stays unchanged unless you complete this request.
+Keep this link private. REDOVA will never ask for your password or recovery codes by email.
+
 --
-You received this email because of activity on your REDOVA account.
-If you did not expect it, you can ignore it or contact support.
+REDOVA - AI Agent Security
+This transactional email relates to your REDOVA account. Never share your password, verification links or recovery codes.
 ",
 }
 `;
@@ -157,31 +337,89 @@ If you did not expect it, you can ignore it or contact support.
 exports[`email templates (UT-003-01) > renders security-notification (html, text, subject) 1`] = `
 {
   "html": "<!doctype html>
-<html lang="en">
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Security alert</title>
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>A change to your account | REDOVA</title>
+    <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+    <style>
+      :root { color-scheme: light; supported-color-schemes: light; }
+      body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+      table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+      img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+      a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
+      @media screen and (max-width: 620px) {
+        .email-outer { padding: 20px 12px !important; }
+        .email-header { padding: 28px 24px 22px !important; }
+        .email-art { padding: 0 24px 24px !important; }
+        .email-content { padding: 0 24px 28px !important; }
+        .email-footer { padding: 24px !important; }
+        .email-title { font-size: 25px !important; line-height: 33px !important; }
+      }
+    </style>
   </head>
-  <body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+  <body bgcolor="#F4F5F7" style="margin:0;padding:0;width:100%;background-color:#F4F5F7;font-family:Arial,Helvetica,sans-serif;color:#1E242B;">
+    <div aria-hidden="true" style="display:none;font-size:1px;line-height:1px;color:#F4F5F7;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">Review a recent security change to your REDOVA account.</div>
+    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F4F5F7" style="width:100%;background-color:#F4F5F7;">
       <tr>
-        <td align="center">
-          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;padding:32px;">
-            <tr><td style="font-size:20px;font-weight:bold;letter-spacing:2px;padding-bottom:24px;">REDOVA</td></tr>
-            <tr><td style="font-size:15px;line-height:22px;"><p>Hello Alice,</p>
-<p>A security change was made to your REDOVA account: <strong>Password reset</strong>.</p>
-<p>When: Sat, 31 Oct 2026 12:00:00 GMT<br />From IP address: 203.0.113.7</p>
-<p>If this was you, no action is needed. If not, secure your account immediately.</p>
-<p style="margin:24px 0;"><a href="https://app.redova.io/account/security" style="background:#1f2933;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Secure my account</a></p>
-<p style="font-size:12px;color:#6b7280;">If the button does not work, copy this link into your browser:<br />https://app.redova.io/account/security</p></td></tr>
+        <td class="email-outer" align="center" style="padding:40px 16px;">
+          <!--[if mso]><table role="presentation" width="600" border="0" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+          <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="width:100%;max-width:600px;table-layout:fixed;border:1px solid #E5E7EB;border-radius:16px;background-color:#FFFFFF;">
+            <tr><td height="4" bgcolor="#FF2D2D" style="height:4px;font-size:0;line-height:4px;background-color:#FF2D2D;border-radius:16px 16px 0 0;">&nbsp;</td></tr>
             <tr>
-              <td style="font-size:12px;line-height:18px;color:#6b7280;padding-top:32px;">
-                You received this email because of activity on your REDOVA account.
-                If you did not expect it, you can ignore it or contact support.
+              <td class="email-header" style="padding:32px 40px 24px;">
+                <img src="cid:redova-logo@assets.redova" width="184" height="44" alt="REDOVA" style="display:block;width:184px;height:44px;max-width:100%;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:24px;font-weight:bold;" />
+                <p style="margin:12px 0 0;color:#667085;font-size:10px;line-height:16px;letter-spacing:2px;">SECURE &nbsp;&middot;&nbsp; TEST &nbsp;&middot;&nbsp; EMPOWER AI</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-art" style="padding:0 40px 28px;">
+                <img src="cid:redova-account-security@assets.redova" width="520" height="174" alt="" role="presentation" style="display:block;width:100%;max-width:520px;height:auto;border-radius:10px;background-color:#FFF8F8;" />
+              </td>
+            </tr>
+            <tr>
+              <td class="email-content" style="padding:0 40px 36px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:26px;color:#475467;word-wrap:break-word;overflow-wrap:anywhere;">
+                <p style="margin:0 0 10px;color:#C8102E;font-size:11px;line-height:18px;font-weight:bold;letter-spacing:1.8px;">SECURITY NOTIFICATION</p>
+                <h1 class="email-title" style="margin:0 0 22px;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:29px;line-height:37px;font-weight:bold;letter-spacing:-0.5px;">A change to your account</h1>
+                <p style="margin:0 0 16px;">Hello Alice,</p>
+                <p style="margin:0 0 20px;">A security change was made to your REDOVA account:</p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F9FAFB" style="width:100%;background-color:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;">
+                  <tr><td style="padding:16px;font-size:14px;line-height:23px;color:#475467;"><strong style="color:#0B0F14;">Password reset</strong><br />When: Sat, 31 Oct 2026 12:00:00 GMT<br />IP address: 203.0.113.7</td></tr>
+                </table>
+                <p style="margin:20px 0 0;">If this was you, no action is needed. If you do not recognize this activity, review your account security immediately.</p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+                  <tr>
+                    <td align="left" style="padding:24px 0 20px;">
+                      <!--[if mso]>
+                      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://app.redova.io/account/security" style="height:48px;v-text-anchor:middle;width:240px;" arcsize="17%" stroke="f" fillcolor="#C8102E">
+                        <w:anchorlock/>
+                        <center style="color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;">Review account security</center>
+                      </v:roundrect>
+                      <![endif]-->
+                      <!--[if !mso]><!-- -->
+                      <a href="https://app.redova.io/account/security" style="display:inline-block;width:240px;max-width:100%;line-height:48px;border-radius:8px;background-color:#C8102E;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;text-align:center;text-decoration:none;mso-hide:all;">Review account security</a>
+                      <!--<![endif]-->
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0 0 8px;color:#667085;font-size:12px;line-height:20px;">If the button does not work, copy and paste this link into your browser:</p>
+                <p style="margin:0 0 24px;font-size:12px;line-height:20px;word-break:break-all;overflow-wrap:anywhere;"><a href="https://app.redova.io/account/security" style="color:#C8102E;text-decoration:underline;word-break:break-all;">https://app.redova.io/account/security</a></p>
+                <p style="margin:18px 0 0;color:#667085;font-size:13px;line-height:21px;">Keep this link private. REDOVA will never ask for your password or recovery codes by email.</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-footer" bgcolor="#FAFBFC" style="padding:24px 40px;background-color:#FAFBFC;border-top:1px solid #E5E7EB;border-radius:0 0 16px 16px;">
+                <p style="margin:0 0 6px;color:#344054;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;font-weight:bold;">REDOVA &nbsp;&middot;&nbsp; AI Agent Security</p>
+                <p style="margin:0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;">This transactional email relates to your REDOVA account. Never share your password, verification links or recovery codes.</p>
               </td>
             </tr>
           </table>
+          <!--[if mso]></td></tr></table><![endif]-->
+          <p style="margin:20px 0 0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:18px;">Built for safer AI agents. Designed for your peace of mind.</p>
         </td>
       </tr>
     </table>
@@ -199,11 +437,12 @@ When: Sat, 31 Oct 2026 12:00:00 GMT
 From IP address: 203.0.113.7
 If this was you, no action is needed. If not, secure your account immediately.
 
-Secure my account: https://app.redova.io/account/security
+Review account security: https://app.redova.io/account/security
+Keep this link private. REDOVA will never ask for your password or recovery codes by email.
 
 --
-You received this email because of activity on your REDOVA account.
-If you did not expect it, you can ignore it or contact support.
+REDOVA - AI Agent Security
+This transactional email relates to your REDOVA account. Never share your password, verification links or recovery codes.
 ",
 }
 `;
@@ -211,30 +450,89 @@ If you did not expect it, you can ignore it or contact support.
 exports[`email templates (UT-003-01) > renders verify-email (html, text, subject) 1`] = `
 {
   "html": "<!doctype html>
-<html lang="en">
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Verify your email</title>
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>Verify your email address | REDOVA</title>
+    <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+    <style>
+      :root { color-scheme: light; supported-color-schemes: light; }
+      body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+      table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+      img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+      a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
+      @media screen and (max-width: 620px) {
+        .email-outer { padding: 20px 12px !important; }
+        .email-header { padding: 28px 24px 22px !important; }
+        .email-art { padding: 0 24px 24px !important; }
+        .email-content { padding: 0 24px 28px !important; }
+        .email-footer { padding: 24px !important; }
+        .email-title { font-size: 25px !important; line-height: 33px !important; }
+      }
+    </style>
   </head>
-  <body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+  <body bgcolor="#F4F5F7" style="margin:0;padding:0;width:100%;background-color:#F4F5F7;font-family:Arial,Helvetica,sans-serif;color:#1E242B;">
+    <div aria-hidden="true" style="display:none;font-size:1px;line-height:1px;color:#F4F5F7;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">One last step: verify your email to activate your REDOVA account.</div>
+    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F4F5F7" style="width:100%;background-color:#F4F5F7;">
       <tr>
-        <td align="center">
-          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;padding:32px;">
-            <tr><td style="font-size:20px;font-weight:bold;letter-spacing:2px;padding-bottom:24px;">REDOVA</td></tr>
-            <tr><td style="font-size:15px;line-height:22px;"><p>Hello Alice,</p>
-<p>Confirm your email address to activate your REDOVA account.</p>
-<p style="margin:24px 0;"><a href="https://api.redova.io/api/auth/verify-email?token&#x3D;t" style="background:#1f2933;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Verify email</a></p>
-<p style="font-size:12px;color:#6b7280;">If the button does not work, copy this link into your browser:<br />https://api.redova.io/api/auth/verify-email?token&#x3D;t</p><p>This link expires in 24 hours.</p>
-<p style="font-size:13px;color:#6b7280;">Never share this link. REDOVA will never ask for your password by email.</p></td></tr>
+        <td class="email-outer" align="center" style="padding:40px 16px;">
+          <!--[if mso]><table role="presentation" width="600" border="0" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+          <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="width:100%;max-width:600px;table-layout:fixed;border:1px solid #E5E7EB;border-radius:16px;background-color:#FFFFFF;">
+            <tr><td height="4" bgcolor="#FF2D2D" style="height:4px;font-size:0;line-height:4px;background-color:#FF2D2D;border-radius:16px 16px 0 0;">&nbsp;</td></tr>
             <tr>
-              <td style="font-size:12px;line-height:18px;color:#6b7280;padding-top:32px;">
-                You received this email because of activity on your REDOVA account.
-                If you did not expect it, you can ignore it or contact support.
+              <td class="email-header" style="padding:32px 40px 24px;">
+                <img src="cid:redova-logo@assets.redova" width="184" height="44" alt="REDOVA" style="display:block;width:184px;height:44px;max-width:100%;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:24px;font-weight:bold;" />
+                <p style="margin:12px 0 0;color:#667085;font-size:10px;line-height:16px;letter-spacing:2px;">SECURE &nbsp;&middot;&nbsp; TEST &nbsp;&middot;&nbsp; EMPOWER AI</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-art" style="padding:0 40px 28px;">
+                <img src="cid:redova-account-security@assets.redova" width="520" height="174" alt="" role="presentation" style="display:block;width:100%;max-width:520px;height:auto;border-radius:10px;background-color:#FFF8F8;" />
+              </td>
+            </tr>
+            <tr>
+              <td class="email-content" style="padding:0 40px 36px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:26px;color:#475467;word-wrap:break-word;overflow-wrap:anywhere;">
+                <p style="margin:0 0 10px;color:#C8102E;font-size:11px;line-height:18px;font-weight:bold;letter-spacing:1.8px;">WELCOME TO REDOVA</p>
+                <h1 class="email-title" style="margin:0 0 22px;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:29px;line-height:37px;font-weight:bold;letter-spacing:-0.5px;">Verify your email address</h1>
+                <p style="margin:0 0 16px;">Hello Alice,</p>
+                <p style="margin:0;">Thanks for joining REDOVA. Confirm your email address to activate your account and start securing your AI agents.</p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+                  <tr>
+                    <td align="left" style="padding:24px 0 20px;">
+                      <!--[if mso]>
+                      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://api.redova.io/api/auth/verify-email?token&#x3D;t" style="height:48px;v-text-anchor:middle;width:240px;" arcsize="17%" stroke="f" fillcolor="#C8102E">
+                        <w:anchorlock/>
+                        <center style="color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;">Verify email address</center>
+                      </v:roundrect>
+                      <![endif]-->
+                      <!--[if !mso]><!-- -->
+                      <a href="https://api.redova.io/api/auth/verify-email?token&#x3D;t" style="display:inline-block;width:240px;max-width:100%;line-height:48px;border-radius:8px;background-color:#C8102E;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;text-align:center;text-decoration:none;mso-hide:all;">Verify email address</a>
+                      <!--<![endif]-->
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0 0 8px;color:#667085;font-size:12px;line-height:20px;">If the button does not work, copy and paste this link into your browser:</p>
+                <p style="margin:0 0 24px;font-size:12px;line-height:20px;word-break:break-all;overflow-wrap:anywhere;"><a href="https://api.redova.io/api/auth/verify-email?token&#x3D;t" style="color:#C8102E;text-decoration:underline;word-break:break-all;">https://api.redova.io/api/auth/verify-email?token&#x3D;t</a></p>
+                <p style="margin:0 0 18px;color:#344054;font-size:14px;line-height:22px;">This verification link expires in <strong>24 hours</strong>.</p>
+                <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFF5F6" style="width:100%;background-color:#FFF5F6;border:1px solid #F9D9DF;border-radius:8px;">
+                  <tr><td style="padding:14px 16px;color:#475467;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:21px;"><strong style="color:#0B0F14;">Didn&#x27;t create an account?</strong><br />You can safely ignore this email. Your address will not be verified unless you use the link above.</td></tr>
+                </table>
+                <p style="margin:18px 0 0;color:#667085;font-size:13px;line-height:21px;">Keep this link private. REDOVA will never ask for your password or recovery codes by email.</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-footer" bgcolor="#FAFBFC" style="padding:24px 40px;background-color:#FAFBFC;border-top:1px solid #E5E7EB;border-radius:0 0 16px 16px;">
+                <p style="margin:0 0 6px;color:#344054;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;font-weight:bold;">REDOVA &nbsp;&middot;&nbsp; AI Agent Security</p>
+                <p style="margin:0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;">This transactional email relates to your REDOVA account. Never share your password, verification links or recovery codes.</p>
               </td>
             </tr>
           </table>
+          <!--[if mso]></td></tr></table><![endif]-->
+          <p style="margin:20px 0 0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:18px;">Built for safer AI agents. Designed for your peace of mind.</p>
         </td>
       </tr>
     </table>
@@ -246,15 +544,18 @@ exports[`email templates (UT-003-01) > renders verify-email (html, text, subject
 
 Hello Alice,
 
-Confirm your email address to activate your REDOVA account.
+Thanks for joining REDOVA. Confirm your email address to activate your account and start securing your AI agents.
 
 Verify email: https://api.redova.io/api/auth/verify-email?token=t
 
-This link expires in 24 hours.
-Never share this link. REDOVA will never ask for your password by email.
+This verification link expires in 24 hours.
+
+Didn't create an account? You can safely ignore this email. Your address will not be verified unless you use the link above.
+Keep this link private. REDOVA will never ask for your password or recovery codes by email.
+
 --
-You received this email because of activity on your REDOVA account.
-If you did not expect it, you can ignore it or contact support.
+REDOVA - AI Agent Security
+This transactional email relates to your REDOVA account. Never share your password, verification links or recovery codes.
 ",
 }
 `;

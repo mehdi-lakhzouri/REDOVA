@@ -1,7 +1,10 @@
-{{#> base title="Security alert"}}
-<p>Hello {{truncate name}},</p>
-<p>A security change was made to your REDOVA account: <strong>{{eventLabel}}</strong>.</p>
-<p>When: {{formatDate occurredAt}}{{#if ipAddress}}<br />From IP address: {{ipAddress}}{{/if}}</p>
-<p>If this was you, no action is needed. If not, secure your account immediately.</p>
-{{> button url=secureAccountUrl label="Secure my account"}}
+{{#> base title="A change to your account" eyebrow="SECURITY NOTIFICATION" preheader="Review a recent security change to your REDOVA account."}}
+<p style="margin:0 0 16px;">Hello {{truncate name}},</p>
+<p style="margin:0 0 20px;">A security change was made to your REDOVA account:</p>
+<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F9FAFB" style="width:100%;background-color:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;">
+  <tr><td style="padding:16px;font-size:14px;line-height:23px;color:#475467;"><strong style="color:#0B0F14;">{{eventLabel}}</strong><br />When: {{formatDate occurredAt}}{{#if ipAddress}}<br />IP address: {{ipAddress}}{{/if}}</td></tr>
+</table>
+<p style="margin:20px 0 0;">If this was you, no action is needed. If you do not recognize this activity, review your account security immediately.</p>
+{{> button url=secureAccountUrl label="Review account security"}}
+{{> security-footer}}
 {{/base}}
