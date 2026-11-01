@@ -129,6 +129,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm turbo run build --filter=@redova/server --filter=@redova/worker
+      - name: Chromium for the web onboarding journeys (mocked API)
+        run: pnpm --filter @redova/web exec playwright install --with-deps chromium
       - name: Six API journeys, audit journey and secret-free logs
         run: pnpm test:e2e
       - name: Server and worker logs on failure
