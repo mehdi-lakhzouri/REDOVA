@@ -127,7 +127,7 @@ describe('template safety (UT-003-02, UT-003-03)', () => {
       variables: { ...samples[0].variables, name: malicious },
     } as EmailJob);
     expect(message.html).toContain('&lt;img src&#x3D;x onerror&#x3D;alert(1)&gt;');
-    expect(message.html).not.toContain('<img');
+    expect(message.html).not.toContain('<img src=x');
 
     const long = 'x'.repeat(200);
     const truncated = renderer.render({
@@ -168,4 +168,44 @@ describe('template safety (UT-003-02, UT-003-03)', () => {
       renderer.render({ ...samples[0], template: 'nope' } as unknown as EmailJob),
     ).toThrow(/Unknown email template/);
   });
+
+  it.each([
+    'javascript:alert(1)',
+    'data:text/html,unsafe',
+    'file:///etc/passwd',
+    'https://user:password@example.com',
+  ])('refuses an unsafe action URL %s', (verifyUrl) => {
+    expect(() =>
+      renderer.render({
+        ...samples[0],
+        variables: { ...samples[0].variables, verifyUrl },
+      } as EmailJob),
+    ).toThrow(/HTTP or HTTPS/);
+  });
+
+  it.each(samples.map((job) => [job.template, job] as const))(
+    'keeps %s readable without remote resources or active content',
+    (_name, job) => {
+      const message = renderer.render(job);
+      expect(message.html).not.toMatch(/<(script|iframe|form|input|video|svg)\b/i);
+      expect(message.html).not.toMatch(/\son\w+\s*=/i);
+      expect(message.html).not.toMatch(/display\s*:\s*(flex|grid)|@font-face|<link\b/i);
+      expect(message.html).toContain('role="presentation"');
+      expect(message.html).toContain('<!--[if mso]>');
+      expect(message.html).toContain('<v:roundrect');
+      expect(message.html).toContain('color-scheme');
+      expect(Buffer.byteLength(message.html)).toBeLessThan(25_000);
+      const images = [...message.html.matchAll(/<img\b[^>]*src="([^"]+)"/g)].map(
+        (match) => match[1],
+      );
+      expect(images).toHaveLength(2);
+      for (const source of images) {
+        expect(source).toMatch(/^cid:/);
+        expect(message.attachments?.some((image) => `cid:${image.cid}` === source)).toBe(true);
+      }
+      expect(
+        message.attachments?.reduce((bytes, image) => bytes + image.content.length, 0),
+      ).toBeLessThan(50_000);
+    },
+  );
 });

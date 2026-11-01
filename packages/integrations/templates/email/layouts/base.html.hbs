@@ -1,24 +1,64 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{title}}</title>
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>{{title}} | REDOVA</title>
+    <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+    <style>
+      :root { color-scheme: light; supported-color-schemes: light; }
+      body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+      table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+      img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+      a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
+      @media screen and (max-width: 620px) {
+        .email-outer { padding: 20px 12px !important; }
+        .email-header { padding: 28px 24px 22px !important; }
+        .email-art { padding: 0 24px 24px !important; }
+        .email-content { padding: 0 24px 28px !important; }
+        .email-footer { padding: 24px !important; }
+        .email-title { font-size: 25px !important; line-height: 33px !important; }
+      }
+    </style>
   </head>
-  <body style="margin:0;padding:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+  <body bgcolor="#F4F5F7" style="margin:0;padding:0;width:100%;background-color:#F4F5F7;font-family:Arial,Helvetica,sans-serif;color:#1E242B;">
+    <div aria-hidden="true" style="display:none;font-size:1px;line-height:1px;color:#F4F5F7;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">{{preheader}}</div>
+    <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F4F5F7" style="width:100%;background-color:#F4F5F7;">
       <tr>
-        <td align="center">
-          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;padding:32px;">
-            <tr><td style="font-size:20px;font-weight:bold;letter-spacing:2px;padding-bottom:24px;">REDOVA</td></tr>
-            <tr><td style="font-size:15px;line-height:22px;">{{> @partial-block}}</td></tr>
+        <td class="email-outer" align="center" style="padding:40px 16px;">
+          <!--[if mso]><table role="presentation" width="600" border="0" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+          <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="width:100%;max-width:600px;table-layout:fixed;border:1px solid #E5E7EB;border-radius:16px;background-color:#FFFFFF;">
+            <tr><td height="4" bgcolor="#FF2D2D" style="height:4px;font-size:0;line-height:4px;background-color:#FF2D2D;border-radius:16px 16px 0 0;">&nbsp;</td></tr>
             <tr>
-              <td style="font-size:12px;line-height:18px;color:#6b7280;padding-top:32px;">
-                You received this email because of activity on your REDOVA account.
-                If you did not expect it, you can ignore it or contact support.
+              <td class="email-header" style="padding:32px 40px 24px;">
+                <img src="cid:{{logoCid}}" width="184" height="44" alt="REDOVA" style="display:block;width:184px;height:44px;max-width:100%;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:24px;font-weight:bold;" />
+                <p style="margin:12px 0 0;color:#667085;font-size:10px;line-height:16px;letter-spacing:2px;">SECURE &nbsp;&middot;&nbsp; TEST &nbsp;&middot;&nbsp; EMPOWER AI</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-art" style="padding:0 40px 28px;">
+                <img src="cid:{{illustrationCid}}" width="520" height="174" alt="" role="presentation" style="display:block;width:100%;max-width:520px;height:auto;border-radius:10px;background-color:#FFF8F8;" />
+              </td>
+            </tr>
+            <tr>
+              <td class="email-content" style="padding:0 40px 36px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:26px;color:#475467;word-wrap:break-word;overflow-wrap:anywhere;">
+                <p style="margin:0 0 10px;color:#C8102E;font-size:11px;line-height:18px;font-weight:bold;letter-spacing:1.8px;">{{eyebrow}}</p>
+                <h1 class="email-title" style="margin:0 0 22px;color:#0B0F14;font-family:Arial,Helvetica,sans-serif;font-size:29px;line-height:37px;font-weight:bold;letter-spacing:-0.5px;">{{title}}</h1>
+                {{> @partial-block}}
+              </td>
+            </tr>
+            <tr>
+              <td class="email-footer" bgcolor="#FAFBFC" style="padding:24px 40px;background-color:#FAFBFC;border-top:1px solid #E5E7EB;border-radius:0 0 16px 16px;">
+                <p style="margin:0 0 6px;color:#344054;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;font-weight:bold;">REDOVA &nbsp;&middot;&nbsp; AI Agent Security</p>
+                <p style="margin:0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;">This transactional email relates to your REDOVA account. Never share your password, verification links or recovery codes.</p>
               </td>
             </tr>
           </table>
+          <!--[if mso]></td></tr></table><![endif]-->
+          <p style="margin:20px 0 0;color:#667085;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:18px;">Built for safer AI agents. Designed for your peace of mind.</p>
         </td>
       </tr>
     </table>

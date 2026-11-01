@@ -7,10 +7,12 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
+    "assets",
     "templates"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "email:preview": "pnpm build && node scripts/preview-emails.mjs",
     "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit -p tsconfig.json",

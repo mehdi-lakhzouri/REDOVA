@@ -1,7 +1,8 @@
-{{#> base title="Verify your email"}}
-<p>Hello {{truncate name}},</p>
-<p>Confirm your email address to activate your REDOVA account.</p>
-{{> button url=verifyUrl label="Verify email"}}
-<p>This link expires in {{expiresInHours}} hours.</p>
+{{#> base title="Verify your email address" eyebrow="WELCOME TO REDOVA" preheader="One last step: verify your email to activate your REDOVA account."}}
+<p style="margin:0 0 16px;">Hello {{truncate name}},</p>
+<p style="margin:0;">Thanks for joining REDOVA. Confirm your email address to activate your account and start securing your AI agents.</p>
+{{> button url=verifyUrl label="Verify email address"}}
+<p style="margin:0 0 18px;color:#344054;font-size:14px;line-height:22px;">This verification link expires in <strong>{{expiresInHours}} hours</strong>.</p>
+{{> notice label="Didn't create an account?" message="You can safely ignore this email. Your address will not be verified unless you use the link above."}}
 {{> security-footer}}
 {{/base}}

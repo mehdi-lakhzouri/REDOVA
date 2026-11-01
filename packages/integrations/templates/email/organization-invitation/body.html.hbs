@@ -1,7 +1,10 @@
-{{#> base title="You are invited"}}
-<p>Hello,</p>
-<p><strong>{{truncate inviterName}}</strong> invited you to join <strong>{{truncate organizationName}}</strong> on REDOVA as <strong>{{roleLabel}}</strong>.</p>
+{{#> base title="Your team is waiting for you" eyebrow="ORGANIZATION INVITATION" preheader="You've been invited to collaborate on REDOVA. Review your organization invitation."}}
+<p style="margin:0 0 16px;">Hello,</p>
+<p style="margin:0 0 20px;"><strong style="color:#0B0F14;">{{truncate inviterName}}</strong> invited you to join <strong style="color:#0B0F14;">{{truncate organizationName}}</strong> on REDOVA.</p>
+<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#F9FAFB" style="width:100%;background-color:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;">
+  <tr><td style="padding:14px 16px;font-size:14px;line-height:23px;color:#475467;">Your role: <strong style="color:#0B0F14;">{{roleLabel}}</strong><br />Expires: {{formatDate expiresAt}}</td></tr>
+</table>
 {{> button url=acceptUrl label="View invitation"}}
-<p>This invitation expires on {{formatDate expiresAt}}. Sign in (or create an account) with this email address to accept it.</p>
-<p>If you did not expect this invitation, you can ignore this email.</p>
+<p style="margin:0 0 20px;">Sign in or create an account using the email address that received this invitation.</p>
+{{> notice label="Not expecting this invitation?" message="You can ignore this email. You will not join the organization unless you accept the invitation."}}
 {{/base}}

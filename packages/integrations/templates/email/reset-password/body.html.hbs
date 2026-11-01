@@ -1,7 +1,8 @@
-{{#> base title="Reset your password"}}
-<p>Hello {{truncate name}},</p>
-<p>We received a request to reset the password of your REDOVA account{{#if requestIp}} from {{requestIp}}{{/if}}.</p>
+{{#> base title="Reset your password" eyebrow="ACCOUNT RECOVERY" preheader="A secure link to choose a new password for your REDOVA account."}}
+<p style="margin:0 0 16px;">Hello {{truncate name}},</p>
+<p style="margin:0;">We received a request to reset your REDOVA password. Use the button below to choose a new one.</p>
 {{> button url=resetUrl label="Reset password"}}
-<p>This link expires in {{expiresInMinutes}} minutes and can be used once. If you did not ask for it, ignore this email: your password stays unchanged.</p>
+<p style="margin:0 0 18px;color:#344054;font-size:14px;line-height:22px;">This link expires in <strong>{{expiresInMinutes}} minutes</strong> and can be used once.{{#if requestIp}} Request IP: {{requestIp}}.{{/if}}</p>
+{{> notice label="Didn't request a reset?" message="No action is needed. Your current password stays unchanged unless you complete this request."}}
 {{> security-footer}}
 {{/base}}

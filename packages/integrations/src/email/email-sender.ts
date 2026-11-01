@@ -1,10 +1,19 @@
 import { createTransport, type Transporter } from 'nodemailer';
 
+export interface EmailInlineImage {
+  filename: string;
+  content: Buffer;
+  contentType: 'image/png' | 'image/jpeg';
+  contentDisposition: 'inline';
+  cid: string;
+}
+
 export interface EmailMessage {
   to: string;
   subject: string;
   html: string;
   text: string;
+  attachments?: EmailInlineImage[];
 }
 
 /** Port for transactional email delivery (README §3.4 — the only port in Sprint 01). */
@@ -40,6 +49,12 @@ export class SmtpEmailSender implements EmailSender {
       host: config.SMTP_HOST,
       port: config.SMTP_PORT,
       secure: config.SMTP_SECURE ?? false,
+      requireTLS: !config.SMTP_SECURE && config.SMTP_PORT === 587,
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 30_000,
+      disableFileAccess: true,
+      disableUrlAccess: true,
       ...(config.SMTP_USER ? { auth: { user: config.SMTP_USER, pass: config.SMTP_PASS } } : {}),
     });
   }

@@ -1,8 +1,9 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import type { EmailJob, EmailTemplate } from '@redova/contracts';
+import { emailJobSchema, type EmailJob, type EmailTemplate } from '@redova/contracts';
 import Handlebars from 'handlebars';
 import type { EmailMessage } from './email-sender';
+import { EMAIL_BRAND, loadEmailImages } from './email-assets';
 
 /** Templates live outside `src` so the same path works from `src` (tests) and `dist` (runtime). */
 export const EMAIL_TEMPLATES_DIR = resolve(__dirname, '../../templates/email');
@@ -51,6 +52,7 @@ type Compiled = {
  */
 export class EmailRenderer {
   private readonly templates = new Map<EmailTemplate, Compiled>();
+  private readonly images = loadEmailImages();
 
   constructor() {
     const html = createInstance(true);
@@ -75,12 +77,20 @@ export class EmailRenderer {
   render(job: EmailJob): EmailMessage {
     const compiled = this.templates.get(job.template);
     if (!compiled) throw new Error(`Unknown email template: ${job.template}`);
-    const context = { ...job.variables };
+    const { variables } = emailJobSchema.parse(job);
+    for (const [key, value] of Object.entries(variables)) {
+      if (!key.endsWith('Url') || typeof value !== 'string') continue;
+      const url = new URL(value);
+      if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password)
+        throw new Error('Email action URLs must use HTTP or HTTPS without embedded credentials');
+    }
+    const context = { ...variables, ...EMAIL_BRAND };
     return {
       to: job.to,
       subject: sanitizeSubject(compiled.subject(context)),
       html: compiled.html(context),
       text: compiled.text(context),
+      attachments: this.images.map((image) => ({ ...image })),
     };
   }
 }
