@@ -19,6 +19,9 @@ export const ErrorCode = {
   AVATAR_INVALID: 'AVATAR_INVALID',
   AVATAR_TOO_LARGE: 'AVATAR_TOO_LARGE',
   AVATAR_NOT_FOUND: 'AVATAR_NOT_FOUND',
+  ORG_LOGO_INVALID: 'ORG_LOGO_INVALID',
+  ORG_LOGO_TOO_LARGE: 'ORG_LOGO_TOO_LARGE',
+  ORG_LOGO_NOT_FOUND: 'ORG_LOGO_NOT_FOUND',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
 } as const;
 
@@ -44,6 +47,9 @@ export const ERROR_HTTP_STATUS: Record<ErrorCode, number> = {
   AVATAR_INVALID: 400,
   AVATAR_TOO_LARGE: 413,
   AVATAR_NOT_FOUND: 404,
+  ORG_LOGO_INVALID: 400,
+  ORG_LOGO_TOO_LARGE: 413,
+  ORG_LOGO_NOT_FOUND: 404,
   INTERNAL_ERROR: 500,
 };
 
@@ -70,5 +76,9 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
     'Provide one valid, non-animated JPEG, PNG or WebP image (maximum 16 megapixels).',
   AVATAR_TOO_LARGE: 'The avatar must not exceed 5 MiB.',
   AVATAR_NOT_FOUND: 'Avatar not found.',
+  ORG_LOGO_INVALID:
+    'Provide one valid, non-animated JPEG, PNG or WebP logo (maximum 16 megapixels).',
+  ORG_LOGO_TOO_LARGE: 'The organization logo must not exceed 2 MiB.',
+  ORG_LOGO_NOT_FOUND: 'Organization logo not found.',
   INTERNAL_ERROR: 'An unexpected error occurred.',
 };

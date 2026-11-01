@@ -5,21 +5,19 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import {
-  AVATAR_MAX_BYTES,
-  avatarIdFromKey,
-  type AvatarObject,
-  type AvatarStorage,
-} from '../avatar-storage';
+import { AVATAR_MAX_BYTES, type AvatarObject, type AvatarStorage } from '../avatar-storage';
+import { imageIdFromKey, type ImageNamespace } from '../image-object';
 
 /** Private bucket; reads are proxied through authorization in AvatarService. Compatible with R2. */
 export class S3AvatarStorage implements AvatarStorage {
   constructor(
     private readonly client: S3Client,
     private readonly bucket: string,
+    private readonly namespace: ImageNamespace = 'avatars',
+    private readonly maxBytes = AVATAR_MAX_BYTES,
   ) {}
   async put(key: string, body: Buffer): Promise<void> {
-    avatarIdFromKey(key);
+    imageIdFromKey(key, this.namespace);
     await this.client.send(
       new PutObjectCommand({
         Bucket: this.bucket,
@@ -33,12 +31,12 @@ export class S3AvatarStorage implements AvatarStorage {
     );
   }
   async get(key: string): Promise<Buffer | null> {
-    avatarIdFromKey(key);
+    imageIdFromKey(key, this.namespace);
     try {
       const object = await this.client.send(
         new GetObjectCommand({ Bucket: this.bucket, Key: key }),
       );
-      if ((object.ContentLength ?? 0) > AVATAR_MAX_BYTES) {
+      if ((object.ContentLength ?? 0) > this.maxBytes) {
         (object.Body as { destroy?: () => void } | undefined)?.destroy?.();
         throw new Error('Invalid stored avatar');
       }
@@ -49,7 +47,7 @@ export class S3AvatarStorage implements AvatarStorage {
     }
   }
   async delete(key: string): Promise<void> {
-    avatarIdFromKey(key);
+    imageIdFromKey(key, this.namespace);
     await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
   }
   async *list(): AsyncIterable<AvatarObject> {
@@ -58,14 +56,14 @@ export class S3AvatarStorage implements AvatarStorage {
       const page = await this.client.send(
         new ListObjectsV2Command({
           Bucket: this.bucket,
-          Prefix: 'avatars/',
+          Prefix: `${this.namespace}/`,
           ContinuationToken: token,
         }),
       );
       for (const object of page.Contents ?? []) {
         if (!object.Key || !object.LastModified) continue;
         try {
-          avatarIdFromKey(object.Key);
+          imageIdFromKey(object.Key, this.namespace);
         } catch {
           continue;
         }

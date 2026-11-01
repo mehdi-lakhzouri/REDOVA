@@ -1,21 +1,21 @@
 import { constants } from 'node:fs';
 import { mkdir, open, readdir, stat, unlink } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import {
-  AVATAR_MAX_BYTES,
-  avatarIdFromKey,
-  type AvatarObject,
-  type AvatarStorage,
-} from '../avatar-storage';
+import { AVATAR_MAX_BYTES, type AvatarObject, type AvatarStorage } from '../avatar-storage';
+import { imageIdFromKey, type ImageNamespace } from '../image-object';
 
 /** Root must be private and writable only by the service account. Files are never served statically. */
 export class LocalAvatarStorage implements AvatarStorage {
   private readonly root: string;
-  constructor(directory: string) {
+  constructor(
+    directory: string,
+    private readonly namespace: ImageNamespace = 'avatars',
+    private readonly maxBytes = AVATAR_MAX_BYTES,
+  ) {
     this.root = resolve(directory);
   }
   private path(key: string): string {
-    return join(this.root, `${avatarIdFromKey(key)}.webp`);
+    return join(this.root, `${imageIdFromKey(key, this.namespace)}.webp`);
   }
   async put(key: string, body: Buffer): Promise<void> {
     const path = this.path(key);
@@ -35,7 +35,7 @@ export class LocalAvatarStorage implements AvatarStorage {
       const file = await open(this.path(key), constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
       try {
         const metadata = await file.stat();
-        if (!metadata.isFile() || metadata.size > AVATAR_MAX_BYTES)
+        if (!metadata.isFile() || metadata.size > this.maxBytes)
           throw new Error('Invalid stored avatar');
         return await file.readFile();
       } finally {
@@ -63,9 +63,9 @@ export class LocalAvatarStorage implements AvatarStorage {
     }
     for (const file of files) {
       if (!file.isFile()) continue;
-      const key = `avatars/${file.name}`;
+      const key = `${this.namespace}/${file.name}`;
       try {
-        avatarIdFromKey(key);
+        imageIdFromKey(key, this.namespace);
       } catch {
         continue;
       }
