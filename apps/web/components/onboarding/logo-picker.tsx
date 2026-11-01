@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ImagePlus, X } from 'lucide-react';
-import { ORGANIZATION_LOGO_TYPES } from '@redova/contracts';
+import { mediaAccept, mediaRequirements } from '@/lib/media/media-policy';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { logoProblem, type LogoSelection } from '@/lib/onboarding/policy';
@@ -65,7 +65,7 @@ export function LogoPicker({
       <input
         ref={input}
         type="file"
-        accept={ORGANIZATION_LOGO_TYPES.join(',')}
+        accept={mediaAccept('organizationLogo')}
         hidden
         onChange={(event) => {
           choose(event.target.files?.[0]);
@@ -107,7 +107,7 @@ export function LogoPicker({
                 : 'Drag & drop your logo here, or click to browse'}
           </button>
           <p>
-            PNG, JPG or WebP · Max 2 MB ·{' '}
+            {mediaRequirements('organizationLogo')} ·{' '}
             <button
               type="button"
               disabled={disabled}
