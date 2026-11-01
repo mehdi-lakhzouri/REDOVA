@@ -1,0 +1,28 @@
+{
+  "source": "ChatGPT Image Nov 1, 2026, 10_12_17 AM.png",
+  "scope": "Exact source crops only; transparent cutouts, composed lockups and resized exports are derived assets.",
+  "crops": [
+    {
+      "theme": "light",
+      "rectangle": {
+        "left": 150,
+        "top": 90,
+        "width": 1168,
+        "height": 280
+      },
+      "rgbaSha256": "87ac45976020f6377bc360ad234ae2559a2294fac0c035c404e3285871ee8e63",
+      "originalPixelsEqual": true
+    },
+    {
+      "theme": "dark",
+      "rectangle": {
+        "left": 176,
+        "top": 493,
+        "width": 1140,
+        "height": 264
+      },
+      "rgbaSha256": "b9b73493b47ef188a16c505a7722314c193b9b773b9052ee9963df6d486a4d76",
+      "originalPixelsEqual": true
+    }
+  ]
+}
