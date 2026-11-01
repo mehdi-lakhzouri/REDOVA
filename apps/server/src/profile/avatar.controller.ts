@@ -26,8 +26,8 @@ import { z } from 'zod';
 import { requireSession, type AuthenticatedRequest } from '../authz/authenticated-request';
 import { OriginGuard } from '../authz/origin.guard';
 import { ApiException } from '../common/api-exception';
-import { AvatarUploadInterceptor } from './avatar-upload.interceptor';
-import { AvatarMutationGuard } from './avatar-mutation.guard';
+import { MediaMutationGuard } from '../media/media-mutation.guard';
+import { MediaUploadInterceptor } from '../media/media-upload.interceptor';
 import { AvatarService } from './avatar.service';
 
 class AvatarUploadEnvelopeDto extends createZodDto(successEnvelope(z.object({ image: z.url() }))) {}
@@ -41,8 +41,8 @@ export class AvatarController {
 
   @Post('users/me/avatar')
   @HttpCode(200)
-  @UseGuards(OriginGuard, AvatarMutationGuard)
-  @UseInterceptors(AvatarUploadInterceptor)
+  @UseGuards(OriginGuard, MediaMutationGuard)
+  @UseInterceptors(MediaUploadInterceptor('avatar'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -82,7 +82,7 @@ export class AvatarController {
 
   @Delete('users/me/avatar')
   @HttpCode(204)
-  @UseGuards(OriginGuard, AvatarMutationGuard)
+  @UseGuards(OriginGuard, MediaMutationGuard)
   @ApiOperation({ summary: 'Remove your avatar (idempotent)' })
   @ApiResponse({ status: 204, description: 'Avatar removed' })
   @ApiResponse({

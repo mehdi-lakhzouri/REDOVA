@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { mkdtemp, readdir, rmdir, unlink } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -9,7 +9,10 @@ import type { TestApp } from './support/test-app';
 import { createTestApp, WEB_ORIGIN } from './support/test-app';
 import { api, createVerifiedUser, signIn, uniqueEmail } from './support/factories';
 import { addMember, createOrganization } from './support/organizations';
-import { AVATAR_MAX_BYTES } from '../src/storage/avatar-storage';
+import { MEDIA_POLICIES } from '@redova/contracts';
+import { countMediaFiles } from './support/media';
+
+const AVATAR_MAX_BYTES = MEDIA_POLICIES.avatar.maxBytes;
 
 describe('avatar lifecycle over real HTTP and local storage', () => {
   let t: TestApp;
@@ -23,7 +26,7 @@ describe('avatar lifecycle over real HTTP and local storage', () => {
   let currentPath: string;
   beforeAll(async () => {
     directory = await mkdtemp(join(tmpdir(), 'redova-avatar-http-'));
-    t = await createTestApp({ env: { AVATAR_LOCAL_DIR: directory } });
+    t = await createTestApp({ env: { MEDIA_LOCAL_DIR: directory } });
     const org = await createOrganization(t, 'Avatar tenant');
     userId = org.owner.id;
     cookie = org.owner.cookie;
@@ -37,10 +40,7 @@ describe('avatar lifecycle over real HTTP and local storage', () => {
   });
   afterAll(async () => {
     await t?.close();
-    if (directory) {
-      for (const file of await readdir(directory)) await unlink(join(directory, file));
-      await rmdir(directory);
-    }
+    if (directory) await rm(directory, { recursive: true, force: true });
   });
   const upload = (body: Buffer = png, name = 'photo.png', type = 'image/png') =>
     request(t.app.getHttpServer())
@@ -55,7 +55,7 @@ describe('avatar lifecycle over real HTTP and local storage', () => {
       .attach('file', png, 'photo.png')
       .expect(401);
     await request(t.app.getHttpServer()).get('/api/v1/avatars/unknown').expect(401);
-    expect(await readdir(directory)).toHaveLength(0);
+    expect(await countMediaFiles(directory)).toBe(0);
   });
   it.each([undefined, 'https://evil.example'])(
     'rejects an untrusted or missing origin before upload: %s',
@@ -65,7 +65,7 @@ describe('avatar lifecycle over real HTTP and local storage', () => {
         .set('cookie', cookie);
       if (origin) req.set('origin', origin);
       await req.attach('file', png, 'photo.png').expect(403);
-      expect(await readdir(directory)).toHaveLength(0);
+      expect(await countMediaFiles(directory)).toBe(0);
     },
   );
   it('uploads, persists the stable URL and serves normalized private pixels', async () => {
@@ -106,14 +106,14 @@ describe('avatar lifecycle over real HTTP and local storage', () => {
     'rejects disallowed or disguised files without replacing the image',
     async (body, name, type) => {
       await upload(body, name, type).expect(400);
-      expect(await readdir(directory)).toHaveLength(1);
+      expect(await countMediaFiles(directory)).toBe(1);
       await request(t.app.getHttpServer()).get(currentPath).set('cookie', cookie).expect(200);
     },
   );
   it('rejects oversized files with the stable 413 code', async () => {
     const response = await upload(Buffer.alloc(AVATAR_MAX_BYTES + 1)).expect(413);
     expect(response.body.error.code).toBe('AVATAR_TOO_LARGE');
-    expect(await readdir(directory)).toHaveLength(1);
+    expect(await countMediaFiles(directory)).toBe(1);
   });
   it('rejects missing files and unexpected multipart fields', async () => {
     await request(t.app.getHttpServer())
@@ -149,14 +149,14 @@ describe('avatar lifecycle over real HTTP and local storage', () => {
     currentPath = new URL(response.body.data.image).pathname;
     expect(currentPath).not.toBe(oldPath);
     await request(t.app.getHttpServer()).get(oldPath).set('cookie', cookie).expect(404);
-    expect(await readdir(directory)).toHaveLength(1);
+    expect(await countMediaFiles(directory)).toBe(1);
   });
   it('serializes concurrent replacements without deleting the winning image', async () => {
     await Promise.all([upload().expect(200), upload().expect(200), upload().expect(200)]);
     const user = await t.prisma.user.findUniqueOrThrow({ where: { id: userId } });
     currentPath = new URL(user.image!).pathname;
     await request(t.app.getHttpServer()).get(currentPath).set('cookie', cookie).expect(200);
-    expect(await readdir(directory)).toHaveLength(1);
+    expect(await countMediaFiles(directory)).toBe(1);
   });
   it('deletes idempotently, clears the profile and audits once', async () => {
     for (let i = 0; i < 2; i++)
@@ -166,7 +166,7 @@ describe('avatar lifecycle over real HTTP and local storage', () => {
         .set('origin', WEB_ORIGIN)
         .expect(204);
     expect((await t.prisma.user.findUniqueOrThrow({ where: { id: userId } })).image).toBeNull();
-    expect(await readdir(directory)).toHaveLength(0);
+    expect(await countMediaFiles(directory)).toBe(0);
     await request(t.app.getHttpServer()).get(currentPath).set('cookie', cookie).expect(404);
     expect(
       await t.prisma.auditEvent.count({
@@ -175,7 +175,7 @@ describe('avatar lifecycle over real HTTP and local storage', () => {
     ).toBe(1);
   });
   it('enforces the shared Redis limit before parsing files', async () => {
-    const key = `redova:avatar:rate:${createHash('sha256').update(userId).digest('hex')}`;
+    const key = `redova:media:rate:${createHash('sha256').update(userId).digest('hex')}`;
     t.env.RATE_LIMIT_ENABLED = true;
     try {
       for (let i = 0; i < 10; i++) {

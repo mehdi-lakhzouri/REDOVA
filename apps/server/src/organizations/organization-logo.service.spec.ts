@@ -3,6 +3,8 @@ import sharp from 'sharp';
 import type { PrismaClient } from '@redova/db';
 import type { Env } from '../config/env';
 import type { AuditService } from '../audit/audit.service';
+import { ImageProcessor } from '../media/image-processor';
+import { MediaService } from '../media/media.service';
 import { OrganizationLogoService } from './organization-logo.service';
 
 describe('OrganizationLogoService', () => {
@@ -30,7 +32,7 @@ describe('OrganizationLogoService', () => {
     service = new OrganizationLogoService(
       prisma as unknown as PrismaClient,
       { BETTER_AUTH_URL: 'https://api.redova.test' } as Env,
-      storage,
+      new MediaService(storage, new ImageProcessor()),
       audit as unknown as AuditService,
     );
   });
@@ -40,7 +42,7 @@ describe('OrganizationLogoService', () => {
       /^https:\/\/api.redova.test\/api\/v1\/organizations\/org-1\/logo\//,
     );
     const [key, body] = storage.put.mock.calls[0] as [string, Buffer];
-    expect(key).toMatch(/^organization-logos\/[0-9a-f-]+\.webp$/);
+    expect(key).toMatch(/^organizations\/org-1\/logos\/[0-9a-f-]+\.webp$/);
     expect(await sharp(body).metadata()).toMatchObject({ format: 'webp', width: 512, height: 256 });
     expect(tx.$queryRaw).toHaveBeenCalled();
     expect(audit.record).toHaveBeenCalledWith(

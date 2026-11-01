@@ -21,36 +21,36 @@ export const envSchema = z
     WEB_ORIGIN: z.url(),
     HIBP_ENABLED: booleanFlag.default(true),
     RATE_LIMIT_ENABLED: booleanFlag.default(true),
-    AVATAR_STORAGE: z.enum(['local', 's3']).default('local'),
-    AVATAR_LOCAL_DIR: z.string().min(1).default(resolve(__dirname, '../../.data/avatars')),
-    AVATAR_S3_BUCKET: z.string().min(1).optional(),
-    AVATAR_S3_REGION: z.string().min(1).optional(),
-    AVATAR_S3_ENDPOINT: z.url().optional(),
-    AVATAR_S3_ACCESS_KEY_ID: z.string().min(1).optional(),
-    AVATAR_S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
-    AVATAR_S3_FORCE_PATH_STYLE: booleanFlag.default(false),
+    MEDIA_STORAGE: z.enum(['local', 's3']).default('local'),
+    MEDIA_LOCAL_DIR: z.string().min(1).default(resolve(__dirname, '../../.data/media')),
+    MEDIA_S3_BUCKET: z.string().min(1).optional(),
+    MEDIA_S3_REGION: z.string().min(1).optional(),
+    MEDIA_S3_ENDPOINT: z.url().optional(),
+    MEDIA_S3_ACCESS_KEY_ID: z.string().min(1).optional(),
+    MEDIA_S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
+    MEDIA_S3_FORCE_PATH_STYLE: booleanFlag.default(false),
   })
   .superRefine((env, ctx) => {
-    if (env.AVATAR_STORAGE !== 's3') return;
-    for (const field of ['AVATAR_S3_BUCKET', 'AVATAR_S3_REGION'] as const) {
+    if (env.MEDIA_STORAGE !== 's3') return;
+    for (const field of ['MEDIA_S3_BUCKET', 'MEDIA_S3_REGION'] as const) {
       if (!env[field])
         ctx.addIssue({ code: 'custom', path: [field], message: 'required for S3 storage' });
     }
-    if (!!env.AVATAR_S3_ACCESS_KEY_ID !== !!env.AVATAR_S3_SECRET_ACCESS_KEY) {
+    if (!!env.MEDIA_S3_ACCESS_KEY_ID !== !!env.MEDIA_S3_SECRET_ACCESS_KEY) {
       ctx.addIssue({
         code: 'custom',
-        path: ['AVATAR_S3_ACCESS_KEY_ID'],
+        path: ['MEDIA_S3_ACCESS_KEY_ID'],
         message: 'provide both S3 credentials or neither (IAM role)',
       });
     }
     if (
       env.NODE_ENV === 'production' &&
-      env.AVATAR_S3_ENDPOINT &&
-      !env.AVATAR_S3_ENDPOINT.startsWith('https://')
+      env.MEDIA_S3_ENDPOINT &&
+      !env.MEDIA_S3_ENDPOINT.startsWith('https://')
     ) {
       ctx.addIssue({
         code: 'custom',
-        path: ['AVATAR_S3_ENDPOINT'],
+        path: ['MEDIA_S3_ENDPOINT'],
         message: 'HTTPS is required in production',
       });
     }

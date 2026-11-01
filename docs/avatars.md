@@ -74,68 +74,11 @@ avec `AVATAR_MANAGED_BY_SERVER`, pour empêcher le contournement du traitement s
 Erreurs dédiées : `AVATAR_INVALID` (400), `AVATAR_TOO_LARGE` (413), `AVATAR_NOT_FOUND` (404).
 Les erreurs de stockage et de base sont masquées par le filtre global.
 
-## Développement local
+## Stockage
 
-Le mode par défaut fonctionne sans modification de `.env` :
-
-```dotenv
-AVATAR_STORAGE=local
-# Facultatif : chemin absolu, privé et persistant.
-# AVATAR_LOCAL_DIR=/var/lib/redova/avatars
-```
-
-Le répertoire par défaut est `apps/server/.data/avatars`, créé au premier upload et ignoré par Git.
-Les permissions demandées sont 0700 pour le répertoire et 0600 pour les fichiers, selon les capacités
-du système. Le répertoire doit être contrôlé par le compte de service. Aucun serveur statique n'est exposé.
-
-```bash
-pnpm turbo run build --filter=@redova/server
-pnpm --filter @redova/server dev
-```
-
-En production sur disque local, un volume persistant est indispensable. Plusieurs réplicas doivent
-partager le même stockage ; utiliser S3/R2 pour un déploiement distribué.
-
-## Production AWS S3
-
-```dotenv
-AVATAR_STORAGE=s3
-AVATAR_S3_BUCKET=redova-avatars
-AVATAR_S3_REGION=eu-west-3
-```
-
-Utiliser de préférence un rôle IAM attaché au service. Le SDK utilise sa chaîne de credentials standard
-si les deux variables de credentials ci-dessous sont absentes. Pour des credentials explicites :
-
-```dotenv
-AVATAR_S3_ACCESS_KEY_ID=...
-AVATAR_S3_SECRET_ACCESS_KEY=...
-```
-
-Garder le bucket privé, activer le blocage des accès publics et attribuer uniquement les droits nécessaires :
-`GetObject`, `PutObject`, `DeleteObject` sur `avatars/*` ; `ListBucket` sur ce préfixe pour le nettoyage.
-Configurer le chiffrement et la rétention des éventuelles versions précédentes au niveau du bucket.
-Le code ne demande pas d'ACL publique. Le navigateur n'accède pas directement au bucket : aucun CORS
-de bucket n'est nécessaire pour ce parcours.
-
-## Production Cloudflare R2
-
-```dotenv
-AVATAR_STORAGE=s3
-AVATAR_S3_BUCKET=redova-avatars
-AVATAR_S3_REGION=auto
-AVATAR_S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
-AVATAR_S3_ACCESS_KEY_ID=...
-AVATAR_S3_SECRET_ACCESS_KEY=...
-AVATAR_S3_FORCE_PATH_STYLE=false
-```
-
-Utiliser des credentials S3 R2 limités au bucket concerné. Ne pas activer d'accès public.
-Le paramètre endpoint doit utiliser HTTPS en production. Les secrets ne doivent pas être exposés
-par des variables `NEXT_PUBLIC_*`, ni committés. Les paramètres sont décrits dans `.env.example`.
-
-Les credentials réels et le bucket doivent être fournis par le déploiement ; les tests automatiques
-valident l'adaptateur avec un client SDK simulé, sans compte cloud externe.
+Le traitement, le nommage et le stockage des images sont communs à tous les médias : voir
+[Gestion des médias](media.md) (configuration locale, AWS S3 et Cloudflare R2, rangement
+`users/{userId}/avatars/{uuid}.webp`, nettoyage `media:prune`).
 
 ## Remplacement, concurrence et nettoyage
 
@@ -144,24 +87,8 @@ par utilisateur sérialise les remplacements et suppressions entre réplicas. Si
 le nouvel objet est supprimé ; après succès, l'ancien objet est supprimé. Les anciennes URLs deviennent 404.
 Une suppression répétée reste sans effet et ne produit pas d'événement d'audit supplémentaire.
 
-Une panne de stockage pendant la suppression est journalisée sans annuler une mise à jour déjà validée.
-Les objets orphelins après incident, arrêt brutal ou suppression d'utilisateur sont récupérés par :
-
-```bash
-# Simulation : aucun objet supprimé.
-pnpm --filter @redova/server avatars:prune
-# Suppression des objets non référencés datant de plus de 24 heures.
-pnpm --filter @redova/server avatars:prune --apply
-```
-
-Planifier cette dernière commande quotidiennement dans le déploiement, avec la même configuration de
-stockage et de base que l'API. La commande ne parcourt que les clés d'avatars UUID reconnues et conserve
-toutes les images référencées par les utilisateurs. Le délai protège les uploads en cours.
-Ne jamais l'exécuter avec le stockage de production et une base vide ou issue d'un autre environnement.
-Le bucket/préfixe doit être réservé à une seule base applicative.
-
-Avant de changer de fournisseur, copier les fichiers actifs : `<AVATAR_LOCAL_DIR>/<uuid>.webp`
-correspond à la clé S3 `avatars/<uuid>.webp`. Vérifier la copie avant de basculer `AVATAR_STORAGE`.
+Une panne de stockage pendant la suppression est journalisée sans annuler une mise à jour déjà
+validée ; l'objet orphelin est récupéré par `media:prune` (voir [Gestion des médias](media.md)).
 Les liens en base conservent l'origine publique de l'API : préserver cette origine ou migrer les URLs
 lors d'un changement de domaine.
 

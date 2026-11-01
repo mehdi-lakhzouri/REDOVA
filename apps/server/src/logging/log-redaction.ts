@@ -36,8 +36,8 @@ const SENSITIVE_FIELDS = [
   'BETTER_AUTH_SECRET',
   'SMTP_PASS',
   'EMAIL_API_KEY',
-  'AVATAR_S3_ACCESS_KEY_ID',
-  'AVATAR_S3_SECRET_ACCESS_KEY',
+  'MEDIA_S3_ACCESS_KEY_ID',
+  'MEDIA_S3_SECRET_ACCESS_KEY',
 ];
 
 /** Defense in depth for structured fields, from the root through three nested containers/arrays. */
