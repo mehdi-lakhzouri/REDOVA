@@ -1,5 +1,13 @@
 # État réel du backend User Management après les avatars
 
+> **Complément local du 1er novembre 2026 — onboarding et logos d’organisation.**
+> Le frontend relie désormais la vérification/connexion à la création d’organisation, au logo
+> facultatif et aux invitations d’équipe. Une API d’upload/remplacement/lecture/suppression du logo
+> privé a été ajoutée au backend, avec stockage local ou S3/R2 partagé avec les avatars.
+> Voir [le parcours, les API, les captures et les tests](../frontend/onboarding.md) et
+> [le runbook de stockage](runbooks/organization-logos.md).
+> Ce complément décrit le checkout local ; il ne constitue pas une nouvelle preuve CI ou de production.
+
 > **Mise à jour du 31 octobre 2026 — livraison.** UM-008 et l'extension avatar sont fusionnés sur
 > `master` par les PR #23 à #28 (issues #8 et #26 fermées). Sur `master` (`1a9a976`), les jobs
 > `lint-typecheck-unit`, `integration`, `e2e` et `security` sont verts : couverture serveur 81,4 % des
