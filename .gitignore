@@ -78,3 +78,6 @@ docker/volumes/
 Thumbs.db
 Desktop.ini
 ehthumbs.db
+
+# Desktop-licensed fonts used only for local development (never commit or deploy)
+apps/web/public/fonts/local/
