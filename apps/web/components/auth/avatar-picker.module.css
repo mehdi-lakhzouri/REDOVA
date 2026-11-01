@@ -1,0 +1,130 @@
+.zone {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 7px 20px 7px 7px;
+  border: 1px solid rgb(229 231 235 / 14%);
+  border-radius: 16px;
+  background: rgb(255 255 255 / 2%);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+.dragging {
+  border-color: var(--brand-red);
+  background: rgb(255 45 45 / 6%);
+}
+.invalid {
+  border-color: color-mix(in srgb, var(--destructive) 55%, transparent);
+}
+.tile {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 148px;
+  height: 98px;
+  overflow: hidden;
+  border: 1.5px dashed rgb(255 45 45 / 70%);
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 40%, rgb(255 45 45 / 10%), transparent 70%);
+  color: #c9ced6;
+  cursor: pointer;
+}
+.tile:hover:not(:disabled) {
+  border-color: var(--brand-red);
+}
+.tile:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.tileIcon {
+  width: 40px;
+  height: 40px;
+}
+.preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.copy {
+  min-width: 0;
+}
+.title {
+  color: var(--auth-strong, #f3f4f6);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 24px;
+}
+.description {
+  margin-top: 4px;
+  color: #b5bdc6;
+  font-size: 14px;
+  line-height: 20px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin-top: 4px;
+  font-size: 14px;
+}
+.filename {
+  max-width: 100%;
+  overflow: hidden;
+  color: #b5bdc6;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--brand-red);
+  font-weight: 500;
+  cursor: pointer;
+}
+.actions button:hover:not(:disabled) {
+  text-decoration: underline;
+}
+.actions svg {
+  width: 14px;
+  height: 14px;
+}
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  color: #9ba5b3;
+  font-size: 12.5px;
+  line-height: 18px;
+}
+.meta svg {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+}
+.error {
+  margin-top: 7px;
+  color: var(--destructive);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+@media (max-width: 520px) {
+  .zone {
+    gap: 14px;
+    padding-right: 12px;
+  }
+  .tile {
+    width: 88px;
+    height: 88px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zone {
+    transition: none;
+  }
+}
