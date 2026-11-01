@@ -35,7 +35,7 @@ Les deux assets sont livrés dans le package :
 - `packages/integrations/assets/email/redova-logo-light.png` : 368 px de large, environ 10,6 Ko, affiché à 184 × 44 px.
 - `packages/integrations/assets/email/account-security-light.jpg` : 1040 × 348 px, environ 6,9 Ko, affiché jusqu’à 520 × 174 px.
 
-Le renderer charge ces fichiers fixes une seule fois et les fournit comme buffers avec des Content-IDs distincts. Nodemailer compose un message `multipart/alternative` (texte + HTML) avec une partie `multipart/related` pour les images inline, selon sa [documentation des images intégrées](https://nodemailer.com/message/embedded-images). Les emails n’utilisent pas d’URL localhost, de base64 dans l’attribut `src`, de CDN ou de téléchargement distant pour leurs images. Les Data URLs existent uniquement dans les aperçus navigateur locaux.
+Le renderer charge ces fichiers fixes une seule fois et les fournit comme buffers avec des Content-IDs distincts. Nodemailer compose un message `multipart/alternative` (texte + HTML) avec une partie `multipart/related` pour les images inline, selon sa [documentation des images intégrées](https://nodemailer.com/message/embedded-images). Les emails n’utilisent pas d’URL localhost, de base64 dans l’attribut `src`, de CDN ou de téléchargement distant pour leurs images.
 
 Les images ne portent aucun texte indispensable : si un client les masque, le contenu, le bouton et le lien de secours restent exploitables. L’ensemble des images représente environ 17,5 Ko avant encodage MIME ; le test limite le message complet de référence à 60 Ko.
 
@@ -52,20 +52,15 @@ Les images ne portent aucun texte indispensable : si un client les masque, le co
 | `src/email/email-assets.ts` | Assets fixes et Content-IDs ; aucun chemin fourni par le destinataire |
 | `src/email/email-renderer.ts` | Compilation Handlebars, validation des données, HTML échappé et pièces jointes inline |
 | `src/email/email-sender.ts` | Port et adaptateur SMTP ; délais de connexion et transport sécurisé |
-| `scripts/preview-emails.mjs` | Aperçus locaux avec données fictives, sans envoi |
 | `apps/worker/src/email-processor.ts` | Traitement habituel d’un job, rendu, envoi puis journalisation limitée aux métadonnées |
 
 Les URLs d’action doivent utiliser HTTP/HTTPS sans identifiants dans l’URL. Les autres protocoles sont refusés avant l’envoi. Les champs utilisateur restent échappés par Handlebars ; les noms sont tronqués à 64 caractères. Aucun jeton ne doit être ajouté aux logs, captures ou aperçus publics.
 
-## Aperçus et vérification
+## Vérification
 
-Depuis la racine :
+Pour voir un email réel en local, déclencher le parcours (inscription, mot de passe oublié, invitation…) avec le worker configuré sur Mailpit (`SMTP_HOST=localhost`, `SMTP_PORT=1025`), puis ouvrir http://localhost:8025.
 
-```sh
-pnpm --filter @redova/integrations email:preview
-```
-
-Ouvrir ensuite `.cache/email-previews/index.html`. Ce dossier contient les cinq versions HTML et texte. La commande ne lit pas la base et n’envoie aucun email.
+Contrôle Mailpit du 1er novembre 2026 (parcours e2e réels API + worker → SMTP, plus un envoi `existing-account` par le renderer et l'adaptateur SMTP du worker) : les cinq modèles arrivent avec le HTML du template, la version texte, les deux images inline dont les `cid:` sont tous résolus, aucune image distante, le bouton VML Outlook et un poids de 33 à 35 Ko.
 
 Vérifications exécutées :
 
