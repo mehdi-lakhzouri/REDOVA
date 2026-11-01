@@ -5,16 +5,20 @@ import type { Redis } from 'ioredis';
 import { randomUUID } from 'node:crypto';
 import type { AuditService } from '../../../src/audit/audit.service';
 import type { Env } from '../../../src/config/env';
-import type { AvatarStorage } from '../../../src/storage/avatar-storage';
+import type { ImageProcessor } from '../../../src/media/image-processor';
+import { MediaMutationGuard } from '../../../src/media/media-mutation.guard';
+import type { MediaStorage } from '../../../src/media/media-storage';
+import { MediaService } from '../../../src/media/media.service';
 import { AvatarService } from '../../../src/profile/avatar.service';
-import type { AvatarImageService } from '../../../src/profile/avatar-image.service';
-import { AvatarMutationGuard } from '../../../src/profile/avatar-mutation.guard';
+
+const media = (storage: Partial<MediaStorage>, process?: ImageProcessor['process']) =>
+  new MediaService(storage as MediaStorage, { process: process ?? jest.fn() } as ImageProcessor);
 
 const fixture = () => {
   const oldId = randomUUID();
   const previous = `http://localhost:3001/api/v1/avatars/${oldId}`;
-  const put = jest.fn<AvatarStorage['put']>().mockResolvedValue(undefined);
-  const remove = jest.fn<AvatarStorage['delete']>().mockResolvedValue(undefined);
+  const put = jest.fn<MediaStorage['put']>().mockResolvedValue(undefined);
+  const remove = jest.fn<MediaStorage['delete']>().mockResolvedValue(undefined);
   const update = jest.fn<(input: unknown) => Promise<unknown>>().mockResolvedValue({});
   const transaction = jest
     .fn<(callback: (tx: unknown) => Promise<unknown>) => Promise<unknown>>()
@@ -27,13 +31,12 @@ const fixture = () => {
   const prisma = { $transaction: transaction } as unknown as PrismaClient;
   const record = jest.fn<AuditService['record']>().mockResolvedValue(undefined);
   const normalize = jest
-    .fn<AvatarImageService['normalize']>()
-    .mockResolvedValue(Buffer.from('normalized'));
+    .fn<ImageProcessor['process']>()
+    .mockResolvedValue({ body: Buffer.from('normalized'), contentType: 'image/webp' });
   const service = new AvatarService(
     prisma,
     { BETTER_AUTH_URL: 'http://localhost:3001' } as Env,
-    { put, delete: remove } as unknown as AvatarStorage,
-    { normalize },
+    media({ put, delete: remove }, normalize),
     { record } as unknown as AuditService,
   );
   return { service, put, remove, transaction, update, normalize, record, oldId };
@@ -63,14 +66,14 @@ describe('avatar replacement failure guarantees', () => {
       'database unavailable',
     );
     expect(f.remove).toHaveBeenCalledWith(f.put.mock.calls[0][0]);
-    expect(f.remove).not.toHaveBeenCalledWith(`avatars/${f.oldId}.webp`);
+    expect(f.remove).not.toHaveBeenCalledWith(`users/user/avatars/${f.oldId}.webp`);
     expect(f.record).not.toHaveBeenCalled();
   });
   it('cleans the old object after commit and audits the update', async () => {
     const f = fixture();
     const result = await f.service.upload('user', Buffer.from('input'));
     expect(f.update).toHaveBeenCalledWith({ where: { id: 'user' }, data: { image: result.image } });
-    expect(f.remove).toHaveBeenCalledWith(`avatars/${f.oldId}.webp`);
+    expect(f.remove).toHaveBeenCalledWith(`users/user/avatars/${f.oldId}.webp`);
     expect(f.record).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'profile.avatar.updated' }),
     );
@@ -81,8 +84,8 @@ describe('avatar replacement failure guarantees', () => {
     f.remove.mockRejectedValue(new Error('delete unavailable'));
     await expect(f.service.upload('user', Buffer.from('input'))).resolves.toHaveProperty('image');
     expect(log).toHaveBeenCalledWith(
-      expect.objectContaining({ key: `avatars/${f.oldId}.webp` }),
-      expect.stringContaining('avatars:prune'),
+      expect.objectContaining({ key: `users/user/avatars/${f.oldId}.webp` }),
+      expect.stringContaining('media:prune'),
     );
   });
 });
@@ -95,7 +98,7 @@ describe('avatar upload rate guard', () => {
     }) as unknown as ExecutionContext;
   it('allows requests below the shared per-account limit', async () => {
     const evalRedis = jest.fn<() => Promise<number>>().mockResolvedValue(10);
-    const guard = new AvatarMutationGuard(
+    const guard = new MediaMutationGuard(
       { eval: evalRedis } as unknown as Redis,
       { RATE_LIMIT_ENABLED: true } as Env,
     );
@@ -104,7 +107,7 @@ describe('avatar upload rate guard', () => {
   });
   it('rejects the eleventh request and returns Retry-After', async () => {
     const setHeader = jest.fn();
-    const guard = new AvatarMutationGuard(
+    const guard = new MediaMutationGuard(
       { eval: () => Promise.resolve(11) } as unknown as Redis,
       { RATE_LIMIT_ENABLED: true } as Env,
     );
@@ -127,7 +130,7 @@ describe('private avatar reads', () => {
     const membership = jest
       .fn<(input: unknown) => Promise<unknown>>()
       .mockResolvedValue(id === 'colleague' ? { id: 'membership' } : null);
-    const get = jest.fn<AvatarStorage['get']>().mockResolvedValue(Buffer.from('pixels'));
+    const get = jest.fn<MediaStorage['get']>().mockResolvedValue(Buffer.from('pixels'));
     const prisma = {
       user: { findFirst: () => Promise.resolve({ id: 'owner' }) },
       member: { findFirst: membership },
@@ -135,8 +138,7 @@ describe('private avatar reads', () => {
     const service = new AvatarService(
       prisma,
       { BETTER_AUTH_URL: 'http://localhost:3001' } as Env,
-      { get } as unknown as AvatarStorage,
-      { normalize: jest.fn<AvatarImageService['normalize']>() },
+      media({ get }),
       {} as AuditService,
     );
     const result = service.read(avatarId, {

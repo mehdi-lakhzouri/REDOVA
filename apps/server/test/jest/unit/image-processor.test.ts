@@ -1,9 +1,35 @@
 import { describe, expect, it } from '@jest/globals';
 import sharp from 'sharp';
-import { AvatarImageService } from '../../../src/profile/avatar-image.service';
-import { AVATAR_MAX_BYTES } from '../../../src/storage/avatar-storage';
+import { MEDIA_POLICIES } from '@redova/contracts';
+import { ImageProcessor } from '../../../src/media/image-processor';
 
-const service = new AvatarImageService();
+const processor = new ImageProcessor();
+const AVATAR_MAX_BYTES = MEDIA_POLICIES.avatar.maxBytes;
+const service = {
+  normalize: async (input: Buffer) => (await processor.process(input, MEDIA_POLICIES.avatar)).body,
+};
+describe('organization logo policy', () => {
+  it('keeps the aspect ratio inside the 512 px box and uses the logo error codes', async () => {
+    const input = await sharp({
+      create: { width: 800, height: 400, channels: 4, background: '#ff2d2d' },
+    })
+      .png()
+      .toBuffer();
+    const { body, contentType } = await processor.process(input, MEDIA_POLICIES.organizationLogo);
+    expect(contentType).toBe('image/webp');
+    expect(await sharp(body).metadata()).toMatchObject({ format: 'webp', width: 512, height: 256 });
+    await expect(
+      processor.process(Buffer.from('<svg/>'), MEDIA_POLICIES.organizationLogo),
+    ).rejects.toMatchObject({ code: 'ORG_LOGO_INVALID' });
+    await expect(
+      processor.process(
+        Buffer.alloc(MEDIA_POLICIES.organizationLogo.maxBytes + 1),
+        MEDIA_POLICIES.organizationLogo,
+      ),
+    ).rejects.toMatchObject({ code: 'ORG_LOGO_TOO_LARGE' });
+  });
+});
+
 describe('avatar image normalization', () => {
   it.each(['jpeg', 'png', 'webp'] as const)(
     'decodes %s pixels, resizes and removes EXIF',

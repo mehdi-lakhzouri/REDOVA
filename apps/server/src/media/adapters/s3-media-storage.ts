@@ -3,42 +3,45 @@ import {
   GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
-  S3Client,
+  type S3Client,
 } from '@aws-sdk/client-s3';
-import { AVATAR_MAX_BYTES, type AvatarObject, type AvatarStorage } from '../avatar-storage';
-import { imageIdFromKey, type ImageNamespace } from '../image-object';
+import { parseMediaKey } from '../media-key';
+import type { MediaStorage, StoredObject } from '../media-storage';
 
-/** Private bucket; reads are proxied through authorization in AvatarService. Compatible with R2. */
-export class S3AvatarStorage implements AvatarStorage {
+/**
+ * Production storage on a private AWS S3 or Cloudflare R2 bucket (S3 API). Objects are written
+ * once (`If-None-Match: *`) and only ever read back through the API's authorization checks.
+ */
+export class S3MediaStorage implements MediaStorage {
   constructor(
     private readonly client: S3Client,
     private readonly bucket: string,
-    private readonly namespace: ImageNamespace = 'avatars',
-    private readonly maxBytes = AVATAR_MAX_BYTES,
   ) {}
-  async put(key: string, body: Buffer): Promise<void> {
-    imageIdFromKey(key, this.namespace);
+
+  async put(key: string, body: Buffer, { contentType }: { contentType: string }): Promise<void> {
+    parseMediaKey(key);
     await this.client.send(
       new PutObjectCommand({
         Bucket: this.bucket,
         Key: key,
         Body: body,
-        ContentType: 'image/webp',
+        ContentType: contentType,
         CacheControl: 'private, no-store',
         ContentLength: body.length,
         IfNoneMatch: '*',
       }),
     );
   }
-  async get(key: string): Promise<Buffer | null> {
-    imageIdFromKey(key, this.namespace);
+
+  async get(key: string, { maxBytes }: { maxBytes: number }): Promise<Buffer | null> {
+    parseMediaKey(key);
     try {
       const object = await this.client.send(
         new GetObjectCommand({ Bucket: this.bucket, Key: key }),
       );
-      if ((object.ContentLength ?? 0) > this.maxBytes) {
+      if ((object.ContentLength ?? 0) > maxBytes) {
         (object.Body as { destroy?: () => void } | undefined)?.destroy?.();
-        throw new Error('Invalid stored avatar');
+        throw new Error('Invalid stored media');
       }
       return object.Body ? Buffer.from(await object.Body.transformToByteArray()) : null;
     } catch (error) {
@@ -46,24 +49,22 @@ export class S3AvatarStorage implements AvatarStorage {
       throw error;
     }
   }
+
   async delete(key: string): Promise<void> {
-    imageIdFromKey(key, this.namespace);
+    parseMediaKey(key);
     await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
   }
-  async *list(): AsyncIterable<AvatarObject> {
+
+  async *list(prefix: string): AsyncIterable<StoredObject> {
     let token: string | undefined;
     do {
       const page = await this.client.send(
-        new ListObjectsV2Command({
-          Bucket: this.bucket,
-          Prefix: `${this.namespace}/`,
-          ContinuationToken: token,
-        }),
+        new ListObjectsV2Command({ Bucket: this.bucket, Prefix: prefix, ContinuationToken: token }),
       );
       for (const object of page.Contents ?? []) {
         if (!object.Key || !object.LastModified) continue;
         try {
-          imageIdFromKey(object.Key, this.namespace);
+          parseMediaKey(object.Key);
         } catch {
           continue;
         }
@@ -71,5 +72,9 @@ export class S3AvatarStorage implements AvatarStorage {
       }
       token = page.IsTruncated ? page.NextContinuationToken : undefined;
     } while (token);
+  }
+
+  close(): void {
+    this.client.destroy();
   }
 }

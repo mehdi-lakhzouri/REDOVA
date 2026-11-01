@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { mkdtemp, readdir, rmdir, unlink } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import request from 'supertest';
@@ -7,6 +7,7 @@ import sharp from 'sharp';
 import { createTestApp, WEB_ORIGIN, type TestApp } from './support/test-app';
 import { addMember, createOrganization } from './support/organizations';
 import { createVerifiedUser, signIn } from './support/factories';
+import { countMediaFiles } from './support/media';
 
 describe('organization logo lifecycle and tenant authorization', () => {
   let t: TestApp,
@@ -19,7 +20,7 @@ describe('organization logo lifecycle and tenant authorization', () => {
     path: string;
   beforeAll(async () => {
     directory = await mkdtemp(join(tmpdir(), 'redova-logo-http-'));
-    t = await createTestApp({ env: { AVATAR_LOCAL_DIR: directory } });
+    t = await createTestApp({ env: { MEDIA_LOCAL_DIR: directory } });
     const organization = await createOrganization(t, 'Logo workspace');
     organizationId = organization.id;
     owner = organization.owner.cookie;
@@ -31,12 +32,7 @@ describe('organization logo lifecycle and tenant authorization', () => {
   });
   afterAll(async () => {
     await t?.close();
-    if (directory) {
-      const logos = join(directory, 'organization-logos');
-      for (const file of await readdir(logos).catch(() => [])) await unlink(join(logos, file));
-      await rmdir(logos).catch(() => undefined);
-      await rmdir(directory);
-    }
+    if (directory) await rm(directory, { recursive: true, force: true });
   });
   const endpoint = () => `/api/v1/organizations/${organizationId}/logo`;
   const upload = (cookie = owner, body = png) =>
@@ -95,7 +91,9 @@ describe('organization logo lifecycle and tenant authorization', () => {
     });
     await request(t.app.getHttpServer()).get(path).set('cookie', owner).expect(404);
     await upload().expect(404);
-    expect(await readdir(join(directory, 'organization-logos'))).toHaveLength(1);
+    expect(await countMediaFiles(join(directory, 'organizations', organizationId, 'logos'))).toBe(
+      1,
+    );
     await t.prisma.organization.update({
       where: { id: organizationId },
       data: { status: 'ACTIVE' },
@@ -106,7 +104,9 @@ describe('organization logo lifecycle and tenant authorization', () => {
     const response = await upload().expect(200);
     path = new URL(response.body.data.logo).pathname;
     await request(t.app.getHttpServer()).get(previous).set('cookie', owner).expect(404);
-    expect(await readdir(join(directory, 'organization-logos'))).toHaveLength(1);
+    expect(await countMediaFiles(join(directory, 'organizations', organizationId, 'logos'))).toBe(
+      1,
+    );
     await request(t.app.getHttpServer())
       .delete(endpoint())
       .set('cookie', owner)
@@ -118,6 +118,8 @@ describe('organization logo lifecycle and tenant authorization', () => {
       .set('cookie', owner)
       .set('origin', WEB_ORIGIN)
       .expect(204);
-    expect(await readdir(join(directory, 'organization-logos'))).toHaveLength(0);
+    expect(await countMediaFiles(join(directory, 'organizations', organizationId, 'logos'))).toBe(
+      0,
+    );
   });
 });

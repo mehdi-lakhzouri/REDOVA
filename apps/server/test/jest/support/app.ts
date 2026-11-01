@@ -19,8 +19,8 @@ export const createJestApp = async (options: { avatarDirectory?: string } = {}) 
   return createTestApp({
     env: {
       REDIS_URL: redisUrl.toString(),
-      AVATAR_STORAGE: 'local',
-      ...(options.avatarDirectory ? { AVATAR_LOCAL_DIR: options.avatarDirectory } : {}),
+      MEDIA_STORAGE: 'local',
+      ...(options.avatarDirectory ? { MEDIA_LOCAL_DIR: options.avatarDirectory } : {}),
     },
   });
 };

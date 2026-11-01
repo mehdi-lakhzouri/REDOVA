@@ -25,9 +25,9 @@ import { requireSession, type AuthenticatedRequest } from '../authz/authenticate
 import { OriginGuard } from '../authz/origin.guard';
 import { OrgPermissionGuard, ORG_PERMISSIONS_KEY } from '../authz/org-permission.guard';
 import { ApiException } from '../common/api-exception';
-import { AvatarMutationGuard } from '../profile/avatar-mutation.guard';
+import { MediaMutationGuard } from '../media/media-mutation.guard';
+import { MediaUploadInterceptor } from '../media/media-upload.interceptor';
 import { OrganizationLogoService } from './organization-logo.service';
-import { OrganizationLogoUploadInterceptor } from './organization-logo-upload.interceptor';
 import { OrganizationLogoEnvelopeDto, OrganizationLogoErrorDto } from './organization-logo.dto';
 
 @ApiTags('organizations')
@@ -53,8 +53,8 @@ export class OrganizationLogoController {
   @Post()
   @HttpCode(200)
   @SetMetadata(ORG_PERMISSIONS_KEY, { organization: ['update'] })
-  @UseGuards(OriginGuard, OrgPermissionGuard, AvatarMutationGuard)
-  @UseInterceptors(OrganizationLogoUploadInterceptor)
+  @UseGuards(OriginGuard, OrgPermissionGuard, MediaMutationGuard)
+  @UseInterceptors(MediaUploadInterceptor('organizationLogo'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -91,7 +91,7 @@ export class OrganizationLogoController {
   @Delete()
   @HttpCode(204)
   @SetMetadata(ORG_PERMISSIONS_KEY, { organization: ['update'] })
-  @UseGuards(OriginGuard, OrgPermissionGuard, AvatarMutationGuard)
+  @UseGuards(OriginGuard, OrgPermissionGuard, MediaMutationGuard)
   @ApiOperation({ summary: 'Remove an organization logo (idempotent)' })
   @ApiResponse({ status: 204, description: 'Logo removed' })
   @ApiResponse({

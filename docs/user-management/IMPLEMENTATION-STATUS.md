@@ -330,7 +330,7 @@ de tests et de livraison permettent la clôture. La DoD globale reste exigée po
 - Fonctionnel et testé : stockage local réel, commandes SDK S3 simulées, compensations et nettoyage d'orphelins.
 - À valider dans le déploiement : credentials et permissions du bucket privé, connexion réelle S3/R2,
   persistance du volume si mode local, origine publique et routage des cookies.
-- À organiser : exécution quotidienne de `avatars:prune --apply` sur la bonne base/le bon stockage.
+- À organiser : exécution quotidienne de `media:prune --apply` sur la bonne base/le bon stockage.
 - À formaliser : ticket, critères, exceptions JSON/binaire/multipart et schémas d'erreurs OpenAPI détaillés.
 
 ## 9. Preuves disponibles et limites de validation

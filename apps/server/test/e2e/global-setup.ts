@@ -106,8 +106,8 @@ export default async function setup(project: TestProject): Promise<() => Promise
     WEB_ORIGIN,
     HIBP_ENABLED: 'false',
     RATE_LIMIT_ENABLED: 'false',
-    AVATAR_STORAGE: 'local',
-    AVATAR_LOCAL_DIR: resolve(tmpdir(), 'redova-e2e-avatars'),
+    MEDIA_STORAGE: 'local',
+    MEDIA_LOCAL_DIR: resolve(tmpdir(), 'redova-e2e-media'),
   });
   const worker = start('worker', WORKER_MAIN, {
     NODE_ENV: 'production',

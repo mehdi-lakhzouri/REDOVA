@@ -4,15 +4,9 @@ L’upload est géré par `apps/server/src/organizations`. Les règles de sessio
 
 ## Configuration
 
-Les logos réutilisent les variables du stockage avatar ; `.env.example` les documente. Aucun secret supplémentaire n’est nécessaire si ce stockage est déjà configuré.
-
-| Mode | Configuration | Objets |
-| --- | --- | --- |
-| Local | `AVATAR_STORAGE=local`, éventuellement `AVATAR_LOCAL_DIR` | `<AVATAR_LOCAL_DIR>/organization-logos/<uuid>.webp` |
-| AWS S3 | `AVATAR_STORAGE=s3`, `AVATAR_S3_BUCKET`, `AVATAR_S3_REGION`, rôle IAM ou paire de clés existante | Préfixe privé `organization-logos/` dans le même bucket |
-| Cloudflare R2 | Configuration S3, région `auto`, `AVATAR_S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com`, clés R2 | Même préfixe privé |
-
-En local, monter un répertoire persistant privé et accessible au seul compte du service. Sur plusieurs réplicas, utiliser un stockage partagé ou S3/R2. Le bucket doit rester privé ; étendre les permissions IAM existantes au préfixe `organization-logos/` pour lire, écrire, supprimer et lister les objets. Les accès par rôle IAM restent possibles sans clés explicites.
+Les logos utilisent le module média commun : mêmes variables `MEDIA_*`, même bucket, rangement
+`organizations/{organizationId}/logos/{uuid}.webp`. Configuration locale, AWS S3 et Cloudflare R2 :
+voir [Gestion des médias](../../media.md). Aucun secret supplémentaire n'est nécessaire.
 
 `BETTER_AUTH_URL` fournit l’origine de l’URL du logo enregistrée en base. Configurer son URL publique stable avant déploiement. Le navigateur utilise le chemin `/api/v1/organizations/.../logo/...` par le proxy Next de même origine pour transmettre la session. Aucun endpoint d’image public ou CDN avec cache partagé n’est requis.
 
@@ -30,21 +24,14 @@ Un problème de stockage pendant l’upload ne nécessite pas de recréer l’or
 
 ## Nettoyage des orphelins
 
-Après build du serveur, vérifier les candidats sans suppression :
-
 ```sh
-pnpm --filter @redova/server logos:prune
+pnpm --filter @redova/server media:prune --kind organizationLogo          # simulation
+pnpm --filter @redova/server media:prune --kind organizationLogo --apply  # suppression
 ```
 
-Puis appliquer explicitement le nettoyage :
-
-```sh
-pnpm --filter @redova/server logos:prune --apply
-```
-
-La commande utilise la configuration d’environnement normale du serveur. Elle ne supprime que les objets du préfixe des logos, âgés d’au moins 24 heures et non référencés par une organisation. Les objets récents sont conservés pour protéger les uploads en cours. Les URLs externes ne sont jamais supprimées. Un remplacement par URL externe via Better Auth peut laisser l’ancien objet géré jusqu’à ce passage.
-
-Planifier cette commande avec l’ordonnanceur d’exploitation si souhaité ; aucun cron n’est créé automatiquement. Surveiller les erreurs de stockage, les échecs de nettoyage et l’espace occupé. Ne pas activer de politique de suppression par âge sur tout le préfixe : elle supprimerait aussi les logos courants.
+Seuls les objets de plus de 24 heures non référencés par leur organisation sont supprimés. Les URLs
+externes ne sont jamais touchées. Un remplacement par URL externe via Better Auth peut laisser
+l'ancien objet géré jusqu'à ce passage. Ne pas activer de règle d'expiration par âge sur le bucket.
 
 ## Preuves et limites
 
