@@ -28,7 +28,7 @@ const isValidName = (name: unknown): boolean => {
   return length >= ORG_NAME_MIN_LENGTH && length <= ORG_NAME_MAX_LENGTH;
 };
 
-/** The logo is optional; when present it must be an `https:` URL (no upload in this phase). */
+/** Native organization mutations accept optional HTTPS URLs; managed uploads use the media API. */
 const isValidLogo = (logo: unknown): boolean => {
   if (logo === undefined || logo === null) return true;
   if (typeof logo !== 'string' || logo.length > ORG_LOGO_MAX_LENGTH) return false;

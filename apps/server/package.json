@@ -11,6 +11,7 @@
     "admin:promote": "node dist/cli/admin-promote.js",
     "mfa:reset": "node dist/cli/mfa-reset.js",
     "avatars:prune": "node dist/cli/avatars-prune.js",
+    "logos:prune": "node dist/cli/organization-logos-prune.js",
     "lint": "eslint \"{src,test}/**/*.ts\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",

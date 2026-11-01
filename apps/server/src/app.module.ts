@@ -18,6 +18,7 @@ import { HealthController } from './health/health.controller';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { LoggingModule } from './logging/logging.module';
 import { ProfileModule } from './profile/profile.module';
+import { OrganizationsModule } from './organizations/organizations.module';
 
 const authLogger = new Logger('BetterAuth');
 
@@ -69,6 +70,7 @@ export class AppModule {
         }),
         AdminModule,
         ProfileModule,
+        OrganizationsModule,
         ...(extra.imports ?? []),
       ],
       controllers: [HealthController, ...(extra.controllers ?? [])],
