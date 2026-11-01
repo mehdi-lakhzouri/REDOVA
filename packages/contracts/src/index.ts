@@ -6,5 +6,4 @@ export * from './pagination';
 export * from './roles';
 export * from './tenant';
 export * from './admin';
-export * from './organization-logo';
 export * from './media';

@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type DragEvent } from 'react';
 import { ImagePlus, Image as ImageIcon, RefreshCw, Trash2 } from 'lucide-react';
-import { AVATAR_ACCEPT_ATTRIBUTE, validateAvatarFile } from '@/lib/avatar/avatar-policy';
+import { mediaAccept, mediaFileProblem, mediaRequirements } from '@/lib/media/media-policy';
 import { cn } from '@/lib/utils';
 import styles from './avatar-picker.module.css';
 
@@ -34,7 +34,7 @@ export function AvatarPicker({ value, onChange, disabled, error, className }: Av
 
   function accept(file: File | undefined) {
     if (!file) return;
-    const problem = validateAvatarFile(file);
+    const problem = mediaFileProblem('avatar', file);
     setLocalError(problem);
     if (problem) return;
     revoke(preview);
@@ -104,13 +104,13 @@ export function AvatarPicker({ value, onChange, disabled, error, className }: Av
           )}
           <p id={`${id}-hint`} className={styles.meta}>
             <ImageIcon aria-hidden />
-            JPG, PNG or WebP · Max 5 MB · Recommended: 512 × 512
+            {mediaRequirements('avatar')} · Recommended: 512 × 512
           </p>
         </div>
         <input
           ref={inputRef}
           type="file"
-          accept={AVATAR_ACCEPT_ATTRIBUTE}
+          accept={mediaAccept('avatar')}
           className="sr-only"
           tabIndex={-1}
           aria-hidden

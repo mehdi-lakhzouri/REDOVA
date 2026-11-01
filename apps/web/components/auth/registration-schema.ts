@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { validateAvatarFile } from '@/lib/avatar/avatar-policy';
+import { mediaFileProblem } from '@/lib/media/media-policy';
 import { PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH } from './password-policy';
 
 /** Optional; uploaded once the account has a verified session (see lib/avatar). */
 const avatarSchema = z
   .custom<File | null>((value) => value === null || value instanceof Blob)
   .superRefine((file, context) => {
-    const problem = file ? validateAvatarFile(file) : null;
+    const problem = file ? mediaFileProblem('avatar', file) : null;
     if (problem) context.addIssue({ code: 'custom', message: problem });
   });
 

@@ -1,6 +1,7 @@
 import { Building2, ImageIcon, Link2, LockKeyhole, ShieldCheck, UsersRound } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ORG_ROLE_LABELS } from '@redova/contracts';
+import { mediaRequirements } from '@/lib/media/media-policy';
 import { allowedInvitationRoles } from '@/lib/onboarding/policy';
 import styles from './onboarding.module.css';
 
@@ -28,8 +29,8 @@ export function OrganizationRules() {
         <li>
           <ImageIcon aria-hidden />
           <span>
-            <strong>Logo:</strong> optional PNG, JPG or WebP, up to 2 MB. HTTPS image URLs are also
-            supported.
+            <strong>Logo:</strong> optional, {mediaRequirements('organizationLogo')}. HTTPS image
+            URLs are also supported.
           </span>
         </li>
         <li>

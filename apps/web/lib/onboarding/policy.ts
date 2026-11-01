@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ORG_NAME_MIN_LENGTH, ORG_NAME_MAX_LENGTH, validateOrgSlug } from '@redova/core';
-import { ORGANIZATION_LOGO_MAX_BYTES, ORGANIZATION_LOGO_TYPES, OrgRole } from '@redova/contracts';
+import { OrgRole } from '@redova/contracts';
+import { mediaFileProblem } from '@/lib/media/media-policy';
 
 export const INVITABLE_ROLES = [
   'ORG_ADMIN',
@@ -33,12 +34,7 @@ export type OrganizationInput = z.infer<typeof organizationSchema>;
 export type LogoSelection =
   { kind: 'keep' } | { kind: 'none' } | { kind: 'file'; file: File } | { kind: 'url'; url: string };
 export function logoProblem(logo: LogoSelection): string | null {
-  if (logo.kind === 'file') {
-    if (!(ORGANIZATION_LOGO_TYPES as readonly string[]).includes(logo.file.type))
-      return 'Use a PNG, JPG or WebP image.';
-    if (!logo.file.size || logo.file.size > ORGANIZATION_LOGO_MAX_BYTES)
-      return 'Choose a non-empty image no larger than 2 MB.';
-  }
+  if (logo.kind === 'file') return mediaFileProblem('organizationLogo', logo.file);
   if (logo.kind === 'url') {
     try {
       if (logo.url.trim().length > 2048 || new URL(logo.url.trim()).protocol !== 'https:')
